@@ -9,8 +9,8 @@ Team name: **(TO BE DECIDED)**
 | Name | E-mail | GitHub |
 | :---: | :---: | :---: |
 | Arantxa Casanova | ar.casanova.8@gmail.com | [ArantxaCasanova](https://github.com/ArantxaCasanova) |
-| Belén Luque | | [bluque](https://github.com/bluque) |
-| Anna Martí | | [amartia](https://github.com/amartia) |
+| Belén Luque | belenn.94@gmail.com | [bluque](https://github.com/bluque) |
+| Anna Martí | annamartiaguilera@gmail.com | [amartia](https://github.com/amartia) |
 | Santi Puch | santipuch590@gmail.com | [santipuch590](https://github.com/santipuch590) |
 
 
