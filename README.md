@@ -1,23 +1,41 @@
-# mcv-m5
-Master in Computer Vision - M5 Visual recognition
+# Towards computer-vision-assisted autonomous driving
 
-## Fork this project
-Fork this project to start your group project. Add dvazquezcvc and lluisgomez as contributors.
+_In this project we..._
 
-## Project description
-Download the [Overleaf document](https://www.overleaf.com/read/qrjbtzwtjhmx)
+## Authors
 
-## Project slides
-- Google slides for [Week 1](https://docs.google.com/presentation/d/1A6hgbNn8N-Iq8MhSa_RPIyf87DBL6PCtoDzy1zqS5Xs/edit?usp=sharing)
-- Google slides for Week 2 (T.B.A.)
-- Google slides for Week 3 (T.B.A.)
-- Google slides for Week 4 (T.B.A.)
-- Google slides for Week 5 (T.B.A.)
-- Google slides for Week 6 (T.B.A.)
-- Google slides for Week 7 (T.B.A.)
+Team name: **(TO BE DECIDED)**
 
-## Peer review
-- Intra-group evaluation form for Week 2 (T.B.A.)
-- Intra-group evaluation form for Week 4 (T.B.A.)
-- Intra-group evaluation form for Week 6 (T.B.A.)
-- Intra-group evaluation form for Week 7 (T.B.A.)
+| Name | E-mail | GitHub |
+| :---: | :---: | :---: |
+| Arantxa Casanova | | [ArantxaCasanova](https://github.com/ArantxaCasanova) |
+| Belén Luque | | [bluque](https://github.com/bluque) |
+| Anna Martí | | [amartia](https://github.com/amartia) |
+| Santi Puch | santipuch590@gmail.com | [santipuch590](https://github.com/santipuch590) |
+
+
+## Report
+The report can be found in the following Overleaf project: 
+
+[Towards computer-vision-assisted autonomous driving](https://www.overleaf.com/read/szjqydmthdcg)
+
+## Weekly progress slides
+All the work done in this project is reported on a weekly basis using Google Slides.
+
+[Weekly progress slides](https://drive.google.com/open?id=0ByrI9_WaU23FbE1XQ25aSVg2NnM)
+
+## DNN weights
+The HDF5 weights of the trained deep neural networks can be found 
+[here](https://drive.google.com/open?id=0ByrI9_WaU23FdHoxX1h4X2ZXYUU).
+
+## References
+
+[1] K. Simonyan and A. Zisserman, “Very deep convolutional networks for large-scale
+image recognition,” CoRR, vol. abs/1409.1556, 2014. **[SUMMARY (TODO)]()**
+
+[2] C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke,
+and A. Rabinovich, “Going deeper with convolutions,” in Computer Vision
+and Pattern Recognition (CVPR), 2015. **[SUMMARY (TODO)]()**
+
+[3] K. He, X. Zhang, S. Ren, and J. Sun, “Deep residual learning for image recognition,”
+in arXiv prepring arXiv:1506.01497, 2015. **[SUMMARY (TODO)]()**
