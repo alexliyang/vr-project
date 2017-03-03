@@ -1,4 +1,4 @@
-# Towards computer-vision-assisted autonomous driving
+﻿# Towards computer-vision-assisted autonomous driving
 
 _In this project we..._
 
@@ -20,9 +20,9 @@ The report can be found in the following Overleaf project:
 [Towards computer-vision-assisted autonomous driving](https://www.overleaf.com/read/szjqydmthdcg)
 
 ## Weekly progress slides
-All the work done in this project is reported on a weekly basis using Google Slides.
+All the work done in this project is reported using Google Slides.
 
-[Weekly progress slides](https://drive.google.com/open?id=0ByrI9_WaU23FbE1XQ25aSVg2NnM)
+[Project slides](https://drive.google.com/open?id=1HpHPrQAMaI4yfxdcumAXnMNNF04tiprdRPl3zCxhUb8)
 
 ## DNN weights
 The HDF5 weights of the trained deep neural networks can be found 
