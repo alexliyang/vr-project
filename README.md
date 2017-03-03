@@ -1,8 +1,8 @@
 # Scene Understanding For Autonomous Driving
 
-_In this project we leverage state-of-the-art deep neural networks architectures for image classification,
+In this project we leverage state-of-the-art deep neural networks architectures for image classification,
 object recognition and semantic segmentation to implement a framework that aids autonomous
-driving by understanding the vehicle's surrounding scene._
+driving by understanding the vehicle's surrounding scene.
 
 ## Authors
 
