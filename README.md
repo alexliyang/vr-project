@@ -1,6 +1,8 @@
-# Scene understanding for autonomous vehicles
+# Scene Understanding For Autonomous Driving
 
-_In this project we..._
+_In this project we leverage state-of-the-art deep neural networks architectures for image classification,
+object recognition and semantic segmentation to implement a framework that aids autonomous
+driving by understanding the vehicle's surrounding scene._
 
 ## Authors
 
@@ -14,13 +16,15 @@ Team name: **(TO BE DECIDED)**
 | Santi Puch | santipuch590@gmail.com | [santipuch590](https://github.com/santipuch590) |
 
 
-## Report
-(_In progress_)
-A detail report about the work done can be found in [this](https://www.overleaf.com/read/nfmcpnydkwhb) Overleaf project. Additionally, a Google Slides presentation can be found in [this link](https://drive.google.com/open?id=1HpHPrQAMaI4yfxdcumAXnMNNF04tiprdRPl3zCxhUb8).
+## Report (_in progress_)
+
+A detailed report about the work done can be found in [this](https://www.overleaf.com/read/nfmcpnydkwhb) Overleaf project. 
+
+Additionally, a Google Slides presentation can be found in [this link](https://drive.google.com/open?id=1HpHPrQAMaI4yfxdcumAXnMNNF04tiprdRPl3zCxhUb8).
 
 
 ## DNN weights
-The HDF5 weights of the trained deep neural networks can be found 
+HDF5 weights of the trained deep neural networks can be found 
 [here](https://drive.google.com/open?id=0ByrI9_WaU23FdHoxX1h4X2ZXYUU).
 
 ## References
