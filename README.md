@@ -1,4 +1,4 @@
-﻿# Towards computer-vision-assisted autonomous driving
+# Scene understanding for autonomous vehicles
 
 _In this project we..._
 
@@ -9,20 +9,14 @@ Team name: **(TO BE DECIDED)**
 | Name | E-mail | GitHub |
 | :---: | :---: | :---: |
 | Arantxa Casanova | ar.casanova.8@gmail.com | [ArantxaCasanova](https://github.com/ArantxaCasanova) |
-| Belén Luque | belenn.94@gmail.com | [bluque](https://github.com/bluque) |
+| Belén Luque | luquelopez.belen@gmail.com | [bluque](https://github.com/bluque) |
 | Anna Martí | annamartiaguilera@gmail.com | [amartia](https://github.com/amartia) |
 | Santi Puch | santipuch590@gmail.com | [santipuch590](https://github.com/santipuch590) |
 
 
 ## Report
-The report can be found in the following Overleaf project: 
+A detail report about the work done can be found in [this](https://www.overleaf.com/read/nfmcpnydkwhb) Overleaf project. Additionally, a Google Slides presentation can be found in [this link](https://drive.google.com/open?id=1HpHPrQAMaI4yfxdcumAXnMNNF04tiprdRPl3zCxhUb8)
 
-[Towards computer-vision-assisted autonomous driving](https://www.overleaf.com/read/szjqydmthdcg)
-
-## Weekly progress slides
-All the work done in this project is reported using Google Slides.
-
-[Project slides](https://drive.google.com/open?id=1HpHPrQAMaI4yfxdcumAXnMNNF04tiprdRPl3zCxhUb8)
 
 ## DNN weights
 The HDF5 weights of the trained deep neural networks can be found 
