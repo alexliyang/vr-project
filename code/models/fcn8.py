@@ -1,17 +1,16 @@
 # Keras imports
-from keras.models import Model
+from keras import backend as K
 from keras.layers import Input, merge
 from keras.layers.convolutional import (Convolution2D, MaxPooling2D,
                                         ZeroPadding2D)
 from keras.layers.core import Dropout
+from keras.models import Model
 from keras.regularizers import l2
-
-# Custom layers import
-from layers.ourlayers import (CropLayer2D, NdSoftmax)
 from layers.deconv import Deconvolution2D
+from layers.ourlayers import (CropLayer2D, NdSoftmax)
 
-from keras import backend as K
 dim_ordering = K.image_dim_ordering()
+
 
 # Paper: https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
 # Original caffe code: https://github.com/shelhamer/fcn.berkeleyvision.org
@@ -21,7 +20,6 @@ dim_ordering = K.image_dim_ordering()
 def build_fcn8(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
                init='glorot_uniform', path_weights=None,
                freeze_layers_from=None):
-
     # Regularization warning
     if l2_reg > 0.:
         print ("Regularizing the weights: " + str(l2_reg))
@@ -109,7 +107,7 @@ def build_fcn8(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
 
     score4 = Deconvolution2D(nclasses, 4, 4, score_fused._keras_shape, init,
                              'linear', border_mode='valid', subsample=(2, 2),
-                             bias=True,     # TODO: No bias??
+                             bias=True,  # TODO: No bias??
                              name='score4', W_regularizer=l2(l2_reg))(score_fused)
 
     score_pool3_crop = CropLayer2D(score4, name='score_pool3_crop')(score_pool3)
@@ -118,7 +116,7 @@ def build_fcn8(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
 
     upsample = Deconvolution2D(nclasses, 16, 16, score_final._keras_shape, init,
                                'linear', border_mode='valid', subsample=(8, 8),
-                               bias=False,     # TODO: No bias??
+                               bias=False,  # TODO: No bias??
                                name='upsample', W_regularizer=l2(l2_reg))(score_final)
 
     score = CropLayer2D(inputs, name='score')(upsample)
@@ -169,9 +167,8 @@ def freeze_layers(model, freeze_layers_from):
         layer.trainable = True
 
 
-# Lad weights from matconvnet
+# Load weights from matconvnet
 def load_matcovnet(model, path_weights, n_classes):
-
     import scipy.io as sio
     import numpy as np
 
@@ -201,10 +198,10 @@ def load_matcovnet(model, path_weights, n_classes):
             raw_name = name[:-len(str_filter)]
 
             # Skip final part
-            if n_classes==21 or ('score' not in raw_name and \
-               'upsample' not in raw_name and \
-               'final' not in raw_name and \
-               'probs' not in raw_name):
+            if n_classes == 21 or ('score' not in raw_name and \
+                                               'upsample' not in raw_name and \
+                                               'final' not in raw_name and \
+                                               'probs' not in raw_name):
 
                 print ('   Initializing weights of layer: ' + raw_name)
                 print('    - Weights Loaded (FW x FH x FC x K): ' + str(param_value.shape))
@@ -221,7 +218,7 @@ def load_matcovnet(model, path_weights, n_classes):
                 # Load current model weights
                 w = model.get_layer(name=raw_name).get_weights()
                 print('    - Weights model: ' + str(w[0].shape))
-                if len(w)>1:
+                if len(w) > 1:
                     print('    - Bias model: ' + str(w[1].shape))
 
                 print('    - Weights Loaded: ' + str(param_value.shape))
@@ -231,10 +228,10 @@ def load_matcovnet(model, path_weights, n_classes):
         # Load bias terms
         if name.endswith(str_bias):
             raw_name = name[:-len(str_bias)]
-            if n_classes==21 or ('score' not in raw_name and \
-               'upsample' not in raw_name and \
-               'final' not in raw_name and \
-               'probs' not in raw_name):
+            if n_classes == 21 or ('score' not in raw_name and
+                                           'upsample' not in raw_name and
+                                           'final' not in raw_name and
+                                           'probs' not in raw_name):
                 print ('   Initializing bias of layer: ' + raw_name)
                 param_value = np.squeeze(param_value)
                 w = model.get_layer(name=raw_name).get_weights()

@@ -3,16 +3,16 @@ import argparse
 import os
 import sys
 from getpass import getuser
-import matplotlib
-matplotlib.use('Agg')  # Faster plot
 
-# Import tools
+import matplotlib
 from config.configuration import Configuration
 from tools.logger import Logger
 from tools.dataset_generators import Dataset_Generators
 from tools.optimizer_factory import Optimizer_Factory
 from callbacks.callbacks_factory import Callbacks_Factory
 from models.model_factory import Model_Factory
+
+matplotlib.use('Agg')  # Faster plot
 
 
 # Train the network
@@ -59,9 +59,9 @@ def process(cf):
 # Sets the backend and GPU device.
 class Environment():
     def __init__(self, backend='tensorflow'):
-        #backend = 'tensorflow' # 'theano' or 'tensorflow'
+        # backend = 'tensorflow' # 'theano' or 'tensorflow'
         os.environ['KERAS_BACKEND'] = backend
-        os.environ["CUDA_VISIBLE_DEVICES"]="0" # "" to run in CPU, extra slow! just for debuging
+        os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # "" to run in CPU, extra slow! just for debuging
         if backend == 'theano':
             # os.environ['THEANO_FLAGS']='mode=FAST_RUN,device=gpu1,floatX=float32,optimizer=fast_compile'
             """ fast_compile que lo que hace es desactivar las optimizaciones => mas lento """
@@ -89,11 +89,11 @@ def main():
 
     arguments = parser.parse_args()
 
-    assert arguments.config_path is not None, 'Please provide a configuration'\
-                                              'path using -c config/pathname'\
+    assert arguments.config_path is not None, 'Please provide a configuration' \
+                                              'path using -c config/pathname' \
                                               ' in the command line'
-    assert arguments.exp_name is not None, 'Please provide a name for the '\
-                                           'experiment using -e name in the '\
+    assert arguments.exp_name is not None, 'Please provide a name for the ' \
+                                           'experiment using -e name in the ' \
                                            'command line'
 
     # Define the user paths

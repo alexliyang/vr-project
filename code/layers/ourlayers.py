@@ -1,9 +1,9 @@
 from keras import backend as K
+
 dim_ordering = K.image_dim_ordering()
 if dim_ordering == 'th':
     import theano
     from theano import tensor as T
-    from theano.scalar.basic import Inv
 
 from keras import backend as K
 from keras.layers.core import Layer
@@ -92,29 +92,29 @@ class CropLayer2D(Layer):
         else:
             input_shape = input_shape[1:3]
             cs = cs[1:3]
-        dif = (input_shape - cs)/2
+        dif = (input_shape - cs) / 2
         if self.dim_ordering == 'th':
             if K.ndim(x) == 5:
-                return x[:, :, :, dif[0]:dif[0]+cs[0], dif[1]:dif[1]+cs[1]]
-            return x[:, :, dif[0]:dif[0]+cs[0], dif[1]:dif[1]+cs[1]]
+                return x[:, :, :, dif[0]:dif[0] + cs[0], dif[1]:dif[1] + cs[1]]
+            return x[:, :, dif[0]:dif[0] + cs[0], dif[1]:dif[1] + cs[1]]
         else:
             if K.ndim(x) == 5:
-                return x[:, :, dif[0]:dif[0]+cs[0], dif[1]:dif[1]+cs[1], :]
-            return x[:, dif[0]:dif[0]+cs[0], dif[1]:dif[1]+cs[1], :]
+                return x[:, :, dif[0]:dif[0] + cs[0], dif[1]:dif[1] + cs[1], :]
+            return x[:, dif[0]:dif[0] + cs[0], dif[1]:dif[1] + cs[1], :]
 
     def get_output_shape_for(self, input_shape):
         if self.dim_ordering == 'th':
             return tuple(input_shape[:-2]) + (self.crop_size[0],
                                               self.crop_size[1])
         if self.dim_ordering == 'tf':
-            return ((input_shape[:1], ) + tuple(self.crop_size) +
-                    (input_shape[-1], ))
+            return ((input_shape[:1],) + tuple(self.crop_size) +
+                    (input_shape[-1],))
 
-    # def get_config(self):
-    #     config = {'img_in': self.img_in,
-    #               'dim_ordering': self.dim_ordering}
-    #     base_config = super(CropLayer2D, self).get_config()
-    #     return dict(list(base_config.items()) + list(config.items()))
+            # def get_config(self):
+            #     config = {'img_in': self.img_in,
+            #               'dim_ordering': self.dim_ordering}
+            #     base_config = super(CropLayer2D, self).get_config()
+            #     return dict(list(base_config.items()) + list(config.items()))
 
 
 class MergeSequences(Layer):
@@ -131,34 +131,36 @@ class MergeSequences(Layer):
         bs = self.batch_size
         if self.merge:
             if sh[0] is None or sh[1] is None:
-                return (None, ) + tuple(sh[2:])
-            return [[sh[0]*sh[1]] + list(sh[2:])]
+                return (None,) + tuple(sh[2:])
+            return [[sh[0] * sh[1]] + list(sh[2:])]
         else:
             if sh[0] is None:
-                return (bs, None, ) + tuple(sh[1:])
+                return (bs, None,) + tuple(sh[1:])
             # keras bug keras/engine/training.py", line 104, in
             # standardize_input_data str(array.shape))
             # return tuple([bs, sh[0]/bs] + list(sh[1:]))
-            return tuple([bs, sh[0]/bs]) + (sh[1], None, None)
+            return tuple([bs, sh[0] / bs]) + (sh[1], None, None)
 
     def call(self, x, mask=None):
         sh = x.shape
         bs = self.batch_size
         if self.merge:
-            sh = (sh[0]*sh[1], ) + tuple(sh[2:])
+            sh = (sh[0] * sh[1],) + tuple(sh[2:])
             return T.reshape(x, sh, ndim=4)
         else:
-            sh = (bs, sh[0]/bs, ) + tuple(sh[1:])
+            sh = (bs, sh[0] / bs,) + tuple(sh[1:])
             ret = T.reshape(x, sh, ndim=5)
             return T.unbroadcast(ret, 0)
 
 
 # Works TH and TF
 class NdSoftmax(Layer):
-    '''N-dimensional Softmax
+    """
+    N-dimensional Softmax
     Will compute the Softmax on channel_idx and return a tensor of the
     same shape as the input
-    '''
+    """
+
     def __init__(self, dim_ordering='default', *args, **kwargs):
 
         if dim_ordering == 'default':
@@ -232,7 +234,7 @@ class DePool2D(UpSampling2D):
 
 # 1D Bilinear interpolation for even size filters
 def bilinear1D(ratio, normalize=True):
-    half_kern = T.arange(1, ratio+1, dtype=theano.config.floatX)
+    half_kern = T.arange(1, ratio + 1, dtype=theano.config.floatX)
     kern = T.concatenate([half_kern, half_kern[-1::-1]])
     if normalize:
         kern /= (ratio)
