@@ -83,7 +83,7 @@ class Dataset_Generators():
                                                    color_mode=cf.dataset.color_mode,
                                                    classes=cf.dataset.classes,
                                                    class_mode=cf.dataset.class_mode,
-                                                   batch_size=int(cf.batch_size_train*(1.-cf.perc_mb2)),
+                                                   batch_size=int(cf.batch_size_train * (1. - cf.perc_mb2)),
                                                    shuffle=cf.shuffle_train,
                                                    seed=cf.seed_train,
                                                    save_to_dir=cf.savepath if cf.da_save_to_dir else None,
@@ -91,7 +91,7 @@ class Dataset_Generators():
                                                    save_format='png',
                                                    directory2=cf.dataset2.path_train_img,
                                                    gt_directory2=cf.dataset2.path_train_mask,
-                                                   batch_size2=int(cf.batch_size_train*cf.perc_mb2)
+                                                   batch_size2=int(cf.batch_size_train * cf.perc_mb2)
                                                    )
 
         # Load validation set

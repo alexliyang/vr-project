@@ -1,12 +1,13 @@
 from __future__ import absolute_import
+
 import functools
 
-from keras import backend as K
+import tensorflow as tf
 from keras import activations, initializations, regularizers, constraints
+from keras import backend as K
 from keras.engine import Layer, InputSpec
 from keras.utils.np_utils import conv_output_length
 
-import tensorflow as tf
 
 class YOLOConvolution2D(Layer):
     """ This class implements Convolution operator with Batch Normalization
@@ -228,7 +229,6 @@ class YOLOConvolution2D(Layer):
         # pick the normalized form of output corresponding to the training phase
         output_normed = K.in_train_phase(output_normed, output_normed_running)
 
-
         if self.bias:
             if self.dim_ordering == 'th':
                 output_normed += K.reshape(self.b, (1, self.nb_filter, 1, 1))
@@ -273,6 +273,7 @@ class Reorg(Layer):
     The Darknet reorg layer does not only perform a simple reshape, but instead slices
     the data in its own way.
     """
+
     def __init__(self, **kwargs):
         super(Reorg, self).__init__(**kwargs)
 
@@ -280,16 +281,23 @@ class Reorg(Layer):
         super(Reorg, self).build(input_shape)
 
     def call(self, data, mask=None):
-        tmp1 = tf.strided_slice(data,[0,0,0,0],[1024,tf.to_int32(data.get_shape()[1]),tf.to_int32(data.get_shape()[2]),tf.to_int32(data.get_shape()[3])],[1,1,2,2])
+        tmp1 = tf.strided_slice(data, [0, 0, 0, 0],
+                                [1024, tf.to_int32(data.get_shape()[1]), tf.to_int32(data.get_shape()[2]),
+                                 tf.to_int32(data.get_shape()[3])], [1, 1, 2, 2])
 
-        tmp2 = tf.strided_slice(data,[0,0,0,1],[1024,tf.to_int32(data.get_shape()[1]),tf.to_int32(data.get_shape()[2]),tf.to_int32(data.get_shape()[3])],[1,1,2,2])
+        tmp2 = tf.strided_slice(data, [0, 0, 0, 1],
+                                [1024, tf.to_int32(data.get_shape()[1]), tf.to_int32(data.get_shape()[2]),
+                                 tf.to_int32(data.get_shape()[3])], [1, 1, 2, 2])
 
-        tmp3 = tf.strided_slice(data,[0,0,1,0],[1024,tf.to_int32(data.get_shape()[1]),tf.to_int32(data.get_shape()[2]),tf.to_int32(data.get_shape()[3])],[1,1,2,2])
+        tmp3 = tf.strided_slice(data, [0, 0, 1, 0],
+                                [1024, tf.to_int32(data.get_shape()[1]), tf.to_int32(data.get_shape()[2]),
+                                 tf.to_int32(data.get_shape()[3])], [1, 1, 2, 2])
 
-        tmp4 = tf.strided_slice(data,[0,0,1,1],[1024,tf.to_int32(data.get_shape()[1]),tf.to_int32(data.get_shape()[2]),tf.to_int32(data.get_shape()[3])],[1,1,2,2])
+        tmp4 = tf.strided_slice(data, [0, 0, 1, 1],
+                                [1024, tf.to_int32(data.get_shape()[1]), tf.to_int32(data.get_shape()[2]),
+                                 tf.to_int32(data.get_shape()[3])], [1, 1, 2, 2])
 
-        return tf.concat(1,[tmp1, tmp2, tmp3, tmp4])
+        return tf.concat(1, [tmp1, tmp2, tmp3, tmp4])
 
     def get_output_shape_for(self, input_shape):
-        return (input_shape[0], input_shape[1]*4, input_shape[2]/2, input_shape[3]/2)
-
+        return input_shape[0], input_shape[1] * 4, input_shape[2] / 2, input_shape[3] / 2

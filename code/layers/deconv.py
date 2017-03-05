@@ -1,6 +1,7 @@
+from keras import backend as K
 from keras.layers.convolutional import Convolution2D
 from keras.utils.np_utils import conv_input_length
-from keras import backend as K
+
 dim_ordering = K.image_dim_ordering()
 if dim_ordering == 'th':
     from deconv_th import deconv2d
@@ -15,6 +16,7 @@ class Deconvolution2D(Convolution2D):
     (tuple of integers, does not include the sample axis),
     e.g. `input_shape=(3, 128, 128)` for 128x128 RGB pictures.
     '''
+
     def __init__(self, nb_filter, nb_row, nb_col, input_shape,
                  init='glorot_uniform', activation='linear', weights=None,
                  border_mode='valid', subsample=(1, 1),
@@ -57,9 +59,9 @@ class Deconvolution2D(Convolution2D):
                                  border_mode, subsample[1])
 
         if dim_ordering == 'th':
-            return (input_shape[0], nb_filter, rows, cols)
+            return input_shape[0], nb_filter, rows, cols
         elif dim_ordering == 'tf':
-            return (input_shape[0], rows, cols, nb_filter)
+            return input_shape[0], rows, cols, nb_filter
 
     def get_output_shape_for(self, input_shape):
         if self.dim_ordering == 'th':
@@ -79,9 +81,9 @@ class Deconvolution2D(Convolution2D):
         #                          self.border_mode, self.subsample[1])
 
         if self.dim_ordering == 'th':
-            return (input_shape[0], self.nb_filter, rows, cols)
+            return input_shape[0], self.nb_filter, rows, cols
         elif self.dim_ordering == 'tf':
-            return (input_shape[0], rows, cols, self.nb_filter)
+            return input_shape[0], rows, cols, self.nb_filter
 
     def call(self, x, mask=None):
         output = deconv2d(x, self.W, self.output_shape_,

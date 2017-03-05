@@ -1,5 +1,5 @@
-from keras import backend as K
 import tensorflow as tf
+from keras import backend as K
 from keras.utils.np_utils import conv_input_length
 
 
@@ -20,7 +20,7 @@ def _preprocess_deconv_output_shape(x, shape, dim_ordering):
         shape = (shape[0], shape[2], shape[3], shape[1])
 
     if shape[0] is None:
-        shape = (tf.shape(x)[0], ) + tuple(shape[1:])
+        shape = (tf.shape(x)[0],) + tuple(shape[1:])
         shape = tf.stack(list(shape))
     return shape
 
@@ -61,7 +61,9 @@ def deconv2d(x, kernel, output_shape, strides=(1, 1),
              border_mode='valid',
              dim_ordering='default',
              image_shape=None, filter_shape=None):
-    """2D deconvolution (i.e. transposed convolution).
+    """
+    2D deconvolution (i.e. transposed convolution).
+
     # Arguments
         x: input tensor.
         kernel: kernel tensor.
@@ -71,8 +73,10 @@ def deconv2d(x, kernel, output_shape, strides=(1, 1),
         dim_ordering: `"tf"` or `"th"`.
             Whether to use Theano or TensorFlow dimension ordering
             for inputs/kernels/ouputs.
+
     # Returns
         A tensor, result of transposed 2D convolution.
+
     # Raises
         ValueError: if `dim_ordering` is neither `tf` or `th`.
     """
@@ -104,7 +108,10 @@ def deconv2d(x, kernel, output_shape, strides=(1, 1),
                                     border_mode, strides[2])
 
     # Compose output shape without nones
-    output_shape = tf.pack([shape_b, shape_h, shape_w, shape_c])
+    try:
+        output_shape = tf.pack([shape_b, shape_h, shape_w, shape_c])
+    except AttributeError:
+        output_shape = tf.stack([shape_b, shape_h, shape_w, shape_c])
 
     # print('Output Shape: ' + str(output_shape))
 

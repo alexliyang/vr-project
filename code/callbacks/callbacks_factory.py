@@ -2,6 +2,7 @@ import math
 import os
 
 from keras.callbacks import EarlyStopping, ModelCheckpoint, CSVLogger
+
 from callbacks import (History_plot, Jacc_new, Save_results)
 
 
@@ -25,7 +26,8 @@ class Callbacks_Factory():
                                 void_label=cf.dataset.void_class,
                                 save_path=cf.savepath,
                                 generator=valid_gen,
-                                epoch_length=int(math.ceil(cf.save_results_nsamples/float(cf.save_results_batch_size))),
+                                epoch_length=int(
+                                    math.ceil(cf.save_results_nsamples / float(cf.save_results_batch_size))),
                                 color_map=cf.dataset.color_map,
                                 classes=cf.dataset.classes,
                                 tag='valid')]

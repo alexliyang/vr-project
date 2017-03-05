@@ -1,5 +1,5 @@
-from theano import tensor as T
 from keras.utils.np_utils import conv_input_length
+from theano import tensor as T
 
 
 def _preprocess_conv2d_input(x, dim_ordering):
@@ -39,6 +39,7 @@ def _preprocess_image_shape(dim_ordering, image_shape):
             return int(value)
         except TypeError:
             return None
+
     if dim_ordering == 'tf':
         if image_shape:
             image_shape = (image_shape[0], image_shape[3],
@@ -55,6 +56,7 @@ def _preprocess_conv2d_filter_shape(dim_ordering, filter_shape):
             return int(value)
         except TypeError:
             return None
+
     if dim_ordering == 'tf':
         if filter_shape:
             filter_shape = (filter_shape[3], filter_shape[2],

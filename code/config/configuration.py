@@ -1,14 +1,14 @@
 import imp
-import time
 import os
-from distutils.dir_util import copy_tree
 import shutil
+import time
+from distutils.dir_util import copy_tree
 
 
 class Configuration():
     def __init__(self, config_path, exp_name,
-                       dataset_path, shared_dataset_path,
-                       experiments_path, shared_experiments_path):
+                 dataset_path, shared_dataset_path,
+                 experiments_path, shared_experiments_path):
 
         self.config_path = config_path
         self.exp_name = exp_name
@@ -67,17 +67,26 @@ class Configuration():
             cf.n_epochs = cf.debug_n_epochs
 
         # Define target sizes
-        if cf.crop_size_train is not None: cf.target_size_train = cf.crop_size_train
-        elif cf.resize_train is not None: cf.target_size_train = cf.resize_train
-        else: cf.target_size_train = cf.dataset.img_shape
+        if cf.crop_size_train is not None:
+            cf.target_size_train = cf.crop_size_train
+        elif cf.resize_train is not None:
+            cf.target_size_train = cf.resize_train
+        else:
+            cf.target_size_train = cf.dataset.img_shape
 
-        if cf.crop_size_valid is not None: cf.target_size_valid = cf.crop_size_valid
-        elif cf.resize_valid is not None: cf.target_size_valid = cf.resize_valid
-        else: cf.target_size_valid = cf.dataset.img_shape
+        if cf.crop_size_valid is not None:
+            cf.target_size_valid = cf.crop_size_valid
+        elif cf.resize_valid is not None:
+            cf.target_size_valid = cf.resize_valid
+        else:
+            cf.target_size_valid = cf.dataset.img_shape
 
-        if cf.crop_size_test is not None: cf.target_size_test = cf.crop_size_test
-        elif cf.resize_test is not None: cf.target_size_test = cf.resize_test
-        else: cf.target_size_test = cf.dataset.img_shape
+        if cf.crop_size_test is not None:
+            cf.target_size_test = cf.crop_size_test
+        elif cf.resize_test is not None:
+            cf.target_size_test = cf.resize_test
+        else:
+            cf.target_size_test = cf.dataset.img_shape
 
         # Get weights file name
         path, _ = os.path.split(cf.weights_file)
@@ -142,4 +151,4 @@ class Configuration():
             start = time.time()
             copy_tree(self.configuration.savepath, self.configuration.final_savepath)
             open(os.path.join(self.configuration.final_savepath, 'lock'), 'w').close()
-            print ('   Copy time: ' + str(time.time()-start))
+            print ('   Copy time: ' + str(time.time() - start))
