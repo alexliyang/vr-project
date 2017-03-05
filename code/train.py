@@ -5,12 +5,13 @@ import sys
 from getpass import getuser
 
 import matplotlib
-from config.configuration import Configuration
-from tools.logger import Logger
-from tools.dataset_generators import Dataset_Generators
-from tools.optimizer_factory import Optimizer_Factory
+
 from callbacks.callbacks_factory import Callbacks_Factory
+from config.configuration import Configuration
 from models.model_factory import Model_Factory
+from tools.dataset_generators import Dataset_Generators
+from tools.logger import Logger
+from tools.optimizer_factory import Optimizer_Factory
 
 matplotlib.use('Agg')  # Faster plot
 

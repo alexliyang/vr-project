@@ -1,8 +1,8 @@
 # Imports
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
-import os
-import time
 
 
 # Plot training hisory
@@ -12,14 +12,13 @@ def plot_history(hist, save_path, n_classes,
                  best_metric='val_jaccard',
                  best_type='max',
                  verbose=True):
-
     # Create string to print
     str = ''
 
     # Find the best epoch
-    if best_type=='max':
+    if best_type == 'max':
         best_index = np.argmax(hist[best_metric])
-    elif best_type=='min':
+    elif best_type == 'min':
         best_index = np.argmin(hist[best_metric])
     else:
         raise ValueError('Unknown best type. It should be max or min')

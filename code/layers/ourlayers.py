@@ -12,10 +12,12 @@ from keras.layers import UpSampling2D
 
 # Function from Lasagne framework
 def get_input_shape(output_length, filter_size, stride, pad=0):
-    """Helper function to compute the input size of a convolution operation
+    """
+    Helper function to compute the input size of a convolution operation
     This function computes the length along a single axis, which corresponds
     to a 1D convolution. It can also be used for convolutions with higher
     dimensionalities by using it individually for each axis.
+
     Parameters
     ----------
     output_length : int or None
@@ -38,6 +40,7 @@ def get_input_shape(output_length, filter_size, stride, pad=0):
         ``'same'`` pads with half the filter size on both sides (one less on
         the second side for an even filter size). When ``stride=1``, this
         results in an output size equal to the input size.
+
     Returns
     -------
     int or None
@@ -46,10 +49,12 @@ def get_input_shape(output_length, filter_size, stride, pad=0):
         ``None``. For a strided convolution, any input size of up to
         ``stride - 1`` elements larger than returned will still give the same
         output size.
+
     Raises
     ------
     ValueError
         When an invalid padding is specified, a `ValueError` is raised.
+
     Notes
     -----
     This can be used to compute the output size of a convolution backward pass,

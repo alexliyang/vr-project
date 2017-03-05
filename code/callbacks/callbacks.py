@@ -1,5 +1,6 @@
 # Imports
 from keras import backend as K
+
 dim_ordering = K.image_dim_ordering()
 from keras.callbacks import Callback, Progbar, ProgbarLogger
 from keras.engine.training import GeneratorEnqueuer
@@ -7,6 +8,7 @@ from tools.save_images import save_img3
 from tools.plot_history import plot_history
 import numpy as np
 import time
+
 
 # PROGBAR replacements
 def progbar__set_params(self, params):
@@ -57,7 +59,6 @@ def progbar_on_epoch_end(self, epoch, logs={}):
 
 # Plot history
 class History_plot(Callback):
-
     # Constructor
     def __init__(self, n_classes, savepath, train_metrics, valid_metrics,
                  best_metric, best_type, verbose=False, *args):
@@ -90,7 +91,6 @@ class History_plot(Callback):
 
 # Compute the jaccard value
 class Jacc_new(Callback):
-
     # Constructor
     def __init__(self, n_classes, *args):
         super(Callback, self).__init__()
@@ -124,32 +124,30 @@ class Jacc_new(Callback):
 
     def on_batch_end(self, batch, logs={}):
         for i in range(self.n_classes):
-            self.I[i] = logs['I'+str(i)]
-            self.U[i] = logs['U'+str(i)]
+            self.I[i] = logs['I' + str(i)]
+            self.U[i] = logs['U' + str(i)]
             self.jacc_percl[i] = self.I[i] / self.U[i]
             # logs[str(i)+'_jacc'] = self.jacc_percl[i]
         self.jacc_percl = self.I / self.U
         self.jacc = np.nanmean(self.jacc_percl)
         logs['jaccard'] = self.jacc
 
-
     def on_epoch_end(self, epoch, logs={}):
         for i in range(self.n_classes):
-            self.I[i] = logs['I'+str(i)]
-            self.U[i] = logs['U'+str(i)]
+            self.I[i] = logs['I' + str(i)]
+            self.U[i] = logs['U' + str(i)]
             self.jacc_percl[i] = self.I[i] / self.U[i]
-            logs[str(i)+'_jacc'] = self.jacc_percl[i]
+            logs[str(i) + '_jacc'] = self.jacc_percl[i]
         self.jacc = np.nanmean(self.jacc_percl)
         logs['jaccard'] = self.jacc
 
         for i in range(self.n_classes):
-            self.val_I[i] = logs['val_I'+str(i)]
-            self.val_U[i] = logs['val_U'+str(i)]
+            self.val_I[i] = logs['val_I' + str(i)]
+            self.val_U[i] = logs['val_U' + str(i)]
             self.val_jacc_percl[i] = self.val_I[i] / self.val_U[i]
-            logs[str(i)+'_val_jacc'] = self.val_jacc_percl[i]
+            logs[str(i) + '_val_jacc'] = self.val_jacc_percl[i]
         self.val_jacc = np.nanmean(self.val_jacc_percl)
         logs['val_jaccard'] = self.val_jacc
-
 
 
 # Save the image results
@@ -185,7 +183,7 @@ class Save_results(Callback):
                     break
                 else:
                     time.sleep(0.05)
-            #data = data_gen_queue.get()
+            # data = data_gen_queue.get()
             x_true = data[0]
             y_true = data[1].astype('int32')
 
@@ -203,7 +201,7 @@ class Save_results(Callback):
                                              y_true.shape[2]))
             # Save output images
             save_img3(x_true, y_true, y_pred, self.save_path, epoch,
-                      self.color_map, self.classes, self.tag+str(_), self.void_label,
+                      self.color_map, self.classes, self.tag + str(_), self.void_label,
                       self.n_legend_rows)
 
         # Stop data generator

@@ -1,16 +1,17 @@
 import math
 import time
+
 import numpy as np
 from keras.engine.training import GeneratorEnqueuer
-#from model_factory import Model_Factory
 from tools.save_images import save_img3
-
 
 """
 Interface for normal (one net) models and adversarial models. Objects of
 classes derived from Model are returned by method make() of the Model_Factory
 class.
 """
+
+
 class Model():
     def train(self, train_gen, valid_gen, cb):
         pass
@@ -29,6 +30,8 @@ strategy.
 In this class we implement the train(), test() and predict() methods common to
 all of them.
 """
+
+
 # TODO: Better call it Regular_Model ?
 class One_Net_Model(Model):
     def __init__(self, model, cf, optimizer):
@@ -70,8 +73,7 @@ class One_Net_Model(Model):
 
             # Process the dataset
             start_time = time.time()
-            for _ in range(int(math.ceil(self.cf.dataset.n_images_train/float(self.cf.batch_size_test)))):
-
+            for _ in range(int(math.ceil(self.cf.dataset.n_images_train / float(self.cf.batch_size_test)))):
                 # Get data for this minibatch
                 data = data_gen_queue.get()
                 x_true = data[0]
@@ -88,7 +90,7 @@ class One_Net_Model(Model):
                                              y_true.shape[3]))
 
                 save_img3(x_true, y_true, y_pred, self.cf.savepath, 0,
-                          self.cf.dataset.color_map, self.cf.dataset.classes, tag+str(_), self.cf.dataset.void_class)
+                          self.cf.dataset.color_map, self.cf.dataset.classes, tag + str(_), self.cf.dataset.void_class)
 
             # Stop data generator
             _stop.set()
@@ -123,12 +125,12 @@ class One_Net_Model(Model):
             U = np.zeros(self.cf.dataset.n_classes)
             jacc_percl = np.zeros(self.cf.dataset.n_classes)
             for i in range(self.cf.dataset.n_classes):
-                I[i] = metrics_dict['I'+str(i)]
-                U[i] = metrics_dict['U'+str(i)]
+                I[i] = metrics_dict['I' + str(i)]
+                U[i] = metrics_dict['U' + str(i)]
                 jacc_percl[i] = I[i] / U[i]
                 print ('   {:2d} ({:^15}): Jacc: {:6.2f}'.format(i,
                                                                  self.cf.dataset.classes[i],
-                                                                 jacc_percl[i]*100))
+                                                                 jacc_percl[i] * 100))
             # Compute jaccard mean
             jacc_mean = np.nanmean(jacc_percl)
             print ('   Jaccard mean: {}'.format(jacc_mean))

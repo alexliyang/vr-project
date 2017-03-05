@@ -1,31 +1,24 @@
 import os
 
-# Keras imports
-from metrics.metrics import cce_flatt, IoU, YOLOLoss, YOLOFscore
 from keras import backend as K
 from keras.utils.visualize_util import plot
-
-# Classification models
-#from models.lenet import build_lenet
-#from models.alexNet import build_alexNet
-from models.vgg import build_vgg
-#from models.resnet import build_resnet50
-#from models.inceptionV3 import build_inceptionV3
-
-# Detection models
-from models.yolo import build_yolo
-
-# Segmentation models
-from models.fcn8 import build_fcn8
-#from models.unet import build_unet
-#from models.segnet import build_segnet
-#from models.resnetFCN import build_resnetFCN
-#from models.densenetFCN import build_densenetFCN
-
-# Adversarial models
-#from models.adversarial_semseg import Adversarial_Semseg
-
+from metrics.metrics import cce_flatt, IoU, YOLOLoss, YOLOFscore
 from models.model import One_Net_Model
+from models.vgg import build_vgg
+
+"""
+from models.lenet import build_lenet
+from models.alexNet import build_alexNet
+from models.resnet import build_resnet50
+from models.inceptionV3 import build_inceptionV3
+from models.yolo import build_yolo
+from models.fcn8 import build_fcn8
+from models.unet import build_unet
+from models.segnet import build_segnet
+from models.resnetFCN import build_resnetFCN
+from models.densenetFCN import build_densenetFCN
+from models.adversarial_semseg import Adversarial_Semseg
+"""
 
 
 # Build the model
@@ -109,7 +102,7 @@ class Model_Factory():
         if cf.model_name == 'fcn8':
             model = build_fcn8(in_shape, cf.dataset.n_classes, cf.weight_decay,
                                freeze_layers_from=cf.freeze_layers_from,
-                               #path_weights='weights/pascal-fcn8s-dag.mat')
+                               # path_weights='weights/pascal-fcn8s-dag.mat')
                                path_weights=None)
         elif cf.model_name == 'unet':
             model = build_unet(in_shape, cf.dataset.n_classes, cf.weight_decay,
