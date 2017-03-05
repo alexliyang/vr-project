@@ -6,7 +6,7 @@ driving by understanding the vehicle's surrounding scene.
 
 ## Authors
 
-Team name: **(TO BE DECIDED)**
+#### _V1P - V1sion emPowering_  
 
 | Name | E-mail | GitHub |
 | :---: | :---: | :---: |
