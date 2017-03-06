@@ -12,6 +12,8 @@ def plot_history(hist, save_path, n_classes,
                  best_metric='val_jaccard',
                  best_type='max',
                  verbose=True):
+    # Turn off interactive plotting
+    plt.ioff()
     # Create string to print
     str = ''
 
