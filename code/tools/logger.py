@@ -12,4 +12,4 @@ class Logger(object):
         self.log.write(message)
 
     def flush(self):
-        raise NotImplementedError
+        self.terminal.flush()
