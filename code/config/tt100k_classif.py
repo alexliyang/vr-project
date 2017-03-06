@@ -1,8 +1,8 @@
 # Dataset
-problem_type = 'classification'  # ['classification' | 'detection' | 'segmentation']
-dataset_name = 'TT100K_trafficSigns'  # Dataset name
-dataset_name2 = None  # Second dataset name. None if not Domain Adaptation
-perc_mb2 = None  # Percentage of data from the second dataset in each minibatch
+problem_type                 = 'classification'# ['classification' | 'detection' | 'segmentation']
+dataset_name                 = 'TT100K_trafficSigns'# Dataset name
+dataset_name2                = None            # Second dataset name. None if not Domain Adaptation
+perc_mb2                     = None            # Percentage of data from the second dataset in each minibatch
 
 # Model
 model_name = 'vgg16'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
@@ -25,15 +25,15 @@ debug_images_test = 50  # N images for testing in debug mode (-1 means all)
 debug_n_epochs = 2  # N of training epochs in debug mode
 
 # Batch sizes
-batch_size_train = 10  # Batch size during training
-batch_size_valid = 30  # Batch size during validation
-batch_size_test = 30  # Batch size during testing
-crop_size_train = None  # Crop size during training (Height, Width) or None
-crop_size_valid = None  # Crop size during validation
-crop_size_test = None  # Crop size during testing
-resize_train = (227, 227)  # Resize the image during training (Height, Width) or None
-resize_valid = (227, 227)  # Resize the image during validation
-resize_test = (227, 227)  # Resize the image during testing
+batch_size_train             = 10              # Batch size during training
+batch_size_valid             = 30              # Batch size during validation
+batch_size_test              = 30              # Batch size during testing
+crop_size_train              = None            # Crop size during training (Height, Width) or None
+crop_size_valid              = None            # Crop size during validation
+crop_size_test               = None            # Crop size during testing
+resize_train                 = (224, 224)      # Resize the image during training (Height, Width) or None
+resize_valid                 = (224, 224)      # Resize the image during validation
+resize_test                  = (224, 224)      # Resize the image during testing
 
 # Data shuffle
 shuffle_train = True  # Whether to shuffle the training data
