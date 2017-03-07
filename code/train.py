@@ -39,9 +39,9 @@ def process(cf):
 
     if cf.test_model:
         # Compute validation metrics
-        model.test(valid_gen)
+        model.test(valid_gen, 'Validation')
         # Compute test metrics
-        model.test(test_gen)
+        model.test(test_gen, 'Test')
 
     if cf.pred_model:
         # Compute validation metrics
