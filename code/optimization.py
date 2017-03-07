@@ -40,7 +40,7 @@ def create_config(newconfig_name, problem_type, dataset_name = None, model_name 
 
 learning_rate = [0.00001, 0.0001]
 optimizer = ['adam']
-batch_size_train = [10, 15, 20]
+batch_size_train = [20]
 problem_type = 'classification'
 #dataset = 'TT100K_trafficSigns'
 i = 0
