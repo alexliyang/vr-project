@@ -47,9 +47,9 @@ i = 0
 for lr in learning_rate:
     for opt in optimizer:
         for bsz in batch_size_train:
-            config_name = 'config'+str(i)+'.py'
+            config_name = 'config/config'+str(i)+'.py'
             create_config(config_name, problem_type, batch_size_train=bsz, optimizer=opt, learning_rate=lr)
-            while not os.path.isfile('config/'+config_name):
+            while not os.path.isfile(config_name):
                 time.sleep(1)
             subprocess.call(['python', 'train.py', '-c', config_name, '-e', 'optimization_lr_{}_batchsizetrain_{}_'
                                                                             'opt_{}'.format(lr, bsz, opt)])
