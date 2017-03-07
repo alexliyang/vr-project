@@ -33,7 +33,9 @@ def create_config(newconfig_name, problem_type, dataset_name = None, model_name 
         elif learning_rate is not None and 'learning_rate' in line:
             line.replace('0.0001' , str(learning_rate))
 
-        config_new.writelines(line)
+        config_new.write(line+'\n')
+    config_new.close()
+    config_original.close()
 
 
 
