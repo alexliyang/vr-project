@@ -10,7 +10,7 @@ def create_config(newconfig_name, problem_type, dataset_name = None, model_name 
     elif problem_type == 'segmentation':
         config_original = open('config/camvid_segmentation.py', 'r')
 
-    config_new = open('config/'+newconfig_name, 'w')
+    config_new = open(newconfig_name, 'w')
     for line in config_original.readlines():
 
         if dataset_name is not None and 'dataset_name' in line:
