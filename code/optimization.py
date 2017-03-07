@@ -15,23 +15,23 @@ def create_config(newconfig_name, problem_type, dataset_name = None, model_name 
 
         if dataset_name is not None and 'dataset_name' in line:
             if problem_type == 'classification':
-                line.replace('TT100K_trafficSigns', dataset_name)
+                line = line.replace('TT100K_trafficSigns', dataset_name, 1)
             elif problem_type == 'segmentation':
-                line.replace('camvid', dataset_name)
+                line = line.replace('camvid', dataset_name, 1)
         elif model_name is not None and 'model_name' in line:
             if problem_type == 'classification':
-                line.replace('vgg16', model_name)
+                line = line.replace('vgg16', model_name, 1)
             elif problem_type == 'segmentation':
-                line.replace('fcn8', model_name)
+                line = line.replace('fcn8', model_name, 1)
         elif batch_size_train is not None and 'batch_size_train' in line:
             if problem_type == 'classification':
-                line.replace('10', str(batch_size_train))
+                line = line.replace('10', str(batch_size_train), 1)
             elif problem_type == 'segmentation':
-                line.replace('5', str(batch_size_train))
+                line = line.replace('5', str(batch_size_train), 1)
         elif optimizer is not None and 'optimizer' in line:
-            line.replace('rmsprop', optimizer)
+            line = line.replace('rmsprop', optimizer)
         elif learning_rate is not None and 'learning_rate' in line:
-            line.replace('0.0001' , str(learning_rate))
+            line = line.replace('0.0001' , str(learning_rate), 1)
 
         config_new.write(line+'\n')
     config_new.close()
