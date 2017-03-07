@@ -25,13 +25,13 @@ def create_config(newconfig_name, problem_type, dataset_name = None, model_name 
                 line.replace('fcn8', model_name)
         elif batch_size_train is not None and 'batch_size_train' in line:
             if problem_type == 'classification':
-                line.replace('10', batch_size_train)
+                line.replace('10', str(batch_size_train))
             elif problem_type == 'segmentation':
-                line.replace('5', batch_size_train)
+                line.replace('5', str(batch_size_train))
         elif optimizer is not None and 'optimizer' in line:
             line.replace('rmsprop', optimizer)
         elif learning_rate is not None and 'learning_rate' in line:
-            line.replace('0.0001' , learning_rate)
+            line.replace('0.0001' , str(learning_rate))
 
         config_new.writelines(line)
 
