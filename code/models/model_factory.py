@@ -5,11 +5,11 @@ from keras.utils.visualize_util import plot
 from metrics.metrics import cce_flatt, IoU, YOLOLoss, YOLOFscore
 from models.model import One_Net_Model
 from models.vgg import build_vgg
+from models.resnet import build_resnet50
 
 """
 from models.lenet import build_lenet
 from models.alexNet import build_alexNet
-from models.resnet import build_resnet50
 from models.inceptionV3 import build_inceptionV3
 from models.yolo import build_yolo
 from models.fcn8 import build_fcn8
