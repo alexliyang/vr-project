@@ -4,7 +4,7 @@ import time
 
 
 def create_config(newconfig_name, problem_type, dataset_name = None, model_name = None, batch_size_train = None,
-                  optimizer = None, learning_rate = None):
+                  optimizer = None, learning_rate = None, patience = None, n_epochs = None):
     if problem_type == 'classification':
         config_original = open('config/tt100k_classif.py', 'r')
     elif problem_type == 'segmentation':
@@ -32,6 +32,13 @@ def create_config(newconfig_name, problem_type, dataset_name = None, model_name 
             line = line.replace('rmsprop', optimizer)
         elif learning_rate is not None and 'learning_rate' in line:
             line = line.replace('0.0001' , str(learning_rate), 1)
+        elif patience is not None and 'earlyStopping_patience' in line:
+            line = line.replace('100', str(patience), 1)
+        elif n_epochs is not None and 'n_epochs' in line:
+            if problem_type == 'classification':
+                line = line.replace('30', str(n_epochs), 1)
+            elif problem_type == 'segmentation':
+                line = line.replace('30', str(n_epochs), 1)
 
         config_new.write(line+'\n')
     config_new.close()
