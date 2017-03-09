@@ -24,7 +24,7 @@ def build_densenetFCN(img_shape=(3, 224, 224), n_classes=1000, weight_decay=1E-4
         weights = None
 
     # Get base model
-    base_model = DenseNet(img_shape, depth=40, nb_dense_block=3, growth_rate=12, nb_filter=12, dropout_rate=0.2,
+    base_model = DenseNet(img_shape, depth=21, nb_dense_block=3, growth_rate=12, nb_filter=12, dropout_rate=0.2,
                           weight_decay=weight_decay)
 
     # Add final layers

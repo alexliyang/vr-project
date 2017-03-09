@@ -25,9 +25,9 @@ debug_images_test = 50  # N images for testing in debug mode (-1 means all)
 debug_n_epochs = 2  # N of training epochs in debug mode
 
 # Batch sizes
-batch_size_train = 10  # Batch size during training
-batch_size_valid = 30  # Batch size during validation
-batch_size_test = 30  # Batch size during testing
+batch_size_train = 30  # Batch size during training
+batch_size_valid = 90  # Batch size during validation
+batch_size_test = 90  # Batch size during testing
 crop_size_train = None  # Crop size during training (Height, Width) or None
 crop_size_valid = None  # Crop size during validation
 crop_size_test = None  # Crop size during testing
@@ -79,8 +79,8 @@ norm_imageNet_preprocess = False  # Normalize following imagenet procedure
 norm_fit_dataset = True  # If True it recomputes std and mean from images.
 # Otherwise it uses the std and mean set at the dataset config file
 norm_rescale = 1 / 255.  # Scalar to divide and set range 0-1
-norm_featurewise_center = True  # Substract mean - dataset
-norm_featurewise_std_normalization = True  # Divide std - dataset
+norm_featurewise_center = False  # Substract mean - dataset
+norm_featurewise_std_normalization = False  # Divide std - dataset
 norm_samplewise_center = False  # Substract mean - sample
 norm_samplewise_std_normalization = False  # Divide std - sample
 norm_gcn = False  # Global contrast normalization
@@ -96,7 +96,7 @@ da_zoom_range = 0.0  # Zoom
 da_channel_shift_range = 0.  # Channecf.l shifts
 da_fill_mode = 'constant'  # Fill mode
 da_cval = 0.  # Void image value
-da_horizontal_flip = True  # Rnd horizontal flip
+da_horizontal_flip = False  # Rnd horizontal flip
 da_vertical_flip = False  # Rnd vertical flip
 da_spline_warp = False  # Enable elastic deformation
 da_warp_sigma = 10  # Elastic deformation sigma
