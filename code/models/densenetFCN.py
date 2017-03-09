@@ -1,33 +1,36 @@
 # Keras imports
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.models import Model
+import keras.backend as K
+from keras.layers import Dense, Dropout, Activation
+from keras.layers import Input, merge
 from keras.layers.convolutional import Convolution2D
+from keras.layers.normalization import BatchNormalization
 from keras.layers.pooling import AveragePooling2D
 from keras.layers.pooling import GlobalAveragePooling2D
-from keras.layers import Input, merge
-from keras.layers.normalization import BatchNormalization
+from keras.models import Model
 from keras.regularizers import l2
-import keras.backend as K
+
 
 # Paper: https://arxiv.org/abs/1608.06993
 # Implementation adapted from: https://github.com/tdeboissiere/DeepLearningImplementations/tree/master/DenseNet
 
 def build_densenetFCN(img_shape=(3, 224, 224), n_classes=1000, weight_decay=1E-4,
-              load_pretrained=False, freeze_layers_from='base_model'):
+                      load_pretrained=False, freeze_layers_from='base_model'):
     # Decide if load pretrained weights from imagenet
     if load_pretrained:
-       # weights = 'imagenet'
-       # TODO: change pretrained weights
+        # weights = 'imagenet'
+        # TODO: change pretrained weights
         weights = None
     else:
         weights = None
 
     # Get base model
-    base_model=DenseNet(img_shape, depth=40,nb_dense_blocks=3, growth_rate=12,nb_filters=12,dropout_rate=0.2,weight_decay=weight_decay)
+    base_model = DenseNet(img_shape, depth=40, nb_dense_block=3, growth_rate=12, nb_filter=12, dropout_rate=0.2,
+                          weight_decay=weight_decay)
 
     # Add final layers
     x = base_model.output
-    predictions = Dense(n_classes,activation='softmax',W_regularizer=l2(weight_decay),b_regularizer=l2(weight_decay))(x)
+    predictions = Dense(n_classes, activation='softmax', W_regularizer=l2(weight_decay),
+                        b_regularizer=l2(weight_decay), name='dense{}'.format(n_classes))(x)
 
     # This is the model we will train
     model = Model(input=base_model.input, output=predictions)
@@ -74,6 +77,7 @@ def conv_factory(x, nb_filter, dropout_rate=None, weight_decay=1E-4):
         x = Dropout(dropout_rate)(x)
 
     return x
+
 
 def transition(x, nb_filter, dropout_rate=None, weight_decay=1E-4):
     """Apply BatchNorm, Relu 1x1Conv2D, optional dropout and Maxpooling2D
@@ -160,10 +164,10 @@ def denseblock_altern(x, nb_layers, nb_filter, growth_rate,
 
     return x, nb_filter
 
+
 def DenseNet(img_dim, depth, nb_dense_block, growth_rate,
              nb_filter, dropout_rate=None, weight_decay=1E-4):
     """ Build the DenseNet model
-    :param nb_classes: int -- number of classes
     :param img_dim: tuple -- (channels, rows, columns)
     :param depth: int -- how many layers
     :param nb_dense_block: int -- number of dense blocks to add to end
