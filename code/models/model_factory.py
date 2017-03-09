@@ -122,8 +122,7 @@ class Model_Factory():
                                     path_weights=None)
         elif cf.model_name == 'densenetFCN':
             model = build_densenetFCN(in_shape, cf.dataset.n_classes, cf.weight_decay,
-                                      freeze_layers_from=cf.freeze_layers_from,
-                                      path_weights=None)
+                                      freeze_layers_from=cf.freeze_layers_from)
         elif cf.model_name == 'lenet':
             model = build_lenet(in_shape, cf.dataset.n_classes, cf.weight_decay)
         elif cf.model_name == 'alexNet':
