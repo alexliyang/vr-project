@@ -23,7 +23,7 @@ def build_densenetFCN(img_shape=(3, 224, 224), n_classes=1000, weight_decay=1E-4
         weights = None
 
     # Get base model
-    base_model=DenseNet(n_classes,img_shape, n_layers=161,nb_dense_blocks=5, growth_rate=48,nb_filters=3,dropout_rate=None,weight_decay=weight_decay)
+    base_model=DenseNet(img_shape, depth=40,nb_dense_blocks=3, growth_rate=12,nb_filters=12,dropout_rate=0.2,weight_decay=weight_decay)
 
     # Add final layers
     x = base_model.output
@@ -160,7 +160,7 @@ def denseblock_altern(x, nb_layers, nb_filter, growth_rate,
 
     return x, nb_filter
 
-def DenseNet(nb_classes, img_dim, depth, nb_dense_block, growth_rate,
+def DenseNet(img_dim, depth, nb_dense_block, growth_rate,
              nb_filter, dropout_rate=None, weight_decay=1E-4):
     """ Build the DenseNet model
     :param nb_classes: int -- number of classes
