@@ -56,7 +56,7 @@ TODO: short explanation
   - [x] - Train from scratch using TT100K.
   - [x] - Comparison between crop and resize.
   - [x] - Evaluate different pre-processings in the configuration file: subtracting mean and std feature-wise.
-  - [ ] \(**DATASET MISSING**) - Transfer learning from TT100k dataset to Belgium dataset
+  - [x] - Transfer learning from TT100k dataset to Belgium dataset
   - [ ]  \(**DATASET MISSING**)- Train from scratch or finetune (or both) VGG with KITTI dataset
 2. **ResNet**:
   - [x] - Implement it and adapt it to the framework
