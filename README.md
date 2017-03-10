@@ -1,4 +1,4 @@
-# Scene Understanding For Autonomous Driving
+﻿# Scene Understanding For Autonomous Driving
 
 In this project we leverage state-of-the-art deep neural networks architectures for image classification,
 object recognition and semantic segmentation to implement a framework that aids autonomous
@@ -23,7 +23,7 @@ We have been training and finetunning VGG, ResNet and DenseNet to be able to use
   - `models/denseNet_FCN.py` - implementation taken from [here](https://github.com/tdeboissiere/DeepLearningImplementations/tree/master/DenseNet) and adapted to our framework. Also, we made a correction with the axis of the batch normalization layers for TensorFlow.
   - `models/resnet.py` - implementation of ResNet using the Keras model, adapted to our framework.
   - `analyze_datasets.py`
-  - `optimization.py`
+  - `optimization.py` - optimization of a model by doing grid search, it contains a function that automatically generates the config files for each grid search iteration.
 
   #### How to use the code: 
   
