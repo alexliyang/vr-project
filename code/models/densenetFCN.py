@@ -62,9 +62,13 @@ def conv_factory(x, nb_filter, dropout_rate=None, weight_decay=1E-4):
     :returns: keras network with b_norm, relu and convolution2d added
     :rtype: keras network
     """
+    if K.image_dim_ordering() == "th":
+        bn_axis = 1
+    elif K.image_dim_ordering() == "tf":
+        bn_axis = -1
 
     x = BatchNormalization(mode=0,
-                           axis=1,
+                           axis=bn_axis,
                            gamma_regularizer=l2(weight_decay),
                            beta_regularizer=l2(weight_decay))(x)
     x = Activation('relu')(x)
@@ -88,9 +92,13 @@ def transition(x, nb_filter, dropout_rate=None, weight_decay=1E-4):
     :returns: model
     :rtype: keras model, after applying batch_norm, relu-conv, dropout, maxpool
     """
+    if K.image_dim_ordering() == "th":
+        bn_axis = 1
+    elif K.image_dim_ordering() == "tf":
+        bn_axis = -1
 
     x = BatchNormalization(mode=0,
-                           axis=1,
+                           axis=bn_axis,
                            gamma_regularizer=l2(weight_decay),
                            beta_regularizer=l2(weight_decay))(x)
     x = Activation('relu')(x)
@@ -186,6 +194,11 @@ def DenseNet(img_dim, depth, nb_dense_block, growth_rate,
     # layers in each dense block
     nb_layers = int((depth - 4) / 3)
 
+    if K.image_dim_ordering() == "th":
+        bn_axis = 1
+    elif K.image_dim_ordering() == "tf":
+        bn_axis = -1
+
     # Initial convolution
     x = Convolution2D(nb_filter, 3, 3,
                       init="he_uniform",
@@ -209,7 +222,7 @@ def DenseNet(img_dim, depth, nb_dense_block, growth_rate,
                               weight_decay=weight_decay)
 
     x = BatchNormalization(mode=0,
-                           axis=1,
+                           axis=bn_axis,
                            gamma_regularizer=l2(weight_decay),
                            beta_regularizer=l2(weight_decay))(x)
     x = Activation('relu')(x)
