@@ -4,16 +4,12 @@ import os
 import sys
 from getpass import getuser
 
-import matplotlib
-
 from callbacks.callbacks_factory import Callbacks_Factory
 from config.configuration import Configuration
 from models.model_factory import Model_Factory
 from tools.dataset_generators import Dataset_Generators
 from tools.logger import Logger
 from tools.optimizer_factory import Optimizer_Factory
-
-matplotlib.use('Agg')  # Faster plot
 
 
 # Train the network
@@ -43,9 +39,9 @@ def process(cf):
 
     if cf.test_model:
         # Compute validation metrics
-        model.test(valid_gen)
+        model.test(valid_gen, 'Validation')
         # Compute test metrics
-        model.test(test_gen)
+        model.test(test_gen, 'Test')
 
     if cf.pred_model:
         # Compute validation metrics
@@ -84,7 +80,7 @@ def main():
     parser.add_argument('-e', '--exp_name', type=str,
                         default=None, help='Name of the experiment')
     parser.add_argument('-s', '--shared_path', type=str,
-                        default='/home/master/data', help='Path to shared data folder'')
+                        default='/home/master/data', help='Path to shared data folder')
     parser.add_argument('-l', '--local_path', type=str,
                         default='/home/master/data', help='Path to local data folder')
 

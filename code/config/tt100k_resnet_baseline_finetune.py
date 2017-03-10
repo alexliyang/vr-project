@@ -5,10 +5,10 @@ dataset_name2 = None  # Second dataset name. None if not Domain Adaptation
 perc_mb2 = None  # Percentage of data from the second dataset in each minibatch
 
 # Model
-model_name = 'vgg16'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
-freeze_layers_from = None  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
+model_name = 'resnet50'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
+freeze_layers_from = 'base_model'  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
 show_model = False  # Show the architecture layers
-load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
+load_imageNet = True  # Load Imagenet weights and normalize following imagenet procedure
 load_pretrained = False  # Load a pretrained model for doing finetuning
 weights_file = 'weights.hdf5'  # Training weight file name
 

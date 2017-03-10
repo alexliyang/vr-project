@@ -41,7 +41,7 @@ class One_Net_Model(Model):
 
     # Train the model
     def train(self, train_gen, valid_gen, cb):
-        if (self.cf.train_model):
+        if self.cf.train_model:
             print('\n > Training the model...')
             hist = self.model.fit_generator(generator=train_gen,
                                             samples_per_epoch=self.cf.dataset.n_images_train,
@@ -104,7 +104,7 @@ class One_Net_Model(Model):
             print ('   Predicting time: {}. FPS: {}. Seconds per Frame: {}'.format(total_time, fps, s_p_f))
 
     # Test the model
-    def test(self, test_gen):
+    def test(self, data_generator, dataset_tag):
         if self.cf.test_model:
             print('\n > Testing the model...')
             # Load best trained model
@@ -112,7 +112,7 @@ class One_Net_Model(Model):
 
             # Evaluate model
             start_time = time.time()
-            test_metrics = self.model.evaluate_generator(test_gen,
+            test_metrics = self.model.evaluate_generator(data_generator,
                                                          self.cf.dataset.n_images_test,
                                                          max_q_size=10,
                                                          nb_worker=1,
@@ -122,7 +122,7 @@ class One_Net_Model(Model):
             s_p_f = total_time / float(self.cf.dataset.n_images_test)
             print ('   Testing time: {}. FPS: {}. Seconds per Frame: {}'.format(total_time, fps, s_p_f))
             metrics_dict = dict(zip(self.model.metrics_names, test_metrics))
-            print ('   Test metrics: ')
+            print ('   {} metrics: '.format(dataset_tag))
             for k in metrics_dict.keys():
                 print ('      {}: {}'.format(k, metrics_dict[k]))
 
@@ -133,12 +133,12 @@ class One_Net_Model(Model):
                 U = np.zeros(self.cf.dataset.n_classes)
                 jacc_percl = np.zeros(self.cf.dataset.n_classes)
                 for i in range(self.cf.dataset.n_classes):
-                    I[i] = metrics_dict['I'+str(i)]
-                    U[i] = metrics_dict['U'+str(i)]
+                    I[i] = metrics_dict['I' + str(i)]
+                    U[i] = metrics_dict['U' + str(i)]
                     jacc_percl[i] = I[i] / U[i]
                     print ('   {:2d} ({:^15}): Jacc: {:6.2f}'.format(i,
                                                                      self.cf.dataset.classes[i],
-                                                                     jacc_percl[i]*100))
+                                                                     jacc_percl[i] * 100))
                 # Compute jaccard mean
                 jacc_mean = np.nanmean(jacc_percl)
                 print ('   Jaccard mean: {}'.format(jacc_mean))

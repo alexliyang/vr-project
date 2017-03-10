@@ -1,8 +1,9 @@
 # Imports
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+plt.switch_backend('Agg')
 
 
 # Plot training hisory
@@ -12,6 +13,8 @@ def plot_history(hist, save_path, n_classes,
                  best_metric='val_jaccard',
                  best_type='max',
                  verbose=True):
+    # Turn off interactive plotting
+    plt.ioff()
     # Create string to print
     str = ''
 

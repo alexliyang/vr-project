@@ -1,14 +1,13 @@
 # Keras imports
-from keras.applications.vgg16 import VGG16
-from keras.applications.vgg19 import VGG19
+from keras.applications.resnet50 import ResNet50
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.models import Model
 
 
-# Paper: https://arxiv.org/pdf/1409.1556.pdf
+# TODO: change -> Paper: https://arxiv.org/pdf/1409.1556.pdf
 
-def build_vgg(img_shape=(3, 224, 224), n_classes=1000, n_layers=16, l2_reg=0.,
-              load_pretrained=False, freeze_layers_from='base_model'):
+def build_resnet50(img_shape=(3, 224, 224), n_classes=1000, l2_reg=0.,
+                   load_pretrained=False, freeze_layers_from='base_model'):
     # Decide if load pretrained weights from imagenet
     if load_pretrained:
         weights = 'imagenet'
@@ -16,24 +15,15 @@ def build_vgg(img_shape=(3, 224, 224), n_classes=1000, n_layers=16, l2_reg=0.,
         weights = None
 
     # Get base model
-    if n_layers == 16:
-        base_model = VGG16(include_top=False, weights=weights,
-                           input_tensor=None, input_shape=img_shape)
-    elif n_layers == 19:
-        base_model = VGG19(include_top=False, weights=weights,
-                           input_tensor=None, input_shape=img_shape)
-    else:
-        raise ValueError('Number of layers should be 16 or 19')
+    base_model = ResNet50(include_top=False, weights=weights,
+                          input_tensor=None, input_shape=img_shape)
 
     # Add final layers
     x = base_model.output
     x = Flatten(name="flatten")(x)
-    x = Dense(4096, activation='relu', name='dense_1')(x)
-    x = Dropout(0.5)(x)
-    x = Dense(4096, activation='relu', name='dense_2')(x)
-    x = Dropout(0.5)(x)
-    x = Dense(n_classes, name='dense{}'.format(n_classes))(x)
+    x = Dense(n_classes, name='fc{}'.format(n_classes))(x)
     predictions = Activation("softmax", name="softmax")(x)
+
 
     # This is the model we will train
     model = Model(input=base_model.input, output=predictions)
