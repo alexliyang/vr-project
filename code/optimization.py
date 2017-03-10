@@ -57,7 +57,7 @@ def create_config(newconfig_name, problem_type, dataset_name=None, model_name=No
             elif 'earlyStopping_mode' in line and es_mode is not None:
                 line = line.replace('max', es_mode, 1)
             elif debug is not None and 'debug' in line:
-                line = line.replace('False', debug, 1)
+                line = line.replace('False', str(debug), 1)
             # Write new line
             config_new.write(line + '\n')
 
