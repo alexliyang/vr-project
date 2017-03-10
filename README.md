@@ -22,27 +22,27 @@ We have been training and finetunning VGG, ResNet and DenseNet to be able to use
 ### Code:
   - `models/denseNet_FCN.py` - implementation taken from [here](https://github.com/tdeboissiere/DeepLearningImplementations/tree/master/DenseNet) and adapted to our framework. Also, we made a correction with the axis of the batch normalization layers for TensorFlow.
   - `models/resnet.py` - implementation of ResNet using the Keras model, adapted to our framework.
-  - `weights/analyze_datasets.py`
-  - `weights/optimization.py`
+  - `analyze_datasets.py`
+  - `optimization.py`
 
-  * How to use the code: 
+  #### How to use the code: 
   
-    - VGG baseline config: 
-      `python train.py -c config/tt100k_classif.py -e baseline_vgg` 
+    In `vr_project/code` directory:
+    
+     VGG baseline config: `python train.py -c config/tt100k_classif.py -e baseline_vgg`
       
-    - Resize to 256, 256 and then take random crops of 224, 224  
-      `python train.py -c config/tt100k_classif_crop.py -e crop_vgg` 
+     Resize to 256, 256 and then take random crops of 224, 224: `python train.py -c config/tt100k_classif_crop.py -e crop_vgg` 
       
-    - Substract mean and divide by std computed on the train set as image preprocessing 
+    Substract mean and divide by std computed on the train set as image preprocessing 
       `python train.py -c config/tt100k_classif_preprocess.py -e preprocess_vgg`   
 
-    - Train from scratch ResNet:
+     Train from scratch ResNet:
       `python train.py -c config/tt100k_resnet_baseline.py -e baseline_resnet`  
     
-    - Fine-tune on ImageNet weights: 
+     Fine-tune on ImageNet weights: 
       `python train.py -c config/tt100k_resnet_baseline_finetune.py -e baseline_finetune_resnet`  
     
-    - Train DenseNet on TT100K dataset:   
+     Train DenseNet on TT100K dataset:   
       `python train.py -c config/tt100k_densenet_baseline.py -e baseline_densenet`
     
 ### Results:
