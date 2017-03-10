@@ -16,6 +16,67 @@ driving by understanding the vehicle's surrounding scene.
 | Santi Puch | santiago.puch.giner@gmail.com | [santipuch590](https://github.com/santipuch590) |
 
 
+## Week2 
+We have been training and finetunning VGG, ResNet and DenseNet to be able to use it in an image classification problem. Results and comparisons will be written in the report.
+
+### Code:
+  - `models/denseNet_FCN.py` - implementation taken from [here](https://github.com/tdeboissiere/DeepLearningImplementations/tree/master/DenseNet) and adapted to our framework. Also, we made a correction with the axis of the batch normalization layers for TensorFlow.
+  - `models/resnet.py` - implementation of ResNet using the Keras model, adapted to our framework.
+  - `weights/analyze_datasets.py`
+  - `weights/optimization.py`
+
+  * How to use the code: 
+  
+    - VGG baseline config: 
+      `python train.py -c config/tt100k_classif.py -e baseline_vgg` 
+      
+    - Resize to 256, 256 and then take random crops of 224, 224  
+      `python train.py -c config/tt100k_classif_crop.py -e crop_vgg` 
+      
+    - Substract mean and divide by std computed on the train set as image preprocessing 
+      `python train.py -c config/tt100k_classif_preprocess.py -e preprocess_vgg`   
+
+    - Train from scratch ResNet:
+      `python train.py -c config/tt100k_resnet_baseline.py -e baseline_resnet`  
+    
+    - Fine-tune on ImageNet weights: 
+      `python train.py -c config/tt100k_resnet_baseline_finetune.py -e baseline_finetune_resnet`  
+    
+    - Train DenseNet on TT100K dataset:   
+      `python train.py -c config/tt100k_densenet_baseline.py -e baseline_densenet`
+    
+### Results:
+
+1. VGG - TODO
+2. ResNet - TODO
+3. DenseNet - TODO
+4. Optimization - TODO
+
+### GOALS: 
+  1. **VGG**:
+    - [x] - Analyze dataset - We extracted a CSV, statistical conclusions and plots of the classes distributions in the dataset(TT100K_TrafficSigns). Plots and comments in the report.
+    - [x] - Train from scratch using TT100K.
+    - [x] - Comparison between crop and resize.
+    - [x] - Evaluate different pre-processings in the configuration file: subtracting mean and std feature-wise.
+     - [ ] \(**DATASET MISSING**) - Transfer learning from TT100k dataset to Belgium dataset
+     - [ ]  \(**DATASET MISSING**)- Train from scratch or finetune (or both) VGG with KITTI dataset
+   2. **ResNet**:
+     - [x] - Implement it and adapt it to the framework
+     - [x] - Train from scratch with TT100K dataset
+     - [x] - Finetunning from ImageNet weights with TT100K dataset
+     - [x] - Compare finetunning vs train from scratch 
+   3. **DenseNet**:
+     - [x] - Implement it and adapt it to the framework
+     - [ ] - Train from scratch with TT100K dataset
+     
+   4. **Boost performance** 
+      - In progress 
+      
+   5. **Report** 
+   
+      - In progress 
+      
+   
 ## Report (_in progress_)
 
 A detailed report about the work done can be found in [this](https://www.overleaf.com/read/nfmcpnydkwhb) Overleaf project. 
