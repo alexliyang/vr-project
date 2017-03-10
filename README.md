@@ -19,12 +19,13 @@ driving by understanding the vehicle's surrounding scene.
 ## Object recognition
 In order to choose a good-performing object recognition network for our system, we have tested several CNNs with different architectures: VGG (2014), ResNet (2015) and DenseNet (2016). These networks have been both trained from scratch and fine-tuned using some pre-trained weights. The experiments have been carried out using different datasets: [TT100K classsification dataset](http://cg.cs.tsinghua.edu.cn/traffic-sign/) and [BelgiumTS dataset](http://btsd.ethz.ch/shareddata/) for traffic sign detection, and **TODO: rest of datasets used**. Prior to the training, we have made an [analysis](link) of the datasets to facilitate the interpretation of the results obtained. Finally, we have tuned several parameters of the architectures and the training process in order to get better results. After all the experiments done, we have chosen the **name** network as the best performing one for our system, reaching an accuracy of **acc**% in the TT100K dataset and **acc**% in the **name** dataset **etc...**.
 
-### Code:
-  - `models/denseNet_FCN.py` - implementation taken from [here](https://github.com/tdeboissiere/DeepLearningImplementations/tree/master/DenseNet) and adapted to our framework. Also, we made a correction with the axis of the batch normalization layers for TensorFlow.
-  - `models/resnet.py` - implementation of ResNet using the Keras model, adapted to our framework.
-  - `analyze_datasets.py`
-  - `optimization.py` - optimization of a model by doing grid search, it contains a function that automatically generates the config files for each grid search iteration.
-
+### Contributions to the code:
+  - `models/denseNet_FCN.py` - adaptation of [this](https://github.com/tdeboissiere/DeepLearningImplementations/tree/master/DenseNet) implementation of DenseNet to the framework and generalization of the axes of the batch normalization layers, which was only working correctly for Theano.
+  - `models/resnet.py` - adaptation of the resnet50 Keras model to the framework.
+  - `analyze_datasets.py` - counts the number of images in each class for the train, validation and test sets, and creates a plot of this distribution of classes.
+  - `optimization.py` - automatically generates the config files for the optimization of a model, using a grid search, and launches the experiments.
+  - `run.sh` - bash script to launch experiments, specifying existent config files.
+  
   #### How to use the code: 
   
     In `vr_project/code` directory:
