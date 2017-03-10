@@ -16,7 +16,7 @@ driving by understanding the vehicle's surrounding scene.
 | Santi Puch | santiago.puch.giner@gmail.com | [santipuch590](https://github.com/santipuch590) |
 
 
-## Week2 
+## Object recognition
 We have been training and finetunning VGG, ResNet and DenseNet to be able to use it in an image classification problem. Results and comparisons will be written in the report.
 
 ### Code:
@@ -45,37 +45,32 @@ We have been training and finetunning VGG, ResNet and DenseNet to be able to use
      Train DenseNet on TT100K dataset:   
       `python train.py -c config/tt100k_densenet_baseline.py -e baseline_densenet`
     
-### Results:
+### Experimental Results:
 
-1. VGG - TODO
-2. ResNet - TODO
-3. DenseNet - TODO
-4. Optimization - TODO
+TODO: short explanation
+[link](https://docs.google.com/presentation/d/1CoZ54Plh_OXtutMvwdqmTDQqI6u52EK-r81eFH1JN7M/edit?usp=sharing)
 
 ### GOALS: 
-  1. **VGG**:
-    - [x] - Analyze dataset - We extracted a CSV, statistical conclusions and plots of the classes distributions in the dataset(TT100K_TrafficSigns). Plots and comments in the report.
-    - [x] - Train from scratch using TT100K.
-    - [x] - Comparison between crop and resize.
-    - [x] - Evaluate different pre-processings in the configuration file: subtracting mean and std feature-wise.
-     - [ ] \(**DATASET MISSING**) - Transfer learning from TT100k dataset to Belgium dataset
-     - [ ]  \(**DATASET MISSING**)- Train from scratch or finetune (or both) VGG with KITTI dataset
-   2. **ResNet**:
-     - [x] - Implement it and adapt it to the framework
-     - [x] - Train from scratch with TT100K dataset
-     - [x] - Finetunning from ImageNet weights with TT100K dataset
-     - [x] - Compare finetunning vs train from scratch 
-   3. **DenseNet**:
-     - [x] - Implement it and adapt it to the framework
-     - [ ] - Train from scratch with TT100K dataset
+1. **VGG**:
+  - [x] - Analyze dataset - We extracted a CSV, statistical conclusions and plots of the classes distributions in the dataset(TT100K_TrafficSigns). Plots and comments in the report.
+  - [x] - Train from scratch using TT100K.
+  - [x] - Comparison between crop and resize.
+  - [x] - Evaluate different pre-processings in the configuration file: subtracting mean and std feature-wise.
+  - [ ] \(**DATASET MISSING**) - Transfer learning from TT100k dataset to Belgium dataset
+  - [ ]  \(**DATASET MISSING**)- Train from scratch or finetune (or both) VGG with KITTI dataset
+2. **ResNet**:
+  - [x] - Implement it and adapt it to the framework
+  - [x] - Train from scratch with TT100K dataset
+  - [x] - Finetunning from ImageNet weights with TT100K dataset
+  - [x] - Compare finetunning vs train from scratch 
+3. **DenseNet**:
+  - [x] - Implement it and adapt it to the framework
+  - [ ] - Train from scratch with TT100K dataset     
+4. **Boost performance** 
+  - In progress     
+5. **Report** 
+  - In progress 
      
-   4. **Boost performance** 
-      - In progress 
-      
-   5. **Report** 
-   
-      - In progress 
-      
    
 ## Report (_in progress_)
 
