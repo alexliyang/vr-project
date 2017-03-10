@@ -54,13 +54,14 @@ if __name__ == '__main__':
     batch_sizes_train = [20]
     prob_type = 'classification'
     # dataset = 'TT100K_trafficSigns'
+    model = 'resnet50'
     i = 0
     for lr in learning_rates:
         for opt in optimizers:
             for bsz in batch_sizes_train:
-                config_name = 'config/config' + str(i) + '.py'
-                create_config(config_name, prob_type, batch_size_train=bsz, optimizer=opt, learning_rate=lr)
+                config_name = '{}_optimization_lr_{}_batchsizetrain_{}_opt_{}.py'.format(model, lr, bsz, opt)
+                create_config(config_name, prob_type, model_name=model, batch_size_train=bsz, optimizer=opt, learning_rate=lr)
                 while not os.path.isfile(config_name):
                     time.sleep(1)
-                subprocess.call(['python', 'train.py', '-c', config_name, '-e', 'optimization_lr_{}_batchsizetrain_{}_'
-                                                                                'opt_{}'.format(lr, bsz, opt)])
+                subprocess.call(['python', 'train.py', '-c', config_name, '-e', '{}_optimization_lr_{}_batchsizetrain_{}_'
+                                                                                'opt_{}'.format(model, lr, bsz, opt)])
