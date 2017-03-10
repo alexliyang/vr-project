@@ -77,7 +77,7 @@ if __name__ == '__main__':
     i = 0
     for lr in learning_rates:
         for opt in optimizers:
-            for b in range(batch_sizes_train):
+            for b in range(0, len(batch_sizes_train)):
                 if not( lr == 0.0001 and opt == 'rmsprop' and batch_sizes_train[b]==10):
                     config_name = '{}_optimization_lr_{}_batchsizetrain_{}_opt_{}.py'.format(model, lr, batch_sizes_train[b], opt)
                     create_config(config_name, prob_type, model_name=model, batch_size_train=batch_sizes_train[b],
