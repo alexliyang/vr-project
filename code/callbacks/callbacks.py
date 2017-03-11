@@ -1,4 +1,5 @@
-# Imports
+from __future__ import division
+
 import time
 
 import numpy as np
@@ -208,3 +209,26 @@ class Save_results(Callback):
         # Stop data generator
         if enqueuer is not None:
             enqueuer.stop()
+
+
+class LRDecayScheduler(Callback):
+    """
+    Decays the learning rate by the specified decay rate (> 1) at specific epochs, or for each epoch
+    if decay_epochs is None.
+    """
+    def __init__(self, decay_epochs, decay_rate):
+        super(LRDecayScheduler, self).__init__()
+        self.decay_epochs = decay_epochs
+        self.decay_rate = decay_rate
+
+    def on_epoch_begin(self, epoch, logs=None):
+        current_lr = float(K.get_value(self.model.optimizer.lr))
+        try:
+            new_lr = current_lr / self.decay_rate
+            if (self.decay_epochs is None) or (epoch in self.decay_epochs):
+                # Decay current learning rate and assign it to the model
+                K.set_value(self.model.optimizer.lr, new_lr)
+        except TypeError:
+            raise ValueError('Decay rate for LRDecayScheduler must be a number.\n'
+                             'Decay epochs for LRDecayScheduler must be a list of numbers.')
+

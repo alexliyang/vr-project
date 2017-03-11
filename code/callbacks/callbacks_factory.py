@@ -3,7 +3,7 @@ import os
 
 from keras.callbacks import EarlyStopping, ModelCheckpoint, CSVLogger
 
-from callbacks import (History_plot, Jacc_new, Save_results)
+from callbacks import History_plot, Jacc_new, Save_results, LRDecayScheduler
 
 
 # Create callbacks
@@ -56,6 +56,11 @@ class Callbacks_Factory():
             cb += [History_plot(cf.dataset.n_classes, cf.savepath,
                                 cf.train_metrics, cf.valid_metrics,
                                 cf.best_metric, cf.best_type, cf.plotHist_verbose)]
+
+        # Decay learning rate at specific epochs
+        if cf.lrDecayScheduler_enabled:
+            print('   Learning rate decay scheduler')
+            cb += [LRDecayScheduler(cf.lrDecayScheduler_epochs, cf.lrDecayScheduler_rate)]
 
         # Save the log
         cb += [CSVLogger(os.path.join(cf.savepath, 'logFile.csv'),
