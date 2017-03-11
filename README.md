@@ -78,6 +78,12 @@ In `vr_project/code` directory:
     python train.py -c config/tt100k_densenet_baseline.py -e baseline_densenet
     ```
     
+- Analyze datasets
+    
+    ```
+    python analyze_datasets.py /path/to/classification/datasets --output=/path/to/output/folder
+    ```
+    
 ### Experimental Results:
 
 TODO: short explanation
@@ -131,3 +137,6 @@ editors, Advances in Neural Information Processing Systems
 [4] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh, S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein, A. C. Berg, and L. Fei-Fei. "ImageNet Large Scale Visual Recognition Challenge". Sept. 2014. arXiv: 1409.0575.
 
 [5] K. Simonyan and A. Zisserman. "Very deep convolutional networks for large-scale image recognition". CoRR, abs/1409.1556, 2014.1 **[SUMMARY](https://drive.google.com/open?id=0B8Ql6cxgb4lXc0FWWHAyVWVoYU0)**
+
+[6] C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich. "Going deeper with convolutions". In Computer Vision and Pattern Recognition (CVPR), 2015.
+
