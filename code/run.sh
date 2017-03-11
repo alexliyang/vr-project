@@ -8,7 +8,7 @@ python train.py -c config/tt100k_classif_crop.py -e crop_vgg
 # 3. Substract mean and divide by std computed on the train set as image preprocessing
 python train.py -c config/tt100k_classif_preprocess.py -e preprocess_vgg
 # 4. Transfer learning
-# TODO
+python train.py -c config/belgium_vgg_crop.py -e transfer_vgg_crop
 
 # Train VGG on KITTI dataset
 # 1. From scratch
