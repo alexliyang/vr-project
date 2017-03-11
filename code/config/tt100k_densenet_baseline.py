@@ -47,7 +47,7 @@ seed_test = 1924  # Random seed for the testing shuffle
 optimizer = 'sgd'  # Optimizer
 learning_rate = 0.1  # Training learning rate
 weight_decay = 1E-4  # Weight decay or L2 parameter norm penalty
-n_epochs = 30  # Number of epochs during training
+n_epochs = 50  # Number of epochs during training
 
 # Callback save results
 save_results_enabled = False  # Enable the Callback
@@ -76,7 +76,7 @@ plotHist_verbose = 0  # Verbosity of the callback
 
 # Callback LR decay scheduler
 lrDecayScheduler_enabled = True  # Enable the Callback
-lrDecayScheduler_epochs = [15, 25]   # List of epochs were decay is applied or None for all epochs
+lrDecayScheduler_epochs = [15, 25, 35]   # List of epochs were decay is applied or None for all epochs
 lrDecayScheduler_rate = 10   # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
 
 # Data augmentation for training and normalization
