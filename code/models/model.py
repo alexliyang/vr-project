@@ -54,6 +54,7 @@ class One_Net_Model(Model):
                                             max_q_size=10,
                                             nb_worker=1,
                                             pickle_safe=False)
+            print(self.cf.dataset.n_images_train)
             print('   Training finished.')
 
             return hist
