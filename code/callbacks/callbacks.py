@@ -1,4 +1,4 @@
-from __future__ import division
+from __future__ import division, print_function
 
 import time
 
@@ -225,9 +225,15 @@ class LRDecayScheduler(Callback):
         current_lr = float(K.get_value(self.model.optimizer.lr))
         try:
             new_lr = current_lr / self.decay_rate
-            if (self.decay_epochs is None) or (epoch in self.decay_epochs):
+            if (self.decay_epochs is None) or ((epoch+1) in self.decay_epochs):
                 # Decay current learning rate and assign it to the model
                 K.set_value(self.model.optimizer.lr, new_lr)
+                print('    \nLearning rate decayed by a factor of {}: {:.2E} --> {:.2E}\n'.format(
+                    self.decay_rate,
+                    current_lr,
+                    new_lr
+                )
+                )
         except TypeError:
             raise ValueError('Decay rate for LRDecayScheduler must be a number.\n'
                              'Decay epochs for LRDecayScheduler must be a list of numbers.')

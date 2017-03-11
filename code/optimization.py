@@ -5,8 +5,7 @@ import time
 
 def create_config(newconfig_name, problem_type, dataset_name=None, model_name=None, batch_size_train=None,
                   batch_size_test=None, optimizer=None, learning_rate=None, patience=None, n_epochs=None,
-                  es_monitor = None, es_mode = None, debug = None):
-
+                  es_monitor=None, es_mode=None, debug=None):
     # Config file for classification
     if problem_type == 'classification':
         config_original_filename = 'config/tt100k_classif.py'
@@ -61,6 +60,7 @@ def create_config(newconfig_name, problem_type, dataset_name=None, model_name=No
             # Write new line
             config_new.write(line + '\n')
 
+
 if __name__ == '__main__':
 
     learning_rates = [0.000001, 0.00001, 0.0001]
@@ -78,12 +78,16 @@ if __name__ == '__main__':
     for lr in learning_rates:
         for opt in optimizers:
             for b in range(0, len(batch_sizes_train)):
-                if not( lr == 0.0001 and opt == 'rmsprop' and batch_sizes_train[b]==10):
-                    config_name = '{}_optimization_lr_{}_batchsizetrain_{}_opt_{}.py'.format(model, lr, batch_sizes_train[b], opt)
+                if not (lr == 0.0001 and opt == 'rmsprop' and batch_sizes_train[b] == 10):
+                    config_name = '{}_optimization_lr_{}_batchsizetrain_{}_opt_{}.py'.format(model, lr,
+                                                                                             batch_sizes_train[b], opt)
                     create_config(config_name, prob_type, model_name=model, batch_size_train=batch_sizes_train[b],
-                                  batch_size_test=batch_sizes_test[b], optimizer=opt, learning_rate=lr, n_epochs=n_epochs,
-                                  patience=patience, es_monitor=es_monitor, es_mode=es_mode, debug = debug)
+                                  batch_size_test=batch_sizes_test[b], optimizer=opt, learning_rate=lr,
+                                  n_epochs=n_epochs,
+                                  patience=patience, es_monitor=es_monitor, es_mode=es_mode, debug=debug)
                     while not os.path.isfile(config_name):
                         time.sleep(1)
-                    subprocess.call(['python', 'train.py', '-c', config_name, '-e', '{}_optimization_lr_{}_batchsizetrain_{}_'
-                                                                                    'opt_{}'.format(model, lr, batch_sizes_train[b], opt)])
+                    subprocess.call(
+                        ['python', 'train.py', '-c', config_name, '-e', '{}_optimization_lr_{}_batchsizetrain_{}_'
+                                                                        'opt_{}'.format(model, lr, batch_sizes_train[b],
+                                                                                        opt)])
