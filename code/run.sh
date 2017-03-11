@@ -12,9 +12,9 @@ python train.py -c config/belgium_vgg_crop.py -e transfer_vgg_crop
 
 # Train VGG on KITTI dataset
 # 1. From scratch
-# TODO
+python train.py -c config/kitti_baseline_vgg.py -e baseline_vgg
 # 2. Fine-tune on ImageNet weights
-# TODO
+python train.py -c config/kitti_finetune_vgg.py -e finetune_vgg
 
 # Train ResNet on TT100K dataset
 # 1. From scratch
