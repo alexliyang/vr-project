@@ -5,7 +5,7 @@ dataset_name2 = None  # Second dataset name. None if not Domain Adaptation
 perc_mb2 = None  # Percentage of data from the second dataset in each minibatch
 
 # Model
-model_name = 'densenetFCN'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
+model_name = 'densenetFCN'  # Model to use ['fcn8' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
 freeze_layers_from = None  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
 show_model = False  # Show the architecture layers
 load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
@@ -73,6 +73,11 @@ checkpoint_verbose = 0  # Verbosity of the checkpoint
 # Callback plot
 plotHist_enabled = True  # Enable the Callback
 plotHist_verbose = 0  # Verbosity of the callback
+
+# Callback LR decay scheduler
+lrDecayScheduler_enabled = True  # Enable the Callback
+lrDecayScheduler_epochs = [15, 25]   # List of epochs were decay is applied or None for all epochs
+lrDecayScheduler_rate = 10   # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
 
 # Data augmentation for training and normalization
 norm_imageNet_preprocess = False  # Normalize following imagenet procedure
