@@ -6,7 +6,7 @@ import time
 def create_config(newconfig_name, problem_type, dataset_name=None, model_name=None, batch_size_train=None,
                   batch_size_test=None, optimizer=None, learning_rate=None, patience=None, n_epochs=None,
                   es_monitor=None, es_mode=None, debug=None, weight_decay = None, lr_decay_factor = None,
-                  lr_decay_epochs = None, lr_decay_enable = None):
+                  lr_decay_epochs = None, lr_decay_enable = None, preprocessing = None):
     # Config file for classification
     if problem_type == 'classification':
         config_original_filename = 'config/tt100k_classif.py'
@@ -66,6 +66,10 @@ def create_config(newconfig_name, problem_type, dataset_name=None, model_name=No
                 line = line.replace('2', str(lr_decay_factor), 1)
             elif lr_decay_enable is not None and 'lrDecayScheduler_enabled' in line:
                 line = line.replace('False', str(lr_decay_enable), 1)
+            elif preprocessing is not None and 'norm_featurewise_center' in line:
+                line = line.replace('False', str(preprocessing), 1)
+            elif preprocessing is not None and 'norm_featurewise_std_normalization' in line:
+                line = line.replace('False', str(preprocessing), 1)
             # Write new line
             config_new.write(line)
 
@@ -75,7 +79,7 @@ if __name__ == '__main__':
     learning_rates = [0.001, 0.0001]
     optimizers = ['adam', 'rmsprop']
     weight_decay = [0.001, 0.0001]
-
+    preprocessing = True
     batch_sizes_train = 30
     batch_sizes_test = 30
     prob_type = 'classification'
@@ -92,7 +96,7 @@ if __name__ == '__main__':
                 create_config(config_name, prob_type, model_name=model, weight_decay = wd,
                               optimizer=opt, learning_rate=lr, lr_decay_factor = lr_decay_factor,
                               lr_decay_epochs= lr_decay_epochs, batch_size_train=batch_sizes_train, batch_size_test=batch_sizes_test,
-                              lr_decay_enable = lr_decay_enable, debug=debug)
+                              lr_decay_enable = lr_decay_enable, debug=debug, preprocessing= preprocessing)
                 while not os.path.isfile(config_name):
                     time.sleep(1)
                 subprocess.call(
