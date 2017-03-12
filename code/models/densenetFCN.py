@@ -4,8 +4,7 @@ from keras.layers import Dense, Dropout, Activation
 from keras.layers import Input, merge
 from keras.layers.convolutional import Convolution2D
 from keras.layers.normalization import BatchNormalization
-from keras.layers.pooling import AveragePooling2D
-from keras.layers.pooling import GlobalAveragePooling2D
+from keras.layers.pooling import AveragePooling2D, GlobalAveragePooling2D, MaxPooling2D
 from keras.models import Model
 from keras.regularizers import l2
 
@@ -24,8 +23,8 @@ def build_densenetFCN(img_shape=(3, 224, 224), n_classes=1000, weight_decay=1E-4
         weights = None
 
     # Get base model
-    base_model = DenseNet(img_shape, depth=40, nb_dense_block=3, growth_rate=4, nb_filter=12, dropout_rate=0.2,
-                          weight_decay=weight_decay)
+    base_model = DenseNet(img_shape, depth=40, nb_dense_block=3, growth_rate=12, nb_filter=-1, dropout_rate=0.2,
+                          compression=0.5, weight_decay=weight_decay)
 
     # Add final layers
     x = base_model.output
@@ -174,13 +173,15 @@ def denseblock_altern(x, nb_layers, nb_filter, growth_rate,
 
 
 def DenseNet(img_dim, depth, nb_dense_block, growth_rate,
-             nb_filter, dropout_rate=None, weight_decay=1E-4):
+             nb_filter, compression=0, dropout_rate=None, weight_decay=1E-4):
     """ Build the DenseNet model
     :param img_dim: tuple -- (channels, rows, columns)
     :param depth: int -- how many layers
     :param nb_dense_block: int -- number of dense blocks to add to end
     :param growth_rate: int -- number of filters to add
     :param nb_filter: int -- number of filters
+    :param compression: float -- compression factor for transition layers
+    :type compression: float
     :param dropout_rate: float -- dropout rate
     :param weight_decay: float -- weight decay
     :returns: keras model with nb_layers of conv_factory appended
@@ -199,19 +200,31 @@ def DenseNet(img_dim, depth, nb_dense_block, growth_rate,
     elif K.image_dim_ordering() == "tf":
         bn_axis = -1
 
+    # Compute initial nb_filter if -1
+    if nb_filter <= 0:
+        nb_filter = 2 * growth_rate
+
+    # Compression factor
+    compression = 1 - compression
+
     # Initial convolution
-    x = Convolution2D(nb_filter, 3, 3,
+    x = Convolution2D(nb_filter, 7, 7,
+                      subsample=(2, 2),
                       init="he_uniform",
                       border_mode="same",
                       name="initial_conv2D",
                       bias=False,
                       W_regularizer=l2(weight_decay))(model_input)
+    x = MaxPooling2D(pool_size=(3, 3), strides=(2, 2))(x)
 
     # Add dense blocks
     for block_idx in range(nb_dense_block - 1):
         x, nb_filter = denseblock(x, nb_layers, nb_filter, growth_rate,
                                   dropout_rate=dropout_rate,
                                   weight_decay=weight_decay)
+        # compression
+        nb_filter = int(compression * nb_filter)
+
         # add transition
         x = transition(x, nb_filter, dropout_rate=dropout_rate,
                        weight_decay=weight_decay)

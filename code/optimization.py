@@ -5,7 +5,8 @@ import time
 
 def create_config(newconfig_name, problem_type, dataset_name=None, model_name=None, batch_size_train=None,
                   batch_size_test=None, optimizer=None, learning_rate=None, patience=None, n_epochs=None,
-                  es_monitor=None, es_mode=None, debug=None):
+                  es_monitor=None, es_mode=None, debug=None, weight_decay=None, lr_decay_factor=None,
+                  lr_decay_epochs=None, lr_decay_enable=None, preprocessing=None):
     # Config file for classification
     if problem_type == 'classification':
         config_original_filename = 'config/tt100k_classif.py'
@@ -57,37 +58,54 @@ def create_config(newconfig_name, problem_type, dataset_name=None, model_name=No
                 line = line.replace('max', es_mode, 1)
             elif debug is not None and 'debug' in line:
                 line = line.replace('False', str(debug), 1)
+            elif weight_decay is not None and 'weight_decay' in line:
+                line = line.replace('0.', str(weight_decay), 1)
+            elif lr_decay_epochs is not None and 'lrDecayScheduler_epochs' in line:
+                line = line.replace('[5, 10, 20]', str(lr_decay_epochs), 1)
+            elif lr_decay_factor is not None and 'lrDecayScheduler_rate' in line:
+                line = line.replace('2', str(lr_decay_factor), 1)
+            elif lr_decay_enable is not None and 'lrDecayScheduler_enabled' in line:
+                line = line.replace('False', str(lr_decay_enable), 1)
+            elif preprocessing is not None and 'norm_featurewise_center' in line:
+                line = line.replace('False', str(preprocessing), 1)
+            elif preprocessing is not None and 'norm_featurewise_std_normalization' in line:
+                line = line.replace('False', str(preprocessing), 1)
             # Write new line
-            config_new.write(line + '\n')
+            config_new.write(line)
 
 
 if __name__ == '__main__':
 
-    learning_rates = [0.000001, 0.00001, 0.0001]
+    learning_rates = [0.001, 0.0001]
     optimizers = ['adam', 'rmsprop']
-    batch_sizes_train = [10, 80]
-    batch_sizes_test = [10, 30]
+    weight_decay = [0.001, 0.0001]
+    preprocessing = True
+    batch_sizes_train = 30
+    batch_sizes_test = 30
     prob_type = 'classification'
-    n_epochs = 50
-    patience = 15
-    es_monitor = 'val_loss'
-    es_mode = 'min'
     debug = False
     model = 'resnet50'
+    lr_decay_factor = 10
+    lr_decay_epochs = [15, 25]
+    lr_decay_enable = True
     i = 0
     for lr in learning_rates:
         for opt in optimizers:
-            for b in range(0, len(batch_sizes_train)):
-                if not (lr == 0.0001 and opt == 'rmsprop' and batch_sizes_train[b] == 10):
-                    config_name = '{}_optimization_lr_{}_batchsizetrain_{}_opt_{}.py'.format(model, lr,
-                                                                                             batch_sizes_train[b], opt)
-                    create_config(config_name, prob_type, model_name=model, batch_size_train=batch_sizes_train[b],
-                                  batch_size_test=batch_sizes_test[b], optimizer=opt, learning_rate=lr,
-                                  n_epochs=n_epochs,
-                                  patience=patience, es_monitor=es_monitor, es_mode=es_mode, debug=debug)
-                    while not os.path.isfile(config_name):
-                        time.sleep(1)
-                    subprocess.call(
-                        ['python', 'train.py', '-c', config_name, '-e', '{}_optimization_lr_{}_batchsizetrain_{}_'
-                                                                        'opt_{}'.format(model, lr, batch_sizes_train[b],
-                                                                                        opt)])
+            for wd in weight_decay:
+                config_name = '{}_optimization_lr_{}_wd_{}_opt_{}.py'.format(model, lr, wd, opt)
+                create_config(config_name, prob_type, model_name=model, weight_decay=wd,
+                              optimizer=opt, learning_rate=lr, lr_decay_factor=lr_decay_factor,
+                              lr_decay_epochs=lr_decay_epochs, batch_size_train=batch_sizes_train,
+                              batch_size_test=batch_sizes_test,
+                              lr_decay_enable=lr_decay_enable, debug=debug, preprocessing=preprocessing)
+                while not os.path.isfile(config_name):
+                    time.sleep(1)
+                subprocess.call(
+                    ['python', 'train.py', '-c', config_name, '-e',
+                     '{}_optimization_lr_{}_wd_{}_opt_{}'.format(model, lr, wd, opt)])
+
+                # Remove config file when experiment has finished
+                try:
+                    os.remove(config_name)
+                except IOError:
+                    pass

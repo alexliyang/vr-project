@@ -10,7 +10,7 @@ freeze_layers_from = 'base_model'  # Freeze layers from 0 to this layer during t
 show_model = True  # Show the architecture layers
 load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
 load_pretrained = True  # Load a pretrained model for doing finetuning
-weights_file = '/home/master/data/master/Experiments/TT100K_trafficSigns/crop_vgg/weights.hdf5'  # Training weight file name
+weights_file = '/home/master/data/master/Experiments/TT100K_trafficSigns/VGG/crop_vgg/weights.hdf5'  # Training weight file name
 
 # Parameters
 train_model = True  # Train the model
@@ -93,6 +93,8 @@ norm_zca_whitening = False  # Apply ZCA whitening
 cb_weights_method = None  # Label weight balance [None | 'median_freq_cost' | 'rare_freq_cost']
 
 # Data augmentation for training
+data_augmentation= False  # If data augmentation is used
+data_augmentation_train_samples=30000 #Number of samples per epoch with data augmentation
 da_rotation_range = 0  # Rnd rotation degrees 0-180
 da_width_shift_range = 0.0  # Rnd horizontal shift
 da_height_shift_range = 0.0  # Rnd vertical shift

@@ -1,16 +1,16 @@
 # Dataset
 problem_type = 'classification'  # ['classification' | 'detection' | 'segmentation']
-dataset_name = 'TT100K_trafficSigns'  # Dataset name
+dataset_name = 'BelgiumTSC'  # Dataset name
 dataset_name2 = None  # Second dataset name. None if not Domain Adaptation
 perc_mb2 = None  # Percentage of data from the second dataset in each minibatch
 
 # Model
-model_name = 'vgg16'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
-freeze_layers_from = None  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
-show_model = False  # Show the architecture layers
+model_name = 'resnet50'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
+freeze_layers_from = 'base_model'  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
+show_model = True  # Show the architecture layers
 load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
-load_pretrained = False  # Load a pretrained model for doing finetuning
-weights_file = 'weights.hdf5'  # Training weight file name
+load_pretrained = True  # Load a pretrained model for doing finetuning
+weights_file = '/home/master/data/master/Experiments/TT100K_trafficSigns/ResNet/baseline_resnet/weights.hdf5'  # Training weight file name
 
 # Parameters
 train_model = True  # Train the model
@@ -25,7 +25,7 @@ debug_images_test = 50  # N images for testing in debug mode (-1 means all)
 debug_n_epochs = 2  # N of training epochs in debug mode
 
 # Batch sizes
-batch_size_train = 10  # Batch size during training
+batch_size_train = 30  # Batch size during training
 batch_size_valid = 30  # Batch size during validation
 batch_size_test = 30  # Batch size during testing
 crop_size_train = None  # Crop size during training (Height, Width) or None
@@ -46,7 +46,7 @@ seed_test = 1924  # Random seed for the testing shuffle
 # Training parameters
 optimizer = 'rmsprop'  # Optimizer
 learning_rate = 0.0001  # Training learning rate
-weight_decay = 0.  # Weight decay or L2 parameter norm penalty
+weight_decay = 0.0001  # Weight decay or L2 parameter norm penalty
 n_epochs = 30  # Number of epochs during training
 
 # Callback save results
@@ -75,17 +75,17 @@ plotHist_enabled = True  # Enable the Callback
 plotHist_verbose = 0  # Verbosity of the callback
 
 # Callback LR decay scheduler
-lrDecayScheduler_enabled = False  # Enable the Callback
-lrDecayScheduler_epochs = [5, 10, 20]   # List of epochs were decay is applied or None for all epochs
-lrDecayScheduler_rate = 2   # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
+lrDecayScheduler_enabled = True  # Enable the Callback
+lrDecayScheduler_epochs = [15, 25]  # List of epochs were decay is applied or None for all epochs
+lrDecayScheduler_rate = 10  # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
 
 # Data augmentation for training and normalization
 norm_imageNet_preprocess = False  # Normalize following imagenet procedure
 norm_fit_dataset = True  # If True it recomputes std and mean from images.
 # Otherwise it uses the std and mean set at the dataset config file
 norm_rescale = 1 / 255.  # Scalar to divide and set range 0-1
-norm_featurewise_center = False  # Substract mean - dataset
-norm_featurewise_std_normalization = False  # Divide std - dataset
+norm_featurewise_center = True  # Substract mean - dataset
+norm_featurewise_std_normalization = True  # Divide std - dataset
 norm_samplewise_center = False  # Substract mean - sample
 norm_samplewise_std_normalization = False  # Divide std - sample
 norm_gcn = False  # Global contrast normalization
@@ -93,8 +93,8 @@ norm_zca_whitening = False  # Apply ZCA whitening
 cb_weights_method = None  # Label weight balance [None | 'median_freq_cost' | 'rare_freq_cost']
 
 # Data augmentation for training
-data_augmentation= False  # If data augmentation is used
-data_augmentation_train_samples=30000 #Number of samples per epoch with data augmentation
+data_augmentation = False  # If data augmentation is used
+data_augmentation_train_samples = 30000  # Number of samples per epoch with data augmentation
 da_rotation_range = 0  # Rnd rotation degrees 0-180
 da_width_shift_range = 0.0  # Rnd horizontal shift
 da_height_shift_range = 0.0  # Rnd vertical shift

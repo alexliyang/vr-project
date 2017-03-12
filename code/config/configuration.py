@@ -66,6 +66,10 @@ class Configuration():
         if cf.debug and cf.debug_n_epochs > 0:
             cf.n_epochs = cf.debug_n_epochs
 
+        # If data augmentation, use more samples
+        if cf.debug==False and cf.data_augmentation and cf.data_augmentation_train_samples>0:
+            cf.dataset.n_images_train=cf.data_augmentation_train_samples
+
         # Define target sizes
         if cf.crop_size_train is not None:
             cf.target_size_train = cf.crop_size_train
