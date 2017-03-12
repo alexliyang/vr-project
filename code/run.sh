@@ -25,6 +25,8 @@ python train.py -c config/tt100k_resnet_baseline_finetune.py -e baseline_finetun
 # Train DenseNet on TT100K dataset
 # 1. From scratch
 python train.py -c config/tt100k_densenet_baseline.py -e baseline_densenet
+# 2. With data augmentation and different parameters
+python train.py -c config/tt100k_densenet_opt.py -e pot_densenet
 
 # Meta-parameter tuning
 # TODO
