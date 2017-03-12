@@ -109,6 +109,11 @@ In `vr_project/code` directory:
     ```
     python train.py -c config/tt100k_densenet_baseline.py -e baseline_densenet
     ```
+    - Optimization [TT100K dataset]
+    
+    ```
+    python train.py -c config/tt100k_densenet_opt.py -e opt_densenet
+    ```
     
 - Analyze datasets
     
@@ -139,7 +144,7 @@ Before choosing our final network for object recognition, we have carried out se
   - [x] Implement it and adapt it to the framework
   - [x] Train from scratch with TT100K dataset     
 4. **Boost performance** 
-  - In progress     
+  - [x] Try data augmentation and different parameters on DenseNet   
 5. **Report** 
   - In progress 
      
