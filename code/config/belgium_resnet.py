@@ -1,16 +1,16 @@
 # Dataset
 problem_type = 'classification'  # ['classification' | 'detection' | 'segmentation']
-dataset_name = 'KITTI'  # Dataset name
+dataset_name = 'BelgiumTSC'  # Dataset name
 dataset_name2 = None  # Second dataset name. None if not Domain Adaptation
 perc_mb2 = None  # Percentage of data from the second dataset in each minibatch
 
 # Model
-model_name = 'vgg16'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
+model_name = 'resnet50'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
 freeze_layers_from = 'base_model'  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
 show_model = True  # Show the architecture layers
-load_imageNet = True  # Load Imagenet weights and normalize following imagenet procedure
-load_pretrained = False  # Load a pretrained model for doing finetuning
-weights_file = 'weights.hdf5'  # Training weight file name
+load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
+load_pretrained = True  # Load a pretrained model for doing finetuning
+weights_file = '/home/master/data/master/Experiments/TT100K_trafficSigns/baseline_resnet/weights.hdf5'  # Training weight file name
 
 # Parameters
 train_model = True  # Train the model
@@ -45,8 +45,8 @@ seed_test = 1924  # Random seed for the testing shuffle
 
 # Training parameters
 optimizer = 'rmsprop'  # Optimizer
-learning_rate = 0.00001  # Training learning rate
-weight_decay = 5e-4  # Weight decay or L2 parameter norm penalty
+learning_rate = 0.0001  # Training learning rate
+weight_decay = 0.0001  # Weight decay or L2 parameter norm penalty
 n_epochs = 30  # Number of epochs during training
 
 # Callback save results
@@ -59,7 +59,7 @@ save_results_n_legend_rows = 1  # Number of rows when showwing the legend
 earlyStopping_enabled = True  # Enable the Callback
 earlyStopping_monitor = 'acc'  # Metric to monitor
 earlyStopping_mode = 'max'  # Mode ['max' | 'min']
-earlyStopping_patience = 15  # Max patience for the early stopping
+earlyStopping_patience = 100  # Max patience for the early stopping
 earlyStopping_verbose = 0  # Verbosity of the early stopping
 
 # Callback model check point

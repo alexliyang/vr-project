@@ -77,7 +77,7 @@ plotHist_verbose = 0  # Verbosity of the callback
 # Callback LR decay scheduler
 lrDecayScheduler_enabled = True  # Enable the Callback
 lrDecayScheduler_epochs = [5, 15, 25]   # List of epochs were decay is applied or None for all epochs
-lrDecayScheduler_rate = 5   # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
+lrDecayScheduler_rate = 10   # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
 
 # Data augmentation for training and normalization
 norm_imageNet_preprocess = False  # Normalize following imagenet procedure
