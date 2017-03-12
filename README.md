@@ -18,13 +18,15 @@ driving by understanding the vehicle's surrounding scene.
 
 ## Object recognition
 
-In order to choose a good-performing object recognition network for our system, we have tested several CNNs with different architectures: VGG (2014), ResNet (2015) and DenseNet (2016). These networks have been both trained from scratch and fine-tuned using some pre-trained weights. The experiments have been carried out using different datasets: [TT100K classsification dataset](http://cg.cs.tsinghua.edu.cn/traffic-sign/) and [BelgiumTS dataset](http://btsd.ethz.ch/shareddata/) for traffic sign detection, and **TODO: rest of datasets used**. Prior to the training, we have made an [analysis](https://drive.google.com/open?id=1X12gU2ey36rb43kPksHG0TC4MICftWRa7zByaTK6Egg) of the datasets to facilitate the interpretation of the results obtained. Finally, we have tuned several parameters of the architectures and the training process in order to get better results. After all the experiments done, we have chosen the **name** network as the best performing one for our system, reaching an accuracy of **acc**% in the TT100K dataset and **acc**% in the **name** dataset **etc...**.
+In order to choose a good-performing object recognition network for our system, we have tested several CNNs with different architectures: VGG (2014), ResNet (2015) and DenseNet (2016). These networks have been both trained from scratch and fine-tuned using some pre-trained weights. The experiments have been carried out using different datasets: [TT100K classsification dataset](http://cg.cs.tsinghua.edu.cn/traffic-sign/) and [BelgiumTS dataset](http://btsd.ethz.ch/shareddata/) for traffic sign detection, and **TODO: rest of datasets used**. Prior to the training, we have made an [analysis](https://drive.google.com/open?id=1X12gU2ey36rb43kPksHG0TC4MICftWRa7zByaTK6Egg) of the datasets to facilitate the interpretation of the results obtained. Finally, we have tuned several parameters of the architectures and the training process in order to get better results. 
 
 ### Contributions to the code
 
   - `models/denseNet_FCN.py` - adaptation of [this](https://github.com/tdeboissiere/DeepLearningImplementations/tree/master/DenseNet)     implementation of DenseNet to the framework and generalization of the axes of the batch normalization layers, which was only working correctly for Theano.
   
   - `models/resnet.py` - adaptation of the resnet50 Keras model to the framework.
+  
+  - `callbacks/callbacks.py` and `callbacks/callbacks_factory.py` - implemented a new callback, LRDecayScheduler, that allows the user to decay the learning rate by a predefined factor (such that lr <-- lr / decay_factor) at specific epochs, or alternatively at all epochs.
   
   - `analyze_datasets.py` - analyzes all the datasets in the specified folder by counting the number of images per class per set (train, validation, test), and creates a CSV file with the results and a plot of the (normalized) distribution for all sets.
   
@@ -55,7 +57,25 @@ In `vr_project/code` directory:
     ```
     python train.py -c config/tt100k_classif_preprocess.py -e preprocess_vgg
     ```
+    
+    - Transfer learning [TT100K dataset --> BelgiumTSC]
+    
+    ```
+    python train.py -c config/belgium_vgg_crop.py -e transfer_vgg_crop
+    ```
+    
+    - Baseline [KITTI dataset]
+    
+    ```
+    python train.py -c config/kitti_baseline_vgg.py -e baseline_vgg
+    ```
 
+    - Fine-tune on ImageNet weights [KITTI dataset]
+    
+    ```
+    python train.py -c config/kitti_finetune_vgg.py -e finetune_vgg
+    ```
+  
   - ResNet
 
     - Baseline [TT100K dataset]
@@ -84,7 +104,7 @@ In `vr_project/code` directory:
     python analyze_datasets.py /path/to/classification/datasets --output=/path/to/output/folder
     ```
     
-### Experimental Results:
+### Experimental results
 
 Before choosing our final network for object recognition, we have carried out several experiments using different architectures, different parameters and different datasets. A summary of the experiments done can be found [here](https://docs.google.com/presentation/d/1CoZ54Plh_OXtutMvwdqmTDQqI6u52EK-r81eFH1JN7M/edit?usp=sharing).
 
@@ -97,7 +117,7 @@ Before choosing our final network for object recognition, we have carried out se
   - [x] Comparison between crop and resize.
   - [x] Evaluate different pre-processings in the configuration file: subtracting mean and std feature-wise.
   - [x] Transfer learning from TT100k dataset to Belgium dataset
-  - [ ] \(**DATASET MISSING**) Train from scratch or finetune (or both) VGG with KITTI dataset
+  - [ ] \(**MISSING TEST SPLIT**) Train from scratch or finetune (or both) VGG with KITTI dataset
 2. **ResNet**:
   - [x] Implement it and adapt it to the framework
   - [x] Train from scratch with TT100K dataset
