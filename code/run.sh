@@ -55,3 +55,6 @@ python train.py -c config/belgium_resnet -e transfer_resnet
 
 # Train DenseNet with data augmentation and different parameters on TT100K
 python train.py -c config/tt100k_densenet_opt.py -e opt_densenet
+
+# Re-train DenseNet with best weights, changing optimizer to ADAM
+python train.py -c config/tt100k_densenet_opt_different_opt.py -e densenet_trying_different_opt
