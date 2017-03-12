@@ -2,11 +2,11 @@ import warnings
 
 from keras import backend as K
 from keras.applications.imagenet_utils import _obtain_input_shape
-from keras.convolution import Convolution2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D
+from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D
 from keras.engine.topology import get_source_inputs
 from keras.layers import Dense, Activation, Flatten, Input, merge
 from keras.models import Model
-from keras.normalization import BatchNormalization
+from keras.layers import BatchNormalization
 from keras.regularizers import l2
 from keras.utils.data_utils import get_file
 from keras.utils.layer_utils import convert_all_kernels_in_model

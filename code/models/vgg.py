@@ -3,7 +3,7 @@ import warnings
 
 from keras import backend as K
 from keras.engine.topology import get_source_inputs
-from keras.imagenet_utils import _obtain_input_shape
+from keras.applications.imagenet_utils import _obtain_input_shape
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.layers import Flatten, Dense, Input, Dropout, Activation
 from keras.models import Model
