@@ -36,7 +36,9 @@ In order to choose a good-performing object recognition network for our system, 
 
   - `models/denseNet_FCN.py` - adaptation of [this](https://github.com/tdeboissiere/DeepLearningImplementations/tree/master/DenseNet)     implementation of DenseNet to the framework and generalization of the axes of the batch normalization layers, which was only working correctly for Theano.
   
-  - `models/resnet.py` - adaptation of the resnet50 Keras model to the framework.
+  - `models/resnet.py` - adaptation of the resnet50 Keras model to the framework and included L2 regularization for the weights (not included in Keras Applications)
+  
+  - `models/vgg.py` - changed implementation to include L2 regularization for the weights (not included in Keras Applications)
   
   - `callbacks/callbacks.py` and `callbacks/callbacks_factory.py` - implemented a new callback, LRDecayScheduler, that allows the user to decay the learning rate by a predefined factor (such that lr <-- lr / decay_factor) at specific epochs, or alternatively at all epochs.
   
