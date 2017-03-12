@@ -5,8 +5,8 @@ import time
 
 def create_config(newconfig_name, problem_type, dataset_name=None, model_name=None, batch_size_train=None,
                   batch_size_test=None, optimizer=None, learning_rate=None, patience=None, n_epochs=None,
-                  es_monitor=None, es_mode=None, debug=None, weight_decay = None, lr_decay_factor = None,
-                  lr_decay_epochs = None, lr_decay_enable = None, preprocessing = None):
+                  es_monitor=None, es_mode=None, debug=None, weight_decay=None, lr_decay_factor=None,
+                  lr_decay_epochs=None, lr_decay_enable=None, preprocessing=None):
     # Config file for classification
     if problem_type == 'classification':
         config_original_filename = 'config/tt100k_classif.py'
@@ -93,11 +93,13 @@ if __name__ == '__main__':
         for opt in optimizers:
             for wd in weight_decay:
                 config_name = '{}_optimization_lr_{}_wd_{}_opt_{}.py'.format(model, lr, wd, opt)
-                create_config(config_name, prob_type, model_name=model, weight_decay = wd,
-                              optimizer=opt, learning_rate=lr, lr_decay_factor = lr_decay_factor,
-                              lr_decay_epochs= lr_decay_epochs, batch_size_train=batch_sizes_train, batch_size_test=batch_sizes_test,
-                              lr_decay_enable = lr_decay_enable, debug=debug, preprocessing= preprocessing)
+                create_config(config_name, prob_type, model_name=model, weight_decay=wd,
+                              optimizer=opt, learning_rate=lr, lr_decay_factor=lr_decay_factor,
+                              lr_decay_epochs=lr_decay_epochs, batch_size_train=batch_sizes_train,
+                              batch_size_test=batch_sizes_test,
+                              lr_decay_enable=lr_decay_enable, debug=debug, preprocessing=preprocessing)
                 while not os.path.isfile(config_name):
                     time.sleep(1)
                 subprocess.call(
-                    ['python', 'train.py', '-c', config_name, '-e', '{}_optimization_lr_{}_wd_{}_opt_{}.py'.format(model, lr, wd, opt)])
+                    ['python', 'train.py', '-c', config_name, '-e',
+                     '{}_optimization_lr_{}_wd_{}_opt_{}.py'.format(model, lr, wd, opt)])

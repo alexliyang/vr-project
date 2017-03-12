@@ -25,9 +25,9 @@ debug_images_test = 50  # N images for testing in debug mode (-1 means all)
 debug_n_epochs = 2  # N of training epochs in debug mode
 
 # Batch sizes
-batch_size_train = 100  # Batch size during training
-batch_size_valid = 200  # Batch size during validation
-batch_size_test = 200  # Batch size during testing
+batch_size_train = 30  # Batch size during training
+batch_size_valid = 30  # Batch size during validation
+batch_size_test = 30  # Batch size during testing
 crop_size_train = None  # Crop size during training (Height, Width) or None
 crop_size_valid = None  # Crop size during validation
 crop_size_test = None  # Crop size during testing
@@ -46,7 +46,7 @@ seed_test = 1924  # Random seed for the testing shuffle
 # Training parameters
 optimizer = 'rmsprop'  # Optimizer
 learning_rate = 0.00001  # Training learning rate
-weight_decay = 0.  # Weight decay or L2 parameter norm penalty
+weight_decay = 5e-4  # Weight decay or L2 parameter norm penalty
 n_epochs = 30  # Number of epochs during training
 
 # Callback save results
@@ -75,9 +75,9 @@ plotHist_enabled = True  # Enable the Callback
 plotHist_verbose = 0  # Verbosity of the callback
 
 # Callback LR decay scheduler
-lrDecayScheduler_enabled = False  # Enable the Callback
-lrDecayScheduler_epochs = [15, 25]   # List of epochs were decay is applied or None for all epochs
-lrDecayScheduler_rate = 10   # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
+lrDecayScheduler_enabled = True  # Enable the Callback
+lrDecayScheduler_epochs = [15, 25]  # List of epochs were decay is applied or None for all epochs
+lrDecayScheduler_rate = 10  # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
 
 # Data augmentation for training and normalization
 norm_imageNet_preprocess = False  # Normalize following imagenet procedure
@@ -93,8 +93,8 @@ norm_zca_whitening = False  # Apply ZCA whitening
 cb_weights_method = None  # Label weight balance [None | 'median_freq_cost' | 'rare_freq_cost']
 
 # Data augmentation for training
-data_augmentation= False  # If data augmentation is used
-data_augmentation_train_samples=30000 #Number of samples per epoch with data augmentation
+data_augmentation = False  # If data augmentation is used
+data_augmentation_train_samples = 30000  # Number of samples per epoch with data augmentation
 da_rotation_range = 0  # Rnd rotation degrees 0-180
 da_width_shift_range = 0.0  # Rnd horizontal shift
 da_height_shift_range = 0.0  # Rnd vertical shift
