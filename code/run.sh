@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#####################
+####### VGG #########
+#####################
+
 # Train VGG on TT100K dataset from scratch
 # 1. Baseline configuration
 python train.py -c config/tt100k_classif.py -e baseline_vgg
@@ -16,18 +20,38 @@ python train.py -c config/kitti_baseline_vgg.py -e baseline_vgg
 # 2. Fine-tune on ImageNet weights
 python train.py -c config/kitti_finetune_vgg.py -e finetune_vgg
 
+
+#####################
+###### ResNet #######
+#####################
+
 # Train ResNet on TT100K dataset
 # 1. From scratch
 python train.py -c config/tt100k_resnet_baseline.py -e baseline_resnet
 # 2. Fine-tune on ImageNet weights
 python train.py -c config/tt100k_resnet_baseline_finetune.py -e baseline_finetune_resnet
 
-# Train DenseNet on TT100K dataset
-# 1. From scratch
-python train.py -c config/tt100k_densenet_baseline.py -e baseline_densenet
-# 2. With data augmentation and different parameters
-python train.py -c config/tt100k_densenet_opt.py -e opt_densenet
 
-# Meta-parameter tuning
+#####################
+##### DenseNet ######
+#####################
+
+# Train DenseNet on TT100K dataset from scratch
+python train.py -c config/tt100k_densenet_baseline.py -e baseline_densenet
+
+
+######################
+#### Improvements ####
+######################
+
+# Improve ResNet performance when fine-tuning ImageNet weights on TT100K
+python train.py -c config/tt100k_resnet_baseline_fintune_lowerLR.py -e baseline_finetune_opt_resnet
+
+# Meta-parameter tuning for ResNet on TT100K
 python optimization.py
 
+# ResNet transfer learning from TT100K to BTS
+python train.py -c config/belgium_resnet -e transfer_resnet
+
+# Train DenseNet with data augmentation and different parameters on TT100K
+python train.py -c config/tt100k_densenet_opt.py -e opt_densenet
