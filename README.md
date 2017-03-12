@@ -16,6 +16,18 @@ driving by understanding the vehicle's surrounding scene.
 | Santi Puch | santiago.puch.giner@gmail.com | [santipuch590](https://github.com/santipuch590) |
 
 
+## Report (_in progress_)
+
+A detailed report about the work done can be found in [this](https://www.overleaf.com/read/nfmcpnydkwhb) Overleaf project. 
+
+Additionally, a Google Slides presentation can be found in [this link](https://drive.google.com/open?id=1HpHPrQAMaI4yfxdcumAXnMNNF04tiprdRPl3zCxhUb8).
+
+
+## DNN weights
+HDF5 weights of the trained deep neural networks can be found 
+[here](https://drive.google.com/open?id=0ByrI9_WaU23FdHoxX1h4X2ZXYUU).
+
+
 ## Object recognition
 
 In order to choose a good-performing object recognition network for our system, we have tested several CNNs with different architectures: VGG (2014), ResNet (2015) and DenseNet (2016). These networks have been both trained from scratch and fine-tuned using some pre-trained weights. The experiments have been carried out using different datasets: [TT100K classsification dataset](http://cg.cs.tsinghua.edu.cn/traffic-sign/) and [BelgiumTS dataset](http://btsd.ethz.ch/shareddata/) for traffic sign detection, and **TODO: rest of datasets used**. Prior to the training, we have made an [analysis](https://drive.google.com/open?id=1X12gU2ey36rb43kPksHG0TC4MICftWRa7zByaTK6Egg) of the datasets to facilitate the interpretation of the results obtained. Finally, we have tuned several parameters of the architectures and the training process in order to get better results. 
@@ -132,16 +144,6 @@ Before choosing our final network for object recognition, we have carried out se
   - In progress 
      
    
-## Report (_in progress_)
-
-A detailed report about the work done can be found in [this](https://www.overleaf.com/read/nfmcpnydkwhb) Overleaf project. 
-
-Additionally, a Google Slides presentation can be found in [this link](https://drive.google.com/open?id=1HpHPrQAMaI4yfxdcumAXnMNNF04tiprdRPl3zCxhUb8).
-
-
-## DNN weights
-HDF5 weights of the trained deep neural networks can be found 
-[here](https://drive.google.com/open?id=0ByrI9_WaU23FdHoxX1h4X2ZXYUU).
 
 ## References
 
