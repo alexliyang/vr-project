@@ -147,18 +147,20 @@ Before choosing our final network for object recognition, we have carried out se
 
 ## References
 
-[1] K. He, X. Zhang, S. Ren, and J. Sun. "Deep residual learning for image recognition". CoRR, abs/1512.03385, 2015. **[SUMMARY](https://drive.google.com/open?id=0ByrI9_WaU23FQ042WDB1TTJvc1U)**
+[1] INRIA Pedestrian Test Dataset. http://pascal.inrialpes.fr/data/human/.
 
-[2] G. Huang, Z. Liu, K. Q. Weinberger, and L. van der Maaten. "Densely Connected Convolutional Networks". Aug. 2016.
-arXiv: 1608.06993.
+[2] KUL Belgium Traffic Signs dataset. http://btsd.ethz.ch/shareddata/index.html.
 
-[3] A. Krizhevsky, I. Sutskever, and G. E. Hinton. "ImageNet Classification with Deep Convolutional Neural Networks". In F. Pereira, C. J. C. Burges, L. Bottou, and K. Q. Weinberger,
-editors, Advances in Neural Information Processing Systems
-25, pages 1097–1105. Curran Associates, Inc., 2012.
+[3] TSingHua-TenCent 100K dataset. http://cg.cs.tsinghua.edu.cn/traffic-sign/.
 
-[4] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh, S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein, A. C. Berg, and L. Fei-Fei. "ImageNet Large Scale Visual Recognition Challenge". Sept. 2014. arXiv: 1409.0575.
+[4] K. He, X. Zhang, S. Ren, and J. Sun. Deep residual learning for image recognition. CoRR, abs/1512.03385, 2015. **[SUMMARY](https://drive.google.com/open?id=0ByrI9_WaU23FQ042WDB1TTJvc1U)**
 
-[5] K. Simonyan and A. Zisserman. "Very deep convolutional networks for large-scale image recognition". CoRR, abs/1409.1556, 2014.1 **[SUMMARY](https://drive.google.com/open?id=0B8Ql6cxgb4lXc0FWWHAyVWVoYU0)**
+[5] G. Huang, Z. Liu, K. Q. Weinberger, and L. van der Maaten. Densely Connected Convolutional Networks. Aug. 2016. arXiv: 1608.06993. 
 
-[6] C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich. "Going deeper with convolutions". In Computer Vision and Pattern Recognition (CVPR), 2015.
+[6] A. Krizhevsky, I. Sutskever, and G. E. Hinton. ImageNet Classification with Deep Convolutional Neural Networks. In F. Pereira, C. J. C. Burges, L. Bottou, and K. Q. Weinberger, editors, Advances in Neural Information Processing Systems 25, pages 1097–1105. Curran Associates, Inc., 2012.
 
+[7] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh, S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein, A. C. Berg, and L. Fei-Fei. ImageNet Large Scale Visual Recognition Challenge. Sept. 2014. arXiv: 1409.0575.
+
+[8] K. Simonyan and A. Zisserman. Very deep convolutional networks for large-scale image recognition. CoRR, abs/1409.1556, 2014. **[SUMMARY](https://drive.google.com/open?id=0B8Ql6cxgb4lXc0FWWHAyVWVoYU0)**
+
+[9] C. Szegedy,W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich. Going deeper with convolutions. In Computer Vision and Pattern Recognition (CVPR), 2015.2
