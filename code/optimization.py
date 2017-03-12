@@ -58,15 +58,15 @@ def create_config(newconfig_name, problem_type, dataset_name=None, model_name=No
             elif debug is not None and 'debug' in line:
                 line = line.replace('False', str(debug), 1)
             # Write new line
-            config_new.write(line + '\n')
+            config_new.write(line)
 
 
 if __name__ == '__main__':
 
-    learning_rates = [0.000001, 0.00001, 0.0001]
+    learning_rates = [1e-5, 1e-4]
     optimizers = ['adam', 'rmsprop']
-    batch_sizes_train = [10, 80]
-    batch_sizes_test = [10, 30]
+    batch_sizes_train = [30]
+    batch_sizes_test = [30]
     prob_type = 'classification'
     n_epochs = 50
     patience = 15
