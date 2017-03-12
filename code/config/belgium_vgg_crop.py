@@ -10,7 +10,7 @@ freeze_layers_from = 'base_model'  # Freeze layers from 0 to this layer during t
 show_model = True  # Show the architecture layers
 load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
 load_pretrained = True  # Load a pretrained model for doing finetuning
-weights_file = '/home/master/data/master/Experiments/TT100K_trafficSigns/crop_vgg/weights.hdf5'  # Training weight file name
+weights_file = '/home/master/data/master/Experiments/TT100K_trafficSigns/VGG/crop_vgg/weights.hdf5'  # Training weight file name
 
 # Parameters
 train_model = True  # Train the model

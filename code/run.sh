@@ -45,10 +45,10 @@ python train.py -c config/tt100k_densenet_baseline.py -e baseline_densenet
 ######################
 
 # Improve ResNet performance when fine-tuning ImageNet weights on TT100K
-python train.py -c config/tt100k_resnet_baseline_fintune_lowerLR.py -e baseline_finetune_opt_resnet
+python train.py -c config/tt100k_resnet_baseline_finetune_lowerLR.py -e baseline_finetune_opt_resnet
 
 # ResNet transfer learning from TT100K to BTS
-python train.py -c config/belgium_resnet -e transfer_resnet
+python train.py -c config/belgium_resnet.py -e transfer_resnet
 
 # Meta-parameter tuning for ResNet on TT100K
 python optimization.py

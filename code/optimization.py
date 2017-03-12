@@ -102,4 +102,10 @@ if __name__ == '__main__':
                     time.sleep(1)
                 subprocess.call(
                     ['python', 'train.py', '-c', config_name, '-e',
-                     '{}_optimization_lr_{}_wd_{}_opt_{}.py'.format(model, lr, wd, opt)])
+                     '{}_optimization_lr_{}_wd_{}_opt_{}'.format(model, lr, wd, opt)])
+
+                # Remove config file when experiment has finished
+                try:
+                    os.remove(config_name)
+                except IOError:
+                    pass
