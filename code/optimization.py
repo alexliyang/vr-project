@@ -75,6 +75,9 @@ if __name__ == '__main__':
     learning_rates = [0.001, 0.0001]
     optimizers = ['adam', 'rmsprop']
     weight_decay = [0.001, 0.0001]
+
+    batch_sizes_train = 30
+    batch_sizes_test = 30
     prob_type = 'classification'
     debug = False
     model = 'resnet50'
@@ -88,7 +91,8 @@ if __name__ == '__main__':
                 config_name = '{}_optimization_lr_{}_wd_{}_opt_{}.py'.format(model, lr, wd, opt)
                 create_config(config_name, prob_type, model_name=model, weight_decay = wd,
                               optimizer=opt, learning_rate=lr, lr_decay_factor = lr_decay_factor,
-                              lr_decay_epochs= lr_decay_epochs, lr_decay_enable = lr_decay_enable, debug=debug)
+                              lr_decay_epochs= lr_decay_epochs, batch_size_train=batch_sizes_train, batch_size_test=batch_sizes_test,
+                              lr_decay_enable = lr_decay_enable, debug=debug)
                 while not os.path.isfile(config_name):
                     time.sleep(1)
                 subprocess.call(
