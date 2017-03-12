@@ -86,8 +86,8 @@ In `vr_project/code` directory:
     
 ### Experimental Results:
 
-TODO: short explanation
-[link](https://docs.google.com/presentation/d/1CoZ54Plh_OXtutMvwdqmTDQqI6u52EK-r81eFH1JN7M/edit?usp=sharing)
+Before choosing our final network for object recognition, we have carried out several experiments using different architectures, different parameters and different datasets. A summary of the experiments done can be found [here](https://docs.google.com/presentation/d/1CoZ54Plh_OXtutMvwdqmTDQqI6u52EK-r81eFH1JN7M/edit?usp=sharing).
+
 
 ### Milestones
 
@@ -105,7 +105,7 @@ TODO: short explanation
   - [x] Compare finetunning vs train from scratch 
 3. **DenseNet**:
   - [x] Implement it and adapt it to the framework
-  - [ ] Train from scratch with TT100K dataset     
+  - [x] Train from scratch with TT100K dataset     
 4. **Boost performance** 
   - In progress     
 5. **Report** 
