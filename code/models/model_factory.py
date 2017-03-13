@@ -1,10 +1,7 @@
 import os
 
-<<<<<<< HEAD
-=======
 # Keras imports
 from metrics.metrics import cce_flatt, IoU, YOLOLoss, YOLOMetrics
->>>>>>> upstream-master
 from keras import backend as K
 from keras.utils.visualize_util import plot
 from metrics.metrics import cce_flatt, IoU, YOLOLoss, YOLOFscore
