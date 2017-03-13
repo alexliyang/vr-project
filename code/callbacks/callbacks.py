@@ -215,6 +215,10 @@ class LRDecayScheduler(Callback):
     """
     Decays the learning rate by the specified decay rate (> 1) at specific epochs, or for each epoch
     if decay_epochs is None.
+<<<<<<< HEAD
+=======
+    The updated learning rate is: lr <-- lr / decay_rate
+>>>>>>> upstream-master
     """
     def __init__(self, decay_epochs, decay_rate):
         super(LRDecayScheduler, self).__init__()
