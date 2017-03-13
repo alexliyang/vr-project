@@ -9,7 +9,7 @@ model_name = 'resnet50'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' 
 freeze_layers_from = 'base_model'  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
 show_model = False  # Show the architecture layers
 load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
-load_pretrained = true  # Load a pretrained model for doing finetuning
+load_pretrained = True  # Load a pretrained model for doing finetuning
 weights_file = '/home/master/data/master/Experiments/TT100K_trafficSigns/baseline_finetune_opt_resnet_nofreeze/weights.hdf5'  # Training weight file name
 
 # Parameters
