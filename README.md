@@ -1,4 +1,4 @@
-# Scene Understanding For Autonomous Driving
+# Deep Understanding of Traffic Scenes for Autonomous Driving
 
 In this project we leverage state-of-the-art deep neural networks architectures for image classification,
 object recognition and semantic segmentation to implement a framework that aids autonomous
@@ -144,7 +144,7 @@ In `vr_project/code` directory:
     
     - Re-train DenseNet with best weights, changing optimizer to ADAM [TT100K dataset]
     
-    ````
+    ```
     python train.py -c config/tt100k_densenet_opt_different_opt.py -e densenet_trying_different_opt
     ```
     
