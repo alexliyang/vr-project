@@ -105,7 +105,6 @@ class Configuration():
         except:
             cf.weights_test_file = os.path.join(cf.savepath, 'weights.hdf5')
 
-
         # Plot metrics
         if cf.dataset.class_mode == 'segmentation':
             cf.train_metrics = ['loss', 'acc', 'jaccard']
