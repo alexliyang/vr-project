@@ -30,7 +30,7 @@ HDF5 weights of the trained deep neural networks can be found
 
 ## Object recognition
 
-In order to choose a good-performing object recognition network for our system, we have tested several CNNs with different architectures: VGG (2014), ResNet (2015) and DenseNet (2016). These networks have been both trained from scratch and fine-tuned using some pre-trained weights. The experiments have been carried out using different datasets: [TT100K classsification dataset](http://cg.cs.tsinghua.edu.cn/traffic-sign/) and [BelgiumTS dataset](http://btsd.ethz.ch/shareddata/) for traffic sign detection, and **TODO: rest of datasets used**. Prior to the training, we have made an [analysis](https://drive.google.com/open?id=1X12gU2ey36rb43kPksHG0TC4MICftWRa7zByaTK6Egg) of the datasets to facilitate the interpretation of the results obtained. Finally, we have tuned several parameters of the architectures and the training process in order to get better results. 
+In order to choose a good-performing object recognition network for our system, we have tested several CNNs with different architectures: VGG (2014), ResNet (2015) and DenseNet (2016). These networks have been both trained from scratch and fine-tuned using some pre-trained weights. The experiments have been carried out using different datasets: [TT100K classsification dataset](http://cg.cs.tsinghua.edu.cn/traffic-sign/) and [BelgiumTS dataset](http://btsd.ethz.ch/shareddata/) for traffic sign detection, and [KITTI Vision Benchmark](http://www.cvlibs.net/datasets/kitti/raw_data.php) for cars, trucks, cyclists and other typical elements in driving scenes. Prior to the training, we have performed an [analysis](https://drive.google.com/open?id=1X12gU2ey36rb43kPksHG0TC4MICftWRa7zByaTK6Egg) of the datasets to facilitate the interpretation of the results obtained. Finally, we have tuned several parameters of the architectures and the training process in order to get better results. 
 
 ### Contributions to the code
 
@@ -46,7 +46,7 @@ In order to choose a good-performing object recognition network for our system, 
   
   - `optimization.py` - automatically generates the config files for the optimization of a model, using a grid search, and launches the experiments.
   
-  - `run.sh` - bash script to launch experiments, specifying existent config files.
+  - `run_all.sh` - bash script to launch all the experiments in this project, including object recognition, object detection and semantic segmentation.
   
 ### How to use the code
   
@@ -70,6 +70,12 @@ In `vr_project/code` directory:
  
     ```
     python train.py -c config/tt100k_classif_preprocess.py -e preprocess_vgg
+    ```
+    
+    - Take random 224x224 crops and substract mean and divide by std computed on the train set [TT100K dataset]
+    
+    ```
+    python train.py -c config/tt100k_classif_crop_preprocess.py -e crop_preprocess_vgg
     ```
     
     - Transfer learning [TT100K dataset --> BelgiumTSC]
@@ -103,6 +109,24 @@ In `vr_project/code` directory:
     ```
     python train.py -c config/tt100k_resnet_baseline_finetune.py -e baseline_finetune_resnet
     ```  
+    
+    - Improved fine-tune on ImageNet weights [TT100K dataset]
+    
+    ```
+    python train.py -c config/tt100k_resnet_baseline_finetune_lowerLR.py -e baseline_finetune_opt_resnet
+    ```
+    
+    - Baseline [KITTI dataset]
+    
+    ```
+    python train.py -c config/kitti_resnet_baseline.py -e baseline_resnet
+    ```
+
+    - Fine-tune on ImageNet weights [KITTI dataset]
+    
+    ```
+    python train.py -c config/kitti_resnet_finetune_imagenet.py -e finetune_resnet
+    ```
 
 - DenseNet 
 
@@ -111,10 +135,17 @@ In `vr_project/code` directory:
     ```
     python train.py -c config/tt100k_densenet_baseline.py -e baseline_densenet
     ```
+    
     - Optimization [TT100K dataset]
     
     ```
     python train.py -c config/tt100k_densenet_opt.py -e opt_densenet
+    ```
+    
+    - Re-train DenseNet with best weights, changing optimizer to ADAM [TT100K dataset]
+    
+    ````
+    python train.py -c config/tt100k_densenet_opt_different_opt.py -e densenet_trying_different_opt
     ```
     
 - Analyze datasets
@@ -136,7 +167,7 @@ Before choosing our final network for object recognition, we have carried out se
   - [x] Comparison between crop and resize.
   - [x] Evaluate different pre-processings in the configuration file: subtracting mean and std feature-wise.
   - [x] Transfer learning from TT100k dataset to Belgium dataset
-  - [ ] \(**MISSING TEST SPLIT**) Train from scratch or finetune (or both) VGG with KITTI dataset
+  - [x] Train from scratch and finetune VGG with KITTI dataset
 2. **ResNet**:
   - [x] Implement it and adapt it to the framework
   - [x] Train from scratch with TT100K dataset
@@ -146,28 +177,32 @@ Before choosing our final network for object recognition, we have carried out se
   - [x] Implement it and adapt it to the framework
   - [x] Train from scratch with TT100K dataset     
 4. **Boost performance** 
+  - [x] Grid-search to search hyperparams for ResNet
+  - [x] Refined ResNet fine-tuning over ImageNet weights to boost the performance on TT100K dataset
+  - [x] Implemented LR decay scheduler, that has proved to be helpful in improving the performance of the networks
   - [x] Try data augmentation and different parameters on DenseNet   
-5. **Report** 
-  - In progress 
-     
    
 
 ## References
 
-[1] INRIA Pedestrian Test Dataset. http://pascal.inrialpes.fr/data/human/.
+[1] M. Bojarski, D. Del Testa, D. Dworakowski, B. Firner, B. Flepp, P. Goyal, L. D. Jackel, M. Monfort, U. Muller, J. Zhang, X. Zhang, J. Zhao, and K. Zieba. End to End Learning for Self-Driving Cars. arXiv:1604.07316 [cs], Apr. 2016. arXiv: 1604.07316.
 
-[2] KUL Belgium Traffic Signs dataset. http://btsd.ethz.ch/shareddata/index.html.
+[2] C. Chen, A. Seff, A. Kornhauser, and J. Xiao. Deepdriving: Learning affordance for direct perception in autonomous driving. In The IEEE International Conference on Computer Vision (ICCV), December 2015.
 
-[3] TSingHua-TenCent 100K dataset. http://cg.cs.tsinghua.edu.cn/traffic-sign/.
+[3] A. Geiger, P. Lenz, and R. Urtasun. Are we ready for autonomous driving? the kitti vision benchmark suite. In Conference on Computer Vision and Pattern Recognition (CVPR), 2012.
 
 [4] K. He, X. Zhang, S. Ren, and J. Sun. Deep residual learning for image recognition. CoRR, abs/1512.03385, 2015. **[SUMMARY](https://drive.google.com/open?id=0ByrI9_WaU23FQ042WDB1TTJvc1U)**
 
-[5] G. Huang, Z. Liu, K. Q. Weinberger, and L. van der Maaten. Densely Connected Convolutional Networks. Aug. 2016. arXiv: 1608.06993. 
+[5] G. Huang, Z. Liu, K. Q. Weinberger, and L. van der Maaten. Densely Connected Convolutional Networks. Aug. 2016. arXiv: 1608.06993.
 
 [6] A. Krizhevsky, I. Sutskever, and G. E. Hinton. ImageNet Classification with Deep Convolutional Neural Networks. In F. Pereira, C. J. C. Burges, L. Bottou, and K. Q. Weinberger, editors, Advances in Neural Information Processing Systems 25, pages 1097–1105. Curran Associates, Inc., 2012.
 
-[7] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh, S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein, A. C. Berg, and L. Fei-Fei. ImageNet Large Scale Visual Recognition Challenge. Sept. 2014. arXiv: 1409.0575.
+[7] M. Mathias, R. Timofte, R. Benenson, and L. Van Gool. Traffic sign recognition – how far are we from the solution? International Joint Conference on Neural Networks (IJCNN), 2013.
 
-[8] K. Simonyan and A. Zisserman. Very deep convolutional networks for large-scale image recognition. CoRR, abs/1409.1556, 2014. **[SUMMARY](https://drive.google.com/open?id=0B8Ql6cxgb4lXc0FWWHAyVWVoYU0)**
+[8] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh, S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein, A. C. Berg, and L. Fei-Fei. ImageNet Large Scale Visual Recognition Challenge. Sept. 2014. arXiv: 1409.0575.
 
-[9] C. Szegedy,W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich. Going deeper with convolutions. In Computer Vision and Pattern Recognition (CVPR), 2015.2
+[9] K. Simonyan and A. Zisserman. Very deep convolutional networks for large-scale image recognition. CoRR, abs/1409.1556, 2014. **[SUMMARY](https://drive.google.com/open?id=0B8Ql6cxgb4lXc0FWWHAyVWVoYU0)**
+
+[10] C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich. Going deeper with convolutions. In Computer Vision and Pattern Recognition (CVPR), 2015.
+
+[11] Z. Zhu, D. Liang, S. Zhang, X. Huang, B. Li, and S. Hu. Traffic-sign detection and classification in the wild. In The IEEE Conference on Computer Vision and Pattern Recognition (CVPR), June 2016.
