@@ -92,6 +92,7 @@ norm_zca_whitening = False  # Apply ZCA whitening
 cb_weights_method = None  # Label weight balance [None | 'median_freq_cost' | 'rare_freq_cost']
 
 # Data augmentation for training
+data_augmentation = False
 da_rotation_range = 0  # Rnd rotation degrees 0-180
 da_width_shift_range = 0.  # Rnd horizontal shift
 da_height_shift_range = 0.  # Rnd vertical shift
