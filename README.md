@@ -167,12 +167,13 @@ Before choosing our final network for object recognition, we have carried out se
   - [x] Comparison between crop and resize.
   - [x] Evaluate different pre-processings in the configuration file: subtracting mean and std feature-wise.
   - [x] Transfer learning from TT100k dataset to Belgium dataset
-  - [x] Train from scratch and finetune VGG with KITTI dataset
+  - [x] Train from scratch and fine-tune VGG with KITTI dataset
 2. **ResNet**:
   - [x] Implement it and adapt it to the framework
   - [x] Train from scratch with TT100K dataset
-  - [x] Finetunning from ImageNet weights with TT100K dataset
-  - [x] Compare finetunning vs train from scratch 
+  - [x] Fine-tuning from ImageNet weights with the TT100K dataset
+  - [x] Fine-tuning from ImageNet weights with the KITTI dataset
+  - [x] Compare fine-tuning vs train from scratch 
 3. **DenseNet**:
   - [x] Implement it and adapt it to the framework
   - [x] Train from scratch with TT100K dataset     
