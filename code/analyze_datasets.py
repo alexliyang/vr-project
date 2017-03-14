@@ -93,39 +93,40 @@ if __name__ == '__main__':
         analysis_res = {}
         analysis_hist = {}
 
-        # Iterate over all sets (train, val and test)
-        for set_type_path in glob(os.path.join(dataset, '*')):
-            if os.path.isdir(set_type_path):
-                set_type = os.path.basename(set_type_path)
-                analysis_res[set_type] = {}
-                analysis_hist[set_type] = []
-                # Iterate over all available classes
-                for category in glob(os.path.join(set_type_path, '*')):
-                    if os.path.isdir(category):
-                        category_name = os.path.basename(category)
-                        # Get the number of images in this directory (dataset/set_type/category)
-                        num_elems = len(os.listdir(category))
-                        # Put it in the results placeholder
-                        analysis_res[set_type].update({category_name: num_elems})
-                        analysis_hist[set_type].append(num_elems)
+        if os.path.isdir(dataset):
+            # Iterate over all sets (train, val and test)
+            for set_type_path in glob(os.path.join(dataset, '*')):
+                if os.path.isdir(set_type_path):
+                    set_type = os.path.basename(set_type_path)
+                    analysis_res[set_type] = {}
+                    analysis_hist[set_type] = []
+                    # Iterate over all available classes
+                    for category in glob(os.path.join(set_type_path, '*')):
+                        if os.path.isdir(category):
+                            category_name = os.path.basename(category)
+                            # Get the number of images in this directory (dataset/set_type/category)
+                            num_elems = len(os.listdir(category))
+                            # Put it in the results placeholder
+                            analysis_res[set_type].update({category_name: num_elems})
+                            analysis_hist[set_type].append(num_elems)
 
-        # Create CSV file with results
-        analysis_file_path = os.path.join(output_path, '{}_analysis.csv'.format(dataset_name))
-        dataframe = pd.DataFrame(analysis_res)
-        dataframe.to_csv(analysis_file_path)
+            # Create CSV file with results
+            analysis_file_path = os.path.join(output_path, '{}_analysis.csv'.format(dataset_name))
+            dataframe = pd.DataFrame(analysis_res)
+            dataframe.to_csv(analysis_file_path)
 
-        # Plot bar chart with distributions for all sets
-        plot_bar_chart(
-            dataset_name,
-            analysis_hist,
-            os.path.join(output_path, '{}_distribution_norm.png'.format(dataset_name)),
-            normalized=True
-        )
-        plot_bar_chart(
-            dataset_name,
-            analysis_hist,
-            os.path.join(output_path, '{}_distribution.png'.format(dataset_name)),
-            normalized=False
-        )
+            # Plot bar chart with distributions for all sets
+            plot_bar_chart(
+                dataset_name,
+                analysis_hist,
+                os.path.join(output_path, '{}_distribution_norm.png'.format(dataset_name)),
+                normalized=True
+            )
+            plot_bar_chart(
+                dataset_name,
+                analysis_hist,
+                os.path.join(output_path, '{}_distribution.png'.format(dataset_name)),
+                normalized=False
+            )
 
         print('Analysis finished\n')

@@ -6,7 +6,7 @@ perc_mb2 = None  # Percentage of data from the second dataset in each minibatch
 
 # Model
 model_name = 'fcn8'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
-freeze_layers_from = None  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
+freeze_layers_from = None  # Freeze layers from 0 to this layer during training (Useful for finetunning) [None | 'base_model' | Layer_id]
 show_model = False  # Show the architecture layers
 load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
 load_pretrained = False  # Load a pretrained model for doing finetuning
@@ -75,13 +75,12 @@ plotHist_verbose = 0  # Verbosity of the callback
 
 # Callback LR decay scheduler
 lrDecayScheduler_enabled = False  # Enable the Callback
-lrDecayScheduler_epochs = [5, 10, 20]   # List of epochs were decay is applied or None for all epochs
-lrDecayScheduler_rate = 2   # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
+lrDecayScheduler_epochs = [5, 10, 20]  # List of epochs were decay is applied or None for all epochs
+lrDecayScheduler_rate = 2  # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
 
 # Data augmentation for training and normalization
 norm_imageNet_preprocess = False  # Normalize following imagenet procedure
-norm_fit_dataset = True  # If True it recomputes std and mean from images.
-# Otherwise it uses the std and mean set at the dataset config file
+norm_fit_dataset = True  # If True it recompute std and mean from images. Either it uses the std and mean set at the dataset config file
 norm_rescale = 1 / 255.  # Scalar to divide and set range 0-1
 norm_featurewise_center = False  # Substract mean - dataset
 norm_featurewise_std_normalization = False  # Divide std - dataset
@@ -92,8 +91,6 @@ norm_zca_whitening = False  # Apply ZCA whitening
 cb_weights_method = None  # Label weight balance [None | 'median_freq_cost' | 'rare_freq_cost']
 
 # Data augmentation for training
-data_augmentation= False  # If data augmentation is used
-data_augmentation_train_samples=30000 #Number of samples per epoch with data augmentation
 da_rotation_range = 0  # Rnd rotation degrees 0-180
 da_width_shift_range = 0.0  # Rnd horizontal shift
 da_height_shift_range = 0.0  # Rnd vertical shift

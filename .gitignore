@@ -3,3 +3,6 @@
 
 # JetBrains IDEs
 .idea
+
+# Ignore weights
+weights

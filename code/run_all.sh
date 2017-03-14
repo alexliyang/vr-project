@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# SCRIPT TO TRAIN AND TEST ALL MODELS USED FOR OBJECT RECOGNITION, OBJECT DETECTION AND SEMANTIC SEGMENTATION
+
+
+# ------------------------------------------------------------------------------------------------ #
+# ------------------------------------- OBJECT RECOGNITION --------------------------------------- #
+# ------------------------------------------------------------------------------------------------ #
+
+
 #####################
 ####### VGG #########
 #####################
@@ -11,7 +19,10 @@ python train.py -c config/tt100k_classif.py -e baseline_vgg
 python train.py -c config/tt100k_classif_crop.py -e crop_vgg
 # 3. Substract mean and divide by std computed on the train set as image preprocessing
 python train.py -c config/tt100k_classif_preprocess.py -e preprocess_vgg
-# 4. Transfer learning
+# 4. Substract mean and divide by std computed on the train set as image preprocessing, and apply random crops
+python train.py -c config/tt100k_classif_crop_preprocess.py -e crop_preprocess_vgg
+
+# VGG transfer learning from TT100K to Belgium Traffic Signs
 python train.py -c config/belgium_vgg_crop.py -e transfer_vgg_crop
 
 # Train VGG on KITTI dataset
@@ -31,6 +42,15 @@ python train.py -c config/tt100k_resnet_baseline.py -e baseline_resnet
 # 2. Fine-tune on ImageNet weights
 python train.py -c config/tt100k_resnet_baseline_finetune.py -e baseline_finetune_resnet
 
+# ResNet transfer learning from TT100K to BTS
+python train.py -c config/belgium_resnet.py -e transfer_resnet
+
+# Train ResNet on KITTI dataset
+# 1. From scratch
+python train.py -c config/kitti_resnet_baseline.py -e baseline_resnet
+# 2. Fine-tune on ImageNet weights
+python train.py -c config/kitti_resnet_finetune_imagenet.py -e finetune_resnet
+
 
 #####################
 ##### DenseNet ######
@@ -47,9 +67,6 @@ python train.py -c config/tt100k_densenet_baseline.py -e baseline_densenet
 # Improve ResNet performance when fine-tuning ImageNet weights on TT100K
 python train.py -c config/tt100k_resnet_baseline_finetune_lowerLR.py -e baseline_finetune_opt_resnet
 
-# ResNet transfer learning from TT100K to BTS
-python train.py -c config/belgium_resnet.py -e transfer_resnet
-
 # Meta-parameter tuning for ResNet on TT100K
 python optimization.py
 
@@ -58,3 +75,23 @@ python train.py -c config/tt100k_densenet_opt.py -e opt_densenet
 
 # Re-train DenseNet with best weights, changing optimizer to ADAM
 python train.py -c config/tt100k_densenet_opt_different_opt.py -e densenet_trying_different_opt
+
+
+
+# ------------------------------------------------------------------------------------------------ #
+# -------------------------------------- OBJECT DETECTION ---------------------------------------- #
+# ------------------------------------------------------------------------------------------------ #
+
+
+#####################
+####### YOLO ########
+#####################
+
+# Train YOLO on TT100K for detection
+python train.py -c config/tt100k_detection.py -e baseline_yolo
+
+
+
+# ------------------------------------------------------------------------------------------------ #
+# ------------------------------------ SEMANTIC SEGMENTATION ------------------------------------- #
+# ------------------------------------------------------------------------------------------------ #
