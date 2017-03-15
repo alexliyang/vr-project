@@ -74,7 +74,7 @@ python optimization.py
 python train.py -c config/tt100k_densenet_opt.py -e opt_densenet
 
 # Re-train DenseNet with best weights, changing optimizer to ADAM
-python train.py -c config/tt100k_densenet_opt_different_opt.py -e densenet_trying_different_opt
+python train.py -c config/tt100k_densenet_opt_different_opt.py -e alternative_opt_densenet
 
 
 
@@ -89,6 +89,20 @@ python train.py -c config/tt100k_densenet_opt_different_opt.py -e densenet_tryin
 
 # Train YOLO on TT100K for detection
 python train.py -c config/tt100k_detection.py -e baseline_yolo
+
+# Train YOLO on Udacity dataset
+python train.py -c config/udacity_yolo_baseline.py -e baseline_yolo
+
+
+#####################
+##### TINY YOLO #####
+#####################
+
+# Train Tiny-YOLO on TT100K for detection
+python train.py -c config/tt100k_tiny_yolo.py -e baseline_tiny_yolo
+
+# Train Tiny-YOLO on Udacity dataset
+python train.py -c config/udacity_tiny_yolo_baseline.py -e baseline_tiny_yolo
 
 
 

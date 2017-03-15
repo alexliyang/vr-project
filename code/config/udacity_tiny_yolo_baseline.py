@@ -1,11 +1,11 @@
 # Dataset
 problem_type = 'detection'  # ['classification' | 'detection' | 'segmentation']
-dataset_name = 'TT100K_detection'  # Dataset name
+dataset_name = 'Udacity'  # Dataset name
 dataset_name2 = None  # Second dataset name. None if not Domain Adaptation
 perc_mb2 = None  # Percentage of data from the second dataset in each minibatch
 
 # Model
-model_name = 'yolo'  # Model to use: one of 'yolo' or 'tiny-yolo'
+model_name = 'tiny-yolo'  # Model to use: one of 'yolo' or 'tiny-yolo'
 freeze_layers_from = None  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
 show_model = False  # Show the architecture layers
 load_imageNet = True  # Load Imagenet weights and normalize following imagenet procedure
@@ -47,7 +47,7 @@ seed_test = 1924  # Random seed for the testing shuffle
 optimizer = 'rmsprop'  # Optimizer
 learning_rate = 0.00001  # Training learning rate
 weight_decay = 0.  # Weight decay or L2 parameter norm penalty
-n_epochs = 10  # Number of epochs during training
+n_epochs = 40  # Number of epochs during training
 
 # Callback save results
 save_results_enabled = False  # Enable the Callback
