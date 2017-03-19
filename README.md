@@ -196,7 +196,7 @@ TODO
 
 ### Experimental results
 
-Prior to choosing our final system we have carried out several experiments using different architectures, different parameters and different datasets. A summary of the experiments done can be found [here](https://docs.google.com/presentation/d/1CoZ54Plh_OXtutMvwdqmTDQqI6u52EK-r81eFH1JN7M/edit?usp=sharing).
+Prior to choosing our final system we have carried out several experiments using different architectures, different parameters and different datasets. A summary of the experiments done can be found [here](https://drive.google.com/open?id=1Qs51OxIPNOgOyujp98msk7RK1Rh2dkjfAHGZqUgBbqk).
 
 ____
 
