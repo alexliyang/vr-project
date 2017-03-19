@@ -10,6 +10,7 @@ from models.resnet import build_resnet50
 from models.densenetFCN import build_densenetFCN
 from models.fcn8 import build_fcn8
 from models.yolo import build_yolo
+from models.ssd300 import build_ssd300
 
 """
 from models.lenet import build_lenet
@@ -73,7 +74,7 @@ class Model_Factory():
     def make(self, cf, optimizer=None):
         if cf.model_name in ['lenet', 'alexNet', 'vgg16', 'vgg19', 'resnet50',
                              'InceptionV3', 'fcn8', 'unet', 'segnet',
-                             'segnet_basic', 'resnetFCN', 'densenetFCN', 'yolo', 'tiny-yolo']:
+                             'segnet_basic', 'resnetFCN', 'densenetFCN', 'yolo', 'tiny-yolo', 'ssd300']:
             if optimizer is None:
                 raise ValueError('optimizer can not be None')
 
@@ -155,6 +156,10 @@ class Model_Factory():
                                cf.dataset.n_priors,
                                load_pretrained=cf.load_imageNet,
                                freeze_layers_from=cf.freeze_layers_from, tiny=True)
+        elif cf.model_name == 'ssd300':
+            model = build_ssd300(in_shape, cf.dataset.n_classes,
+                                load_pretrained=cf.load_imageNet,
+                                freeze_layers_from=cf.freeze_layers_from)
         else:
             raise ValueError('Unknown model')
 
