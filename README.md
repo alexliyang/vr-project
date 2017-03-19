@@ -28,27 +28,11 @@ HDF5 weights of the trained deep neural networks can be found
 [here](https://drive.google.com/open?id=0ByrI9_WaU23FdHoxX1h4X2ZXYUU).
 
 
-## Object recognition
+## Datasets analysis
+Prior to all experiments for each problem type (classification, detection and segmentation) we have performed an [analysis](https://drive.google.com/open?id=1X12gU2ey36rb43kPksHG0TC4MICftWRa7zByaTK6Egg) of the datasets to facilitate the interpretation of the results obtained.
 
-In order to choose a good-performing object recognition network for our system, we have tested several CNNs with different architectures: VGG (2014), ResNet (2015) and DenseNet (2016). These networks have been both trained from scratch and fine-tuned using some pre-trained weights. The experiments have been carried out using different datasets: [TT100K classsification dataset](http://cg.cs.tsinghua.edu.cn/traffic-sign/) and [BelgiumTS dataset](http://btsd.ethz.ch/shareddata/) for traffic sign detection, and [KITTI Vision Benchmark](http://www.cvlibs.net/datasets/kitti/raw_data.php) for cars, trucks, cyclists and other typical elements in driving scenes. Prior to the training, we have performed an [analysis](https://drive.google.com/open?id=1X12gU2ey36rb43kPksHG0TC4MICftWRa7zByaTK6Egg) of the datasets to facilitate the interpretation of the results obtained. Finally, we have tuned several parameters of the architectures and the training process in order to get better results. 
 
-### Contributions to the code
-
-  - `models/denseNet_FCN.py` - adaptation of [this](https://github.com/tdeboissiere/DeepLearningImplementations/tree/master/DenseNet)     implementation of DenseNet to the framework and generalization of the axes of the batch normalization layers, which was only working correctly for Theano.
-  
-  - `models/resnet.py` - adaptation of the resnet50 Keras model to the framework and included L2 regularization for the weights (not included in Keras Applications)
-  
-  - `models/vgg.py` - changed implementation to include L2 regularization for the weights (not included in Keras Applications)
-  
-  - `callbacks/callbacks.py` and `callbacks/callbacks_factory.py` - implemented a new callback, LRDecayScheduler, that allows the user to decay the learning rate by a predefined factor (such that lr <-- lr / decay_factor) at specific epochs, or alternatively at all epochs.
-  
-  - `analyze_datasets.py` - analyzes all the datasets in the specified folder by counting the number of images per class per set (train, validation, test), and creates a CSV file with the results and a plot of the (normalized) distribution for all sets.
-  
-  - `optimization.py` - automatically generates the config files for the optimization of a model, using a grid search, and launches the experiments.
-  
-  - `run_all.sh` - bash script to launch all the experiments in this project, including object recognition, object detection and semantic segmentation.
-  
-### How to use the code
+## How to use the code
   
 In `vr_project/code` directory:
 
@@ -151,15 +135,33 @@ In `vr_project/code` directory:
 - Analyze datasets
     
     ```
-    python analyze_datasets.py /path/to/classification/datasets --output=/path/to/output/folder
+    python analyze_datasets.py problem_type /path/to/datasets --output=/path/to/output/folder
     ```
-    
-### Experimental results
+    where `problem_type` must be either 'classification', 'detection' or 'segmentation'.
 
-Before choosing our final network for object recognition, we have carried out several experiments using different architectures, different parameters and different datasets. A summary of the experiments done can be found [here](https://docs.google.com/presentation/d/1CoZ54Plh_OXtutMvwdqmTDQqI6u52EK-r81eFH1JN7M/edit?usp=sharing).
+____
 
+### Object recognition
 
-### Milestones
+In order to choose a good-performing object recognition network for our system, we have tested several CNNs with different architectures: VGG (2014), ResNet (2015) and DenseNet (2016). These networks have been both trained from scratch and fine-tuned using some pre-trained weights. The experiments have been carried out using different datasets: [TT100K classsification dataset](http://cg.cs.tsinghua.edu.cn/traffic-sign/) and [BelgiumTS dataset](http://btsd.ethz.ch/shareddata/) for traffic sign detection, and [KITTI Vision Benchmark](http://www.cvlibs.net/datasets/kitti/raw_data.php) for cars, trucks, cyclists and other typical elements in driving scenes. Finally, we have tuned several parameters of the architectures and the training process in order to get better results. 
+
+#### Contributions to the code
+
+  - `models/denseNet_FCN.py` - adaptation of [this](https://github.com/tdeboissiere/DeepLearningImplementations/tree/master/DenseNet)     implementation of DenseNet to the framework and generalization of the axes of the batch normalization layers, which was only working correctly for Theano.
+  
+  - `models/resnet.py` - adaptation of the resnet50 Keras model to the framework and included L2 regularization for the weights (not included in Keras Applications)
+  
+  - `models/vgg.py` - changed implementation to include L2 regularization for the weights (not included in Keras Applications)
+  
+  - `callbacks/callbacks.py` and `callbacks/callbacks_factory.py` - implemented a new callback, LRDecayScheduler, that allows the user to decay the learning rate by a predefined factor (such that lr <-- lr / decay_factor) at specific epochs, or alternatively at all epochs.
+  
+  - `analyze_datasets.py` - analyzes all the datasets in the specified folder by counting the number of images per class per set (train, validation, test), and creates a CSV file with the results and a plot of the (normalized) distribution for all sets.
+  
+  - `optimization.py` - automatically generates the config files for the optimization of a model, using a grid search, and launches the experiments.
+  
+  - `run_all.sh` - bash script to launch all the experiments in this project, including object recognition, object detection and semantic segmentation.
+  
+#### Milestones
 
 1. **VGG**:
   - [x] Analyze dataset - We extracted a CSV, statistical conclusions and plots of the classes distributions in the dataset(TT100K_TrafficSigns). Plots and comments in the report.
@@ -182,7 +184,21 @@ Before choosing our final network for object recognition, we have carried out se
   - [x] Refined ResNet fine-tuning over ImageNet weights to boost the performance on TT100K dataset
   - [x] Implemented LR decay scheduler, that has proved to be helpful in improving the performance of the networks
   - [x] Try data augmentation and different parameters on DenseNet   
-   
+  
+  
+### Object detection  
+
+#### Contributions to the code
+TODO
+  
+#### Milestones
+TODO
+
+### Experimental results
+
+Before choosing our final network for object recognition, we have carried out several experiments using different architectures, different parameters and different datasets. A summary of the experiments done can be found [here](https://docs.google.com/presentation/d/1CoZ54Plh_OXtutMvwdqmTDQqI6u52EK-r81eFH1JN7M/edit?usp=sharing).
+
+____
 
 ## References
 
@@ -200,10 +216,14 @@ Before choosing our final network for object recognition, we have carried out se
 
 [7] M. Mathias, R. Timofte, R. Benenson, and L. Van Gool. Traffic sign recognition – how far are we from the solution? International Joint Conference on Neural Networks (IJCNN), 2013.
 
-[8] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh, S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein, A. C. Berg, and L. Fei-Fei. ImageNet Large Scale Visual Recognition Challenge. Sept. 2014. arXiv: 1409.0575.
+[8] J. Redmon, S. K. Divvala, R. B. Girshick, and A. Farhadi. You only look once: Unified, real-time object detection. CoRR, abs/1506.02640, 2015. **[SUMMARY](https://drive.google.com/open?id=0ByrI9_WaU23FSlpkeEdGeDN3SlE)**
 
-[9] K. Simonyan and A. Zisserman. Very deep convolutional networks for large-scale image recognition. CoRR, abs/1409.1556, 2014. **[SUMMARY](https://drive.google.com/open?id=0B8Ql6cxgb4lXc0FWWHAyVWVoYU0)**
+[9] J. Redmon and A. Farhadi. YOLO9000: better, faster, stronger. CoRR, abs/1612.08242, 2016.
 
-[10] C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich. Going deeper with convolutions. In Computer Vision and Pattern Recognition (CVPR), 2015.
+[10] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh, S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein, A. C. Berg, and L. Fei-Fei. ImageNet Large Scale Visual Recognition Challenge. Sept. 2014. arXiv: 1409.0575.
 
-[11] Z. Zhu, D. Liang, S. Zhang, X. Huang, B. Li, and S. Hu. Traffic-sign detection and classification in the wild. In The IEEE Conference on Computer Vision and Pattern Recognition (CVPR), June 2016.
+[11] K. Simonyan and A. Zisserman. Very deep convolutional networks for large-scale image recognition. CoRR, abs/1409.1556, 2014. **[SUMMARY](https://drive.google.com/open?id=0B8Ql6cxgb4lXc0FWWHAyVWVoYU0)**
+
+[12] C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich. Going deeper with convolutions. In Computer Vision and Pattern Recognition (CVPR), 2015.
+
+[13] Z. Zhu, D. Liang, S. Zhang, X. Huang, B. Li, and S. Hu. Traffic-sign detection and classification in the wild. In The IEEE Conference on Computer Vision and Pattern Recognition (CVPR), June 2016.
