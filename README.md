@@ -196,7 +196,7 @@ TODO
 
 ### Experimental results
 
-Before choosing our final network for object recognition, we have carried out several experiments using different architectures, different parameters and different datasets. A summary of the experiments done can be found [here](https://docs.google.com/presentation/d/1CoZ54Plh_OXtutMvwdqmTDQqI6u52EK-r81eFH1JN7M/edit?usp=sharing).
+Prior to choosing our final system we have carried out several experiments using different architectures, different parameters and different datasets. A summary of the experiments done can be found [here](https://docs.google.com/presentation/d/1CoZ54Plh_OXtutMvwdqmTDQqI6u52EK-r81eFH1JN7M/edit?usp=sharing).
 
 ____
 
