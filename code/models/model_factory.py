@@ -42,14 +42,17 @@ class Model_Factory():
             loss = 'categorical_crossentropy'
             metrics = ['accuracy']
         elif cf.dataset.class_mode == 'detection':
-            in_shape = (cf.dataset.n_channels,
-                        cf.target_size_train[0],
-                        cf.target_size_train[1])
+
             # Check model, different detection nets may have different losses and metrics
             if cf.model_name in ['yolo', 'tiny-yolo']:
+                in_shape = (cf.dataset.n_channels,
+                            cf.target_size_train[0],
+                            cf.target_size_train[1])
                 loss = YOLOLoss(in_shape, cf.dataset.n_classes, cf.dataset.priors)
                 metrics = [YOLOMetrics(in_shape, cf.dataset.n_classes, cf.dataset.priors)]
             elif cf.model_name == 'ssd300':
+                in_shape = (cf.target_size_train[0],
+                            cf.target_size_train[1], cf.dataset.n_channels)
                 loss = MultiboxLoss(cf.dataset.n_classes, neg_pos_ratio=0.2).compute_loss
                 metrics = None
             else:
