@@ -1,4 +1,4 @@
-# Keras imports
+import warnings
 import keras.backend as K
 from keras.layers import Dense, Dropout, Activation
 from keras.layers import Input, merge
@@ -12,15 +12,12 @@ from keras.regularizers import l2
 # Paper: https://arxiv.org/abs/1608.06993
 # Implementation adapted from: https://github.com/tdeboissiere/DeepLearningImplementations/tree/master/DenseNet
 
+
 def build_densenetFCN(img_shape=(3, 224, 224), n_classes=1000, weight_decay=1E-4,
                       load_pretrained=False, freeze_layers_from='base_model'):
-    # Decide if load pretrained weights from imagenet
+
     if load_pretrained:
-        # weights = 'imagenet'
-        # TODO: change pretrained weights
-        weights = None
-    else:
-        weights = None
+        warnings.warn("DenseNet does not support pre-trained ImageNet weights. Weights will be randomly initialized.")
 
     # Get base model
     base_model = DenseNet(img_shape, depth=40, nb_dense_block=3, growth_rate=12, nb_filter=-1, dropout_rate=0.2,
