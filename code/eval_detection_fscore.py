@@ -8,6 +8,7 @@ from keras.applications.imagenet_utils import preprocess_input
 from keras.preprocessing import image
 
 from models.yolo import build_yolo
+from models.ssd300 import build_ssd300
 from tools.yolo_utils import *
 
 # Input parameters to select the Dataset and the model used
@@ -39,13 +40,20 @@ NUM_PRIORS  = len(priors)
 NUM_CLASSES = len(classes)
 
 if model_name == 'tiny-yolo':
-    tiny_yolo = True
-else:
-    tiny_yolo = False
 
-model = build_yolo(img_shape=input_shape,n_classes=NUM_CLASSES, n_priors=5,
+    model = build_yolo(img_shape=input_shape, n_classes=NUM_CLASSES, n_priors=5,
+                       load_pretrained=False, freeze_layers_from='base_model',
+                       tiny=True)
+
+if model_name=='ssd':
+
+    model = build_ssd300(input_shape, NUM_CLASSES, 0,
+                         load_pretrained=False,
+                         freeze_layers_from='base_model')
+else:
+    model = build_yolo(img_shape=input_shape,n_classes=NUM_CLASSES, n_priors=5,
                load_pretrained=False,freeze_layers_from='base_model',
-               tiny=tiny_yolo)
+               tiny=False)
 
 model.load_weights(sys.argv[1])
 
