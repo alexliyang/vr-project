@@ -45,7 +45,7 @@ if model_name == 'tiny-yolo':
                        load_pretrained=False, freeze_layers_from='base_model',
                        tiny=True)
 
-if model_name=='ssd':
+elif model_name=='ssd':
 
     model = build_ssd300(input_shape, NUM_CLASSES, 0,
                          load_pretrained=False,
