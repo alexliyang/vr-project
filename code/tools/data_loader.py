@@ -23,7 +23,7 @@ from six.moves import range
 from skimage.color import rgb2gray, gray2rgb
 from tools.save_images import save_img2
 from tools.yolo_utils import yolo_build_gt_batch
-
+from tools.ssd_utils import BBoxUtility
 
 # Pad image
 def pad_image(x, pad_amount, mode='reflect', constant=0.):
@@ -1003,8 +1003,11 @@ class DirectoryIterator(Iterator):
             if current_batch_size > 1:
                 batch_x[i] = x
                 if self.has_gt_image:
+
                     batch_y[i] = y
                 elif self.class_mode == 'detection':
+                    if not self.yolo:
+                        y = BBoxUtility(self.nb_class).assign_boxes(y)
                     batch_y.append(y)
             else:
                 batch_x = np.expand_dims(x, axis=0)
@@ -1049,10 +1052,8 @@ class DirectoryIterator(Iterator):
             # YOLOLoss expects a particular batch_y format and shape
             if self.yolo:
                 batch_y = yolo_build_gt_batch(batch_y, self.image_shape, self.nb_class)
-            else:
-                batch_y = np.zeros((len(batch_x), self.nb_class), dtype='float32')
-                for i, label in enumerate(self.classes[index_array]):
-                    batch_y[i, label] = 1.
+
+
         elif self.class_mode == None:
             return batch_x
 
