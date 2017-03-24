@@ -1,12 +1,15 @@
-"""Some utils for SSD."""
-
 import numpy as np
+import pickle
+import urllib
+import os
 import tensorflow as tf
 
 """
-    SSD utitlities
-    code adapted from https://github.com/rykov8/ssd_keras/blob/master/ssd_utils.py
+    SSD utilities
+    from: https://github.com/rykov8/ssd_keras
 """
+
+"""Some utils for SSD."""
 
 class BBoxUtility(object):
     """Utility class to do some stuff with bounding boxes and priors.
@@ -23,9 +26,16 @@ class BBoxUtility(object):
     # TODO add setter methods for nms_thresh and top_K
     def __init__(self, num_classes, priors=None, overlap_threshold=0.5,
                  nms_thresh=0.45, top_k=400):
-        self.num_classes = num_classes
-        self.priors = priors
-        self.num_priors = 0 if priors is None else len(priors)
+        self.num_classes = num_classes+1
+        #self.num_classes = num_classes
+
+        # get default priors (https://github.com/rykov8/ssd_keras/raw/master/prior_boxes_ssd300.pkl)
+        if not os.path.isfile("prior_boxes_ssd300.pkl"):
+            print('   Downloading SSD priors')
+            urllib.urlretrieve("https://github.com/rykov8/ssd_keras/raw/master/prior_boxes_ssd300.pkl", "prior_boxes_ssd300.pkl")
+
+        self.priors = pickle.load(open('prior_boxes_ssd300.pkl', 'rb'))
+        self.num_priors = 0 if self.priors is None else len(self.priors)
         self.overlap_threshold = overlap_threshold
         self._nms_thresh = nms_thresh
         self._top_k = top_k
@@ -34,8 +44,6 @@ class BBoxUtility(object):
         self.nms = tf.image.non_max_suppression(self.boxes, self.scores,
                                                 self._top_k,
                                                 iou_threshold=self._nms_thresh)
-        self.sess = tf.Session(config=tf.ConfigProto(device_count={'GPU': 0}))
-
     @property
     def nms_thresh(self):
         return self._nms_thresh
@@ -58,7 +66,8 @@ class BBoxUtility(object):
                                                 self._top_k,
                                                 iou_threshold=self._nms_thresh)
 
-    def ssd_build_gt_batch(self, batch_gt, image_shape):
+
+    def ssd_build_gt_batch(self, batch_gt,image_shape):
 
         # First convert batch_gt to the format required by assign_boxes
         # boxes: Box, numpy tensor of shape (num_boxes, 4 + num_classes), num_classes without background
@@ -67,23 +76,22 @@ class BBoxUtility(object):
 
         for i, gt in enumerate(batch_gt):
             n_boxes = gt.shape[0]
-            boxes = np.zeros((n_boxes, 4 + self.num_classes - 1))  # -1 to not count background
+            boxes = np.zeros((n_boxes, 4+self.num_classes-1)) # -1 to not count background
             for j, box in enumerate(gt):
-                coords = box[1:]  # [xcenter, ycenter, width, height]
+                coords = box[1:] # [xcenter, ycenter, width, height]
                 # the code expects [xmin, ymin, xmax, ymax]
-                coords[0] = box[1] - box[3] / 2
-                coords[1] = box[2] - box[4] / 2
-                coords[2] = box[1] + box[3] / 2
-                coords[3] = box[2] + box[4] / 2
-                boxes[j, 0:4] = coords
-                one_hot = np.zeros(self.num_classes - 1)  # -1 to not count background
+                coords[0] = box[1] - box[3]/2
+                coords[1] = box[2] - box[4]/2
+                coords[2] = box[1] + box[3]/2
+                coords[3] = box[2] + box[4]/2
+                boxes[j,0:4] = coords
+                one_hot = np.zeros(self.num_classes-1) # -1 to not count background
                 one_hot[int(box[0])] = 1.
-                boxes[j, 4:] = one_hot
+                boxes[j,4:] = one_hot
             y = self.assign_boxes(boxes)
             targets.append(y)
 
         return np.array(targets)
-
 
     def iou(self, box):
         """Compute intersection over union for the box with all priors.
@@ -117,6 +125,7 @@ class BBoxUtility(object):
             encoded_box: Tensor with encoded box
                 numpy tensor of shape (num_priors, 4 + int(return_iou)).
         """
+
         iou = self.iou(box)
         encoded_box = np.zeros((self.num_priors, 4 + return_iou))
         assign_mask = iou > self.overlap_threshold
@@ -157,6 +166,7 @@ class BBoxUtility(object):
         assignment[:, 4] = 1.0
         if len(boxes) == 0:
             return assignment
+
         encoded_boxes = np.apply_along_axis(self.encode_box, 1, boxes[:, :4])
         encoded_boxes = encoded_boxes.reshape(-1, self.num_priors, 5)
         best_iou = encoded_boxes[:, :, -1].max(axis=0)

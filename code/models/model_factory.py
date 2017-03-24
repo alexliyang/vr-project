@@ -166,7 +166,7 @@ class Model_Factory():
                                load_pretrained=cf.load_imageNet,
                                freeze_layers_from=cf.freeze_layers_from, tiny=True)
         elif cf.model_name == 'ssd300':
-            model = build_ssd300(in_shape, cf.dataset.n_classes, cf.weight_decay,
+            model = build_ssd300(in_shape, cf.dataset.n_classes+1, cf.weight_decay,
                                  load_pretrained=cf.load_imageNet,
                                  freeze_layers_from=cf.freeze_layers_from)
         else:
