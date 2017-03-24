@@ -40,7 +40,6 @@ NUM_PRIORS  = len(priors)
 NUM_CLASSES = len(classes)
 
 if model_name == 'tiny-yolo':
-
     model = build_yolo(img_shape=input_shape, n_classes=NUM_CLASSES, n_priors=5,
                        load_pretrained=False, freeze_layers_from='base_model',
                        tiny=True)
@@ -54,7 +53,6 @@ else:
     quit()
 
 model.load_weights(sys.argv[3])
-
 
 test_dir = sys.argv[4]
 imfiles = [os.path.join(test_dir,f) for f in os.listdir(test_dir) 
