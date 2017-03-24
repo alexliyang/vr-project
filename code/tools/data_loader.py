@@ -1051,7 +1051,7 @@ class DirectoryIterator(Iterator):
             if self.yolo:
                 batch_y = yolo_build_gt_batch(batch_y, self.image_shape, self.nb_class)
             else:
-                batch_y = BBoxUtility(self.nb_class).ssd_buil_gt_batch(batch_y, self.image_shape)
+                batch_y = BBoxUtility(self.nb_class).ssd_build_gt_batch(batch_y, self.image_shape)
 
 
         elif self.class_mode == None:
