@@ -42,7 +42,8 @@ class Dataset_Generators():
                                        warp_sigma=cf.da_warp_sigma,
                                        warp_grid_size=cf.da_warp_grid_size,
                                        dim_ordering='th' if 'yolo' in cf.model_name else 'default',
-                                       class_mode=cf.dataset.class_mode
+                                       class_mode=cf.dataset.class_mode,
+                                       yolo=True if 'yolo' in cf.model_name else False
                                        )
 
             # Compute normalization constants if required

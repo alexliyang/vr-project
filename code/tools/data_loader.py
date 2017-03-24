@@ -222,7 +222,7 @@ class ImageDataGenerator(object):
                  class_mode='categorical',
                  rgb_mean=None,
                  rgb_std=None,
-                 crop_size=None):
+                 crop_size=None, yolo = False):
         if dim_ordering == 'default':
             dim_ordering = K.image_dim_ordering()
         self.__dict__.update(locals())
@@ -230,7 +230,7 @@ class ImageDataGenerator(object):
         # self.rescale = rescale
         self.preprocessing_function = preprocessing_function
         self.cb_weights = None
-
+        self.yolo = yolo
         if dim_ordering not in {'tf', 'th'}:
             raise Exception('dim_ordering should be "tf" (channel after row '
                             'and column) or "th" (channel before row and '
@@ -302,7 +302,7 @@ class ImageDataGenerator(object):
             batch_size=batch_size, shuffle=shuffle, seed=seed,
             gt_directory=gt_directory,
             save_to_dir=save_to_dir, save_prefix=save_prefix,
-            save_format=save_format)
+            save_format=save_format, yolo=self.yolo)
 
     def flow_from_directory2(self, directory,
                              resize=None, target_size=(256, 256),
@@ -841,12 +841,12 @@ class DirectoryIterator(Iterator):
                  dim_ordering='default',
                  classes=None, class_mode='categorical',
                  batch_size=32, shuffle=True, seed=None, gt_directory=None,
-                 save_to_dir=None, save_prefix='', save_format='jpeg'):
+                 save_to_dir=None, save_prefix='', save_format='jpeg', yolo = False):
         # Check dim order
         if dim_ordering == 'default':
             dim_ordering = K.image_dim_ordering()
         self.dim_ordering = dim_ordering
-
+        self.yolo = yolo
         self.directory = directory
         self.gt_directory = gt_directory
         self.image_data_generator = image_data_generator
@@ -1047,7 +1047,12 @@ class DirectoryIterator(Iterator):
         elif self.class_mode == 'detection':
             # TODO detection: check model, other networks may expect a different batch_y format and shape
             # YOLOLoss expects a particular batch_y format and shape
-            batch_y = yolo_build_gt_batch(batch_y, self.image_shape, self.nb_class)
+            if self.yolo:
+                batch_y = yolo_build_gt_batch(batch_y, self.image_shape, self.nb_class)
+            else:
+                batch_y = np.zeros((len(batch_x), self.nb_class), dtype='float32')
+                for i, label in enumerate(self.classes[index_array]):
+                    batch_y[i, label] = 1.
         elif self.class_mode == None:
             return batch_x
 
