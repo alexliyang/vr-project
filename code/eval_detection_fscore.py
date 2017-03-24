@@ -11,19 +11,20 @@ from models.yolo import build_yolo
 from models.ssd300 import build_ssd300
 from tools.yolo_utils import *
 
-# Input parameters to select the Dataset and the model used
-dataset_name = 'Udacity' #set to TT100K_detection otherwise
-model_name = 'tiny-yolo' #set to yolo otherwise
-
 # Net output post-processing needs two parameters:
 detection_threshold = 0.6 # Min probablity for a prediction to be considered
 nms_threshold       = 0.2 # Non Maximum Suppression threshold
 # IMPORTANT: the values of these two params will affect the final performance of the netwrok
 #            you are allowed to find their optimal values in the validation/train sets
 
-if len(sys.argv) < 3:
-  print "USAGE: python eval_detection_fscore.py weights_file path_to_images"
+if len(sys.argv) < 5:
+  print "USAGE: python eval_detection_fscore.py model_name dataset_name weights_file path_to_images"
+  print "   Supported models: yolo, tiny-yolo, ssd"
+  print "   Supported datasets: TT100K_detection, Udacity"
   quit()
+
+model_name = sys.argv[1]
+dataset_name = sys.argv[2]
 
 if dataset_name == 'TT100K_detection':
     classes = ['i2','i4','i5','il100','il60','il80','io','ip','p10','p11','p12','p19','p23','p26','p27','p3','p5','p6','pg','ph4','ph4.5','ph5','pl100','pl120','pl20','pl30','pl40','pl5','pl50','pl60','pl70','pl80','pm20','pm30','pm55','pn','pne','po','pr40','w13','w32','w55','w57','w59','wo']
@@ -45,20 +46,23 @@ if model_name == 'tiny-yolo':
                        load_pretrained=False, freeze_layers_from='base_model',
                        tiny=True)
 
-elif model_name=='ssd':
+elif model_name == 'ssd':
 
     model = build_ssd300(input_shape, NUM_CLASSES, 0,
                          load_pretrained=False,
                          freeze_layers_from='base_model')
-else:
+elif model_name == 'yolo':
     model = build_yolo(img_shape=input_shape,n_classes=NUM_CLASSES, n_priors=5,
                load_pretrained=False,freeze_layers_from='base_model',
                tiny=False)
+else:
+    print "Error: Model not supported!"
+    quit()
 
-model.load_weights(sys.argv[1])
+model.load_weights(sys.argv[3])
 
 
-test_dir = sys.argv[2]
+test_dir = sys.argv[4]
 imfiles = [os.path.join(test_dir,f) for f in os.listdir(test_dir) 
                                     if os.path.isfile(os.path.join(test_dir,f)) 
                                     and f.endswith('jpg')]
@@ -75,8 +79,13 @@ ok = 0.
 total_true = 0.
 total_pred = 0.
 
+mean_p = 0.
+mean_r = 0.
+mean_f = 0.
+mean_fps = 0.
+iter = 0.
+
 for i,img_path in enumerate(imfiles):
-  
   img = image.load_img(img_path, target_size=(input_shape[1], input_shape[2]))
   img = image.img_to_array(img)
   img = img / 255.
@@ -84,10 +93,13 @@ for i,img_path in enumerate(imfiles):
   img_paths.append(img_path)
 
   if len(img_paths)%chunk_size == 0 or i+1 == len(imfiles):
+    iter += 1
     inputs = np.array(inputs)
     start_time = time.time()
     net_out = model.predict(inputs, batch_size=16, verbose=1)
-    print ('{} images predicted in {:.5f} seconds. {:.5f} fps').format(len(inputs),time.time() - start_time,(len(inputs)/(time.time() - start_time)))
+    sec = time.time() - start_time
+    fps = len(inputs)/sec
+    print ('{} images predicted in {:.5f} seconds. {:.5f} fps').format(len(inputs),sec,fps)
 
     # find correct detections (per image)
     for i,img_path in enumerate(img_paths):
@@ -130,7 +142,21 @@ for i,img_path in enumerate(imfiles):
     #print 'total_true:',total_true,' total_pred:',total_pred,' ok:',ok
     p = 0. if total_pred == 0 else (ok/total_pred)
     r = ok/total_true
-    print('Precission = '+str(p))
+    print('Precision = '+str(p))
     print('Recall     = '+str(r))
     f = 0. if (p+r) == 0 else (2*p*r/(p+r))
     print('F-score    = '+str(f))
+    
+    mean_p += p
+    mean_r += r
+    mean_f += f
+    mean_fps += fps
+    
+print('-----------------------------------')
+print('-----------------------------------')
+print('Average precision = ' + str(mean_p/iter))
+print('Average recall = ' + str(mean_r/iter))
+print('Average f_score = ' + str(mean_f/iter))
+print('Average fps = ' + str(mean_fps/iter))
+print('-----------------------------------')
+print('-----------------------------------')
