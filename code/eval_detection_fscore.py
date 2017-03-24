@@ -83,7 +83,7 @@ mean_p = 0.
 mean_r = 0.
 mean_f = 0.
 mean_fps = 0.
-iter = 0.
+iterations = 0.
 
 for i,img_path in enumerate(imfiles):
   img = image.load_img(img_path, target_size=(input_shape[1], input_shape[2]))
@@ -93,7 +93,7 @@ for i,img_path in enumerate(imfiles):
   img_paths.append(img_path)
 
   if len(img_paths)%chunk_size == 0 or i+1 == len(imfiles):
-    iter += 1
+    iterations += 1
     inputs = np.array(inputs)
     start_time = time.time()
     net_out = model.predict(inputs, batch_size=16, verbose=1)
@@ -154,9 +154,9 @@ for i,img_path in enumerate(imfiles):
     
 print('-----------------------------------')
 print('-----------------------------------')
-print('Average precision = ' + str(mean_p/iter))
-print('Average recall = ' + str(mean_r/iter))
-print('Average f_score = ' + str(mean_f/iter))
-print('Average fps = ' + str(mean_fps/iter))
+print('Average precision = ' + str(mean_p/iterations))
+print('Average recall = ' + str(mean_r/iterations))
+print('Average f_score = ' + str(mean_f/iterations))
+print('Average fps = ' + str(mean_fps/iterations))
 print('-----------------------------------')
 print('-----------------------------------')
