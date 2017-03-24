@@ -1006,8 +1006,6 @@ class DirectoryIterator(Iterator):
 
                     batch_y[i] = y
                 elif self.class_mode == 'detection':
-                    if not self.yolo:
-                        y = BBoxUtility(self.nb_class).assign_boxes(y)
                     batch_y.append(y)
             else:
                 batch_x = np.expand_dims(x, axis=0)
@@ -1052,6 +1050,8 @@ class DirectoryIterator(Iterator):
             # YOLOLoss expects a particular batch_y format and shape
             if self.yolo:
                 batch_y = yolo_build_gt_batch(batch_y, self.image_shape, self.nb_class)
+            else:
+                batch_y = BBoxUtility(self.nb_class).ssd_buil_gt_batch(batch_y, self.image_shape)
 
 
         elif self.class_mode == None:

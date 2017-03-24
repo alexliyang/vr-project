@@ -58,6 +58,33 @@ class BBoxUtility(object):
                                                 self._top_k,
                                                 iou_threshold=self._nms_thresh)
 
+    def ssd_build_gt_batch(self, batch_gt, image_shape):
+
+        # First convert batch_gt to the format required by assign_boxes
+        # boxes: Box, numpy tensor of shape (num_boxes, 4 + num_classes), num_classes without background
+
+        targets = []
+
+        for i, gt in enumerate(batch_gt):
+            n_boxes = gt.shape[0]
+            boxes = np.zeros((n_boxes, 4 + self.num_classes - 1))  # -1 to not count background
+            for j, box in enumerate(gt):
+                coords = box[1:]  # [xcenter, ycenter, width, height]
+                # the code expects [xmin, ymin, xmax, ymax]
+                coords[0] = box[1] - box[3] / 2
+                coords[1] = box[2] - box[4] / 2
+                coords[2] = box[1] + box[3] / 2
+                coords[3] = box[2] + box[4] / 2
+                boxes[j, 0:4] = coords
+                one_hot = np.zeros(self.num_classes - 1)  # -1 to not count background
+                one_hot[int(box[0])] = 1.
+                boxes[j, 4:] = one_hot
+            y = self.assign_boxes(boxes)
+            targets.append(y)
+
+        return np.array(targets)
+
+
     def iou(self, box):
         """Compute intersection over union for the box with all priors.
         # Arguments
