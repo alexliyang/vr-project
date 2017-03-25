@@ -113,8 +113,10 @@ class Configuration():
             cf.best_type = 'max'
         elif cf.dataset.class_mode == 'detection':
             # TODO detection : different nets may have other metrics
+         #   cf.train_metrics = ['loss']
             cf.train_metrics = ['loss', 'avg_recall', 'avg_iou']
             cf.valid_metrics = ['val_loss', 'val_avg_recall', 'val_avg_iou']
+           # cf.valid_metrics = ['val_loss']
             cf.best_metric = 'val_avg_recall'
             cf.best_type = 'max'
         else:
