@@ -391,56 +391,59 @@ class MultiboxLoss(object):
         return total_loss
 
 
-def SSDMetrics(priors, num_classes, y_true, y_pred, name=None):
-    net_out = tf.transpose(y_pred, perm=[0, 2, 3, 1])
+def SSDMetrics(input_shape=(3, 640, 640),
+                num_classes=45,
+                priors=None):
+    def _SSDMetrics( y_true, y_pred, name=None):
+        net_out = tf.transpose(y_pred, perm=[0, 2, 3, 1])
 
-    _, h, w, c = net_out.get_shape().as_list()
-    b = len(priors)
-    anchors = np.array(priors)
+        _, h, w, c = net_out.get_shape().as_list()
+        b = len(priors)
+        anchors = np.array(priors)
 
-    _probs, _confs, _coord, _areas, _upleft, _botright = tf.split(y_true, [num_classes, 1, 4, 1, 2, 2], axis=3)
-    _confs = tf.squeeze(_confs, 3)
-    _areas = tf.squeeze(_areas, 3)
+        _probs, _confs, _coord, _areas, _upleft, _botright = tf.split(y_true, [num_classes, 1, 4, 1, 2, 2], axis=3)
+        _confs = tf.squeeze(_confs, 3)
+        _areas = tf.squeeze(_areas, 3)
 
-    net_out_reshape = tf.reshape(net_out, [-1, h, w, b, (4 + 1 + num_classes)])
-    # Extract the coordinate prediction from net.out
-    coords = net_out_reshape[:, :, :, :, :4]
-    coords = tf.reshape(coords, [-1, h * w, b, 4])
-    adjusted_coords_xy = logistic_activate_tensor(coords[:, :, :, 0:2])
-    adjusted_coords_wh = tf.sqrt(
-        tf.exp(coords[:, :, :, 2:4]) * np.reshape(anchors, [1, 1, b, 2]) / np.reshape([w, h], [1, 1, 1, 2]))
-    coords = tf.concat([adjusted_coords_xy, adjusted_coords_wh], 3)
+        net_out_reshape = tf.reshape(net_out, [-1, h, w, b, (4 + 1 + num_classes)])
+        # Extract the coordinate prediction from net.out
+        coords = net_out_reshape[:, :, :, :, :4]
+        coords = tf.reshape(coords, [-1, h * w, b, 4])
+        adjusted_coords_xy = logistic_activate_tensor(coords[:, :, :, 0:2])
+        adjusted_coords_wh = tf.sqrt(
+            tf.exp(coords[:, :, :, 2:4]) * np.reshape(anchors, [1, 1, b, 2]) / np.reshape([w, h], [1, 1, 1, 2]))
+        coords = tf.concat([adjusted_coords_xy, adjusted_coords_wh], 3)
 
-    adjusted_c = logistic_activate_tensor(net_out_reshape[:, :, :, :, 4])
-    adjusted_c = tf.reshape(adjusted_c, [-1, h * w, b, 1])
+        adjusted_c = logistic_activate_tensor(net_out_reshape[:, :, :, :, 4])
+        adjusted_c = tf.reshape(adjusted_c, [-1, h * w, b, 1])
 
-    adjusted_prob = tf.nn.softmax(net_out_reshape[:, :, :, :, 5:])
-    adjusted_prob = tf.reshape(adjusted_prob, [-1, h * w, b, num_classes])
+        adjusted_prob = tf.nn.softmax(net_out_reshape[:, :, :, :, 5:])
+        adjusted_prob = tf.reshape(adjusted_prob, [-1, h * w, b, num_classes])
 
-    adjusted_net_out = tf.concat([adjusted_coords_xy, adjusted_coords_wh, adjusted_c, adjusted_prob], 3)
+        adjusted_net_out = tf.concat([adjusted_coords_xy, adjusted_coords_wh, adjusted_c, adjusted_prob], 3)
 
-    wh = tf.pow(coords[:, :, :, 2:4], 2) * np.reshape([w, h], [1, 1, 1, 2])
-    area_pred = wh[:, :, :, 0] * wh[:, :, :, 1]
-    centers = coords[:, :, :, 0:2]
-    floor = centers - (wh * .5)
-    ceil = centers + (wh * .5)
+        wh = tf.pow(coords[:, :, :, 2:4], 2) * np.reshape([w, h], [1, 1, 1, 2])
+        area_pred = wh[:, :, :, 0] * wh[:, :, :, 1]
+        centers = coords[:, :, :, 0:2]
+        floor = centers - (wh * .5)
+        ceil = centers + (wh * .5)
 
-    # calculate the intersection areas
-    intersect_upleft = tf.maximum(floor, _upleft)
-    intersect_botright = tf.minimum(ceil, _botright)
-    intersect_wh = intersect_botright - intersect_upleft
-    intersect_wh = tf.maximum(intersect_wh, 0.0)
-    intersect = tf.multiply(intersect_wh[:, :, :, 0], intersect_wh[:, :, :, 1])
+        # calculate the intersection areas
+        intersect_upleft = tf.maximum(floor, _upleft)
+        intersect_botright = tf.minimum(ceil, _botright)
+        intersect_wh = intersect_botright - intersect_upleft
+        intersect_wh = tf.maximum(intersect_wh, 0.0)
+        intersect = tf.multiply(intersect_wh[:, :, :, 0], intersect_wh[:, :, :, 1])
 
-    # calculate the best IOU and metrics
-    iou = tf.truediv(intersect, _areas + area_pred - intersect)
-    best_ious = tf.reduce_max(iou, [2], True)
-    recall = tf.reduce_sum(tf.to_float(tf.greater(best_ious, 0.5)), [1])
-    sum_best_ious = tf.reduce_sum(best_ious, [1])
-    gt_obj_areas = tf.reduce_mean(_areas, [2], True)
-    num_gt_obj = tf.reduce_sum(tf.to_float(tf.greater(gt_obj_areas, tf.zeros_like(gt_obj_areas))), [1])
-    avg_iou = tf.truediv(sum_best_ious, num_gt_obj)
-    avg_recall = tf.truediv(recall, num_gt_obj)
+        # calculate the best IOU and metrics
+        iou = tf.truediv(intersect, _areas + area_pred - intersect)
+        best_ious = tf.reduce_max(iou, [2], True)
+        recall = tf.reduce_sum(tf.to_float(tf.greater(best_ious, 0.5)), [1])
+        sum_best_ious = tf.reduce_sum(best_ious, [1])
+        gt_obj_areas = tf.reduce_mean(_areas, [2], True)
+        num_gt_obj = tf.reduce_sum(tf.to_float(tf.greater(gt_obj_areas, tf.zeros_like(gt_obj_areas))), [1])
+        avg_iou = tf.truediv(sum_best_ious, num_gt_obj)
+        avg_recall = tf.truediv(recall, num_gt_obj)
 
-    return {'avg_iou': tf.reduce_mean(avg_iou), 'avg_recall': tf.reduce_mean(avg_recall)}
-
+        return {'avg_iou': tf.reduce_mean(avg_iou), 'avg_recall': tf.reduce_mean(avg_recall)}
+    return _SSDMetrics
