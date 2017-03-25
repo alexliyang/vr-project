@@ -117,6 +117,8 @@ class One_Net_Model(Model):
                                                          max_q_size=10,
                                                          nb_worker=1,
                                                          pickle_safe=False)
+            # Ensure that test metrics is a list
+            
             total_time = time.time() - start_time
             fps = float(self.cf.dataset.n_images_test) / total_time
             s_p_f = total_time / float(self.cf.dataset.n_images_test)

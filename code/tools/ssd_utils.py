@@ -11,6 +11,7 @@ import tensorflow as tf
 
 """Some utils for SSD."""
 
+
 class BBoxUtility(object):
     """Utility class to do some stuff with bounding boxes and priors.
     # Arguments
@@ -23,16 +24,17 @@ class BBoxUtility(object):
     # References
         https://arxiv.org/abs/1512.02325
     """
+
     # TODO add setter methods for nms_thresh and top_K
     def __init__(self, num_classes, priors=None, overlap_threshold=0.5,
                  nms_thresh=0.45, top_k=400):
-        self.num_classes = num_classes+1
-        #self.num_classes = num_classes
+        self.num_classes = num_classes + 1
 
         # get default priors (https://github.com/rykov8/ssd_keras/raw/master/prior_boxes_ssd300.pkl)
         if not os.path.isfile("prior_boxes_ssd300.pkl"):
             print('   Downloading SSD priors')
-            urllib.urlretrieve("https://github.com/rykov8/ssd_keras/raw/master/prior_boxes_ssd300.pkl", "prior_boxes_ssd300.pkl")
+            urllib.urlretrieve("https://github.com/rykov8/ssd_keras/raw/master/prior_boxes_ssd300.pkl",
+                               "prior_boxes_ssd300.pkl")
 
         self.priors = pickle.load(open('prior_boxes_ssd300.pkl', 'rb'))
         self.num_priors = 0 if self.priors is None else len(self.priors)
@@ -44,6 +46,7 @@ class BBoxUtility(object):
         self.nms = tf.image.non_max_suppression(self.boxes, self.scores,
                                                 self._top_k,
                                                 iou_threshold=self._nms_thresh)
+
     @property
     def nms_thresh(self):
         return self._nms_thresh
@@ -66,8 +69,7 @@ class BBoxUtility(object):
                                                 self._top_k,
                                                 iou_threshold=self._nms_thresh)
 
-
-    def ssd_build_gt_batch(self, batch_gt,image_shape):
+    def ssd_build_gt_batch(self, batch_gt, image_shape):
 
         # First convert batch_gt to the format required by assign_boxes
         # boxes: Box, numpy tensor of shape (num_boxes, 4 + num_classes), num_classes without background
@@ -76,18 +78,18 @@ class BBoxUtility(object):
 
         for i, gt in enumerate(batch_gt):
             n_boxes = gt.shape[0]
-            boxes = np.zeros((n_boxes, 4+self.num_classes-1)) # -1 to not count background
+            boxes = np.zeros((n_boxes, 4 + self.num_classes - 1))  # -1 to not count background
             for j, box in enumerate(gt):
-                coords = box[1:] # [xcenter, ycenter, width, height]
+                coords = box[1:]  # [xcenter, ycenter, width, height]
                 # the code expects [xmin, ymin, xmax, ymax]
-                coords[0] = box[1] - box[3]/2
-                coords[1] = box[2] - box[4]/2
-                coords[2] = box[1] + box[3]/2
-                coords[3] = box[2] + box[4]/2
-                boxes[j,0:4] = coords
-                one_hot = np.zeros(self.num_classes-1) # -1 to not count background
+                coords[0] = box[1] - box[3] / 2
+                coords[1] = box[2] - box[4] / 2
+                coords[2] = box[1] + box[3] / 2
+                coords[3] = box[2] + box[4] / 2
+                boxes[j, 0:4] = coords
+                one_hot = np.zeros(self.num_classes - 1)  # -1 to not count background
                 one_hot[int(box[0])] = 1.
-                boxes[j,4:] = one_hot
+                boxes[j, 4:] = one_hot
             y = self.assign_boxes(boxes)
             targets.append(y)
 
@@ -176,8 +178,8 @@ class BBoxUtility(object):
         assign_num = len(best_iou_idx)
         encoded_boxes = encoded_boxes[:, best_iou_mask, :]
         assignment[:, :4][best_iou_mask] = encoded_boxes[best_iou_idx,
-                                                         np.arange(assign_num),
-                                                         :4]
+                                           np.arange(assign_num),
+                                           :4]
         assignment[:, 4][best_iou_mask] = 0
         assignment[:, 5:-8][best_iou_mask] = boxes[best_iou_idx, 4:]
         assignment[:, -8][best_iou_mask] = 1
