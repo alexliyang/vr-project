@@ -1,5 +1,6 @@
 import numpy as np
 from keras import backend as K
+
 dim_ordering = K.image_dim_ordering()
 if dim_ordering == 'th':
     import theano
@@ -17,8 +18,8 @@ def cce_flatt(void_class, weights_class):
         if dim_ordering == 'th':
             y_pred = K.permute_dimensions(y_pred, (0, 2, 3, 1))
         shp_y_pred = K.shape(y_pred)
-        y_pred = K.reshape(y_pred, (shp_y_pred[0]*shp_y_pred[1]*shp_y_pred[2],
-                           shp_y_pred[3]))  # go back to b01,c
+        y_pred = K.reshape(y_pred, (shp_y_pred[0] * shp_y_pred[1] * shp_y_pred[2],
+                                    shp_y_pred[3]))  # go back to b01,c
         # shp_y_true = K.shape(y_true)
 
         if dim_ordering == 'th':
@@ -54,6 +55,7 @@ def cce_flatt(void_class, weights_class):
             out = out * class_balance_w
 
         return K.mean(out)  # b01 -> b,01
+
     return categorical_crossentropy_flatt
 
 
@@ -65,8 +67,8 @@ def IoU(n_classes, void_labels):
         if dim_ordering == 'th':
             y_pred = K.permute_dimensions(y_pred, (0, 2, 3, 1))
         shp_y_pred = K.shape(y_pred)
-        y_pred = K.reshape(y_pred, (shp_y_pred[0]*shp_y_pred[1]*shp_y_pred[2],
-                           shp_y_pred[3]))  # go back to b01,c
+        y_pred = K.reshape(y_pred, (shp_y_pred[0] * shp_y_pred[1] * shp_y_pred[2],
+                                    shp_y_pred[3]))  # go back to b01,c
         # shp_y_true = K.shape(y_true)
         y_true = K.cast(K.flatten(y_true), 'int32')  # b,01 -> b01
         y_pred = K.argmax(y_pred, axis=-1)
@@ -98,8 +100,8 @@ def IoU(n_classes, void_labels):
                 y_pred_i = K.cast(y_pred_i, 'float32')
                 I_i = K.sum(y_true_i * y_pred_i)
                 sum_I = sum_I + I_i
-            out['I'+str(i)] = I_i
-            out['U'+str(i)] = U_i
+            out['I' + str(i)] = I_i
+            out['U' + str(i)] = U_i
 
         if dim_ordering == 'th':
             accuracy = K.sum(sum_I) / K.sum(not_void)
@@ -107,7 +109,9 @@ def IoU(n_classes, void_labels):
             accuracy = K.sum(sum_I) / tf.reduce_sum(tf.cast(not_void, 'float32'))
         out['acc'] = accuracy
         return out
+
     return IoU_flatt
+
 
 """
     YOLO loss function
@@ -119,7 +123,7 @@ def logistic_activate_tensor(x):
     return 1. / (1. + tf.exp(-x))
 
 
-def YOLOLoss(input_shape=(3,640,640),
+def YOLOLoss(input_shape=(3, 640, 640),
              num_classes=45,
              priors=[[0.25, 0.25], [0.5, 0.5], [1.0, 1.0], [1.7, 1.7], [2.5, 2.5]],
              max_truth_boxes=30,
@@ -130,45 +134,45 @@ def YOLOLoss(input_shape=(3,640,640),
              class_scale=1.0):
     # Def custom loss function using numpy
     def _YOLOLoss(y_true, y_pred, name=None, priors=priors):
-
         net_out = tf.transpose(y_pred, perm=[0, 2, 3, 1])
 
-        _,h,w,c = net_out.get_shape().as_list()
+        _, h, w, c = net_out.get_shape().as_list()
         b = len(priors)
         anchors = np.array(priors)
 
-        _probs, _confs, _coord, _areas, _upleft, _botright = tf.split(y_true, [num_classes,1,4,1,2,2], axis=3)
-        _confs = tf.squeeze(_confs,3)
-        _areas = tf.squeeze(_areas,3)
+        _probs, _confs, _coord, _areas, _upleft, _botright = tf.split(y_true, [num_classes, 1, 4, 1, 2, 2], axis=3)
+        _confs = tf.squeeze(_confs, 3)
+        _areas = tf.squeeze(_areas, 3)
 
         net_out_reshape = tf.reshape(net_out, [-1, h, w, b, (4 + 1 + num_classes)])
         # Extract the coordinate prediction from net.out
         coords = net_out_reshape[:, :, :, :, :4]
-        coords = tf.reshape(coords, [-1, h*w, b, 4])
-        adjusted_coords_xy = logistic_activate_tensor(coords[:,:,:,0:2])
-        adjusted_coords_wh = tf.sqrt(tf.exp(coords[:,:,:,2:4]) * np.reshape(anchors, [1, 1, b, 2]) / np.reshape([w, h], [1, 1, 1, 2]))
+        coords = tf.reshape(coords, [-1, h * w, b, 4])
+        adjusted_coords_xy = logistic_activate_tensor(coords[:, :, :, 0:2])
+        adjusted_coords_wh = tf.sqrt(
+            tf.exp(coords[:, :, :, 2:4]) * np.reshape(anchors, [1, 1, b, 2]) / np.reshape([w, h], [1, 1, 1, 2]))
         coords = tf.concat([adjusted_coords_xy, adjusted_coords_wh], 3)
 
         adjusted_c = logistic_activate_tensor(net_out_reshape[:, :, :, :, 4])
-        adjusted_c = tf.reshape(adjusted_c, [-1, h*w, b, 1])
+        adjusted_c = tf.reshape(adjusted_c, [-1, h * w, b, 1])
 
         adjusted_prob = tf.nn.softmax(net_out_reshape[:, :, :, :, 5:])
-        adjusted_prob = tf.reshape(adjusted_prob, [-1, h*w, b, num_classes])
+        adjusted_prob = tf.reshape(adjusted_prob, [-1, h * w, b, num_classes])
 
         adjusted_net_out = tf.concat([adjusted_coords_xy, adjusted_coords_wh, adjusted_c, adjusted_prob], 3)
 
-        wh = tf.pow(coords[:,:,:,2:4], 2) *  np.reshape([w, h], [1, 1, 1, 2])
-        area_pred = wh[:,:,:,0] * wh[:,:,:,1]
-        centers = coords[:,:,:,0:2]
+        wh = tf.pow(coords[:, :, :, 2:4], 2) * np.reshape([w, h], [1, 1, 1, 2])
+        area_pred = wh[:, :, :, 0] * wh[:, :, :, 1]
+        centers = coords[:, :, :, 0:2]
         floor = centers - (wh * .5)
-        ceil  = centers + (wh * .5)
+        ceil = centers + (wh * .5)
 
         # calculate the intersection areas
-        intersect_upleft   = tf.maximum(floor, _upleft)
+        intersect_upleft = tf.maximum(floor, _upleft)
         intersect_botright = tf.minimum(ceil, _botright)
         intersect_wh = intersect_botright - intersect_upleft
         intersect_wh = tf.maximum(intersect_wh, 0.0)
-        intersect = tf.multiply(intersect_wh[:,:,:,0], intersect_wh[:,:,:,1])
+        intersect = tf.multiply(intersect_wh[:, :, :, 0], intersect_wh[:, :, :, 1])
 
         # calculate the best IOU, set 0.0 confidence for worse boxes
         iou = tf.truediv(intersect, _areas + area_pred - intersect)
@@ -184,15 +188,15 @@ def YOLOLoss(input_shape=(3,640,640),
         weight_pro = tf.concat(num_classes * [tf.expand_dims(confs, -1)], 3)
         proid = class_scale * weight_pro
 
-        true = tf.concat([_coord, tf.expand_dims(confs, 3), _probs ], 3)
-        wght = tf.concat([cooid, tf.expand_dims(conid, 3), proid ], 3)
+        true = tf.concat([_coord, tf.expand_dims(confs, 3), _probs], 3)
+        wght = tf.concat([cooid, tf.expand_dims(conid, 3), proid], 3)
 
         loss = tf.pow(adjusted_net_out - true, 2)
         loss = tf.multiply(loss, wght)
-        loss = tf.reshape(loss, [-1, h*w*b*(4 + 1 + num_classes)])
+        loss = tf.reshape(loss, [-1, h * w * b * (4 + 1 + num_classes)])
         loss = tf.reduce_sum(loss, 1)
 
-        return .5*tf.reduce_mean(loss)
+        return .5 * tf.reduce_mean(loss)
 
     return _YOLOLoss
 
@@ -209,7 +213,6 @@ def YOLOMetrics(input_shape=(3, 640, 640),
                 max_truth_boxes=30,
                 thresh=0.6,
                 nms_thresh=0.3):
-
     def _YOLOMetrics(y_true, y_pred, name=None):
         net_out = tf.transpose(y_pred, perm=[0, 2, 3, 1])
 
@@ -217,29 +220,30 @@ def YOLOMetrics(input_shape=(3, 640, 640),
         b = len(priors)
         anchors = np.array(priors)
 
-        _probs, _confs, _coord, _areas, _upleft, _botright = tf.split(y_true, [num_classes,1,4,1,2,2], axis=3)
-        _confs = tf.squeeze(_confs,3)
-        _areas = tf.squeeze(_areas,3)
+        _probs, _confs, _coord, _areas, _upleft, _botright = tf.split(y_true, [num_classes, 1, 4, 1, 2, 2], axis=3)
+        _confs = tf.squeeze(_confs, 3)
+        _areas = tf.squeeze(_areas, 3)
 
         net_out_reshape = tf.reshape(net_out, [-1, h, w, b, (4 + 1 + num_classes)])
         # Extract the coordinate prediction from net.out
         coords = net_out_reshape[:, :, :, :, :4]
-        coords = tf.reshape(coords, [-1, h*w, b, 4])
-        adjusted_coords_xy = logistic_activate_tensor(coords[:,:,:,0:2])
-        adjusted_coords_wh = tf.sqrt(tf.exp(coords[:,:,:,2:4]) * np.reshape(anchors, [1, 1, b, 2]) / np.reshape([w, h], [1, 1, 1, 2]))
+        coords = tf.reshape(coords, [-1, h * w, b, 4])
+        adjusted_coords_xy = logistic_activate_tensor(coords[:, :, :, 0:2])
+        adjusted_coords_wh = tf.sqrt(
+            tf.exp(coords[:, :, :, 2:4]) * np.reshape(anchors, [1, 1, b, 2]) / np.reshape([w, h], [1, 1, 1, 2]))
         coords = tf.concat([adjusted_coords_xy, adjusted_coords_wh], 3)
 
         adjusted_c = logistic_activate_tensor(net_out_reshape[:, :, :, :, 4])
-        adjusted_c = tf.reshape(adjusted_c, [-1, h*w, b, 1])
+        adjusted_c = tf.reshape(adjusted_c, [-1, h * w, b, 1])
 
         adjusted_prob = tf.nn.softmax(net_out_reshape[:, :, :, :, 5:])
-        adjusted_prob = tf.reshape(adjusted_prob, [-1, h*w, b, num_classes])
+        adjusted_prob = tf.reshape(adjusted_prob, [-1, h * w, b, num_classes])
 
         adjusted_net_out = tf.concat([adjusted_coords_xy, adjusted_coords_wh, adjusted_c, adjusted_prob], 3)
 
-        wh = tf.pow(coords[:,:,:,2:4], 2) *  np.reshape([w, h], [1, 1, 1, 2])
-        area_pred = wh[:,:,:,0] * wh[:,:,:,1]
-        centers = coords[:,:,:,0:2]
+        wh = tf.pow(coords[:, :, :, 2:4], 2) * np.reshape([w, h], [1, 1, 1, 2])
+        area_pred = wh[:, :, :, 0] * wh[:, :, :, 1]
+        centers = coords[:, :, :, 0:2]
         floor = centers - (wh * .5)
         ceil = centers + (wh * .5)
 
@@ -248,19 +252,20 @@ def YOLOMetrics(input_shape=(3, 640, 640),
         intersect_botright = tf.minimum(ceil, _botright)
         intersect_wh = intersect_botright - intersect_upleft
         intersect_wh = tf.maximum(intersect_wh, 0.0)
-        intersect = tf.multiply(intersect_wh[:,:,:,0], intersect_wh[:,:,:,1])
+        intersect = tf.multiply(intersect_wh[:, :, :, 0], intersect_wh[:, :, :, 1])
 
         # calculate the best IOU and metrics
         iou = tf.truediv(intersect, _areas + area_pred - intersect)
         best_ious = tf.reduce_max(iou, [2], True)
-        recall = tf.reduce_sum(tf.to_float(tf.greater(best_ious,0.5)), [1])
+        recall = tf.reduce_sum(tf.to_float(tf.greater(best_ious, 0.5)), [1])
         sum_best_ious = tf.reduce_sum(best_ious, [1])
         gt_obj_areas = tf.reduce_mean(_areas, [2], True)
-        num_gt_obj = tf.reduce_sum(tf.to_float(tf.greater(gt_obj_areas,tf.zeros_like(gt_obj_areas))), [1])
+        num_gt_obj = tf.reduce_sum(tf.to_float(tf.greater(gt_obj_areas, tf.zeros_like(gt_obj_areas))), [1])
         avg_iou = tf.truediv(sum_best_ious, num_gt_obj)
         avg_recall = tf.truediv(recall, num_gt_obj)
 
-        return {'avg_iou':tf.reduce_mean(avg_iou), 'avg_recall':tf.reduce_mean(avg_recall)}
+        return {'avg_iou': tf.reduce_mean(avg_iou), 'avg_recall': tf.reduce_mean(avg_recall)}
+
     return _YOLOMetrics
 
 
@@ -281,6 +286,7 @@ class MultiboxLoss(object):
     # TODO
         Add possibility for background label id be not zero
     """
+
     def __init__(self, num_classes, alpha=1.0, neg_pos_ratio=3.0,
                  background_label_id=0, negatives_for_hard=100.0):
         self.num_classes = num_classes
@@ -304,7 +310,7 @@ class MultiboxLoss(object):
             https://arxiv.org/abs/1504.08083
         """
         abs_loss = tf.abs(y_true - y_pred)
-        sq_loss = 0.5 * (y_true - y_pred)**2
+        sq_loss = 0.5 * (y_true - y_pred) ** 2
         l1_loss = tf.where(tf.less(abs_loss, 1.0), sq_loss, abs_loss - 0.5)
         return tf.reduce_sum(l1_loss, -1)
 
@@ -359,7 +365,7 @@ class MultiboxLoss(object):
         pos_num_neg_mask = tf.greater(num_neg, 0)
         has_min = tf.to_float(tf.reduce_any(pos_num_neg_mask))
         num_neg = tf.concat(axis=0, values=[num_neg,
-                                [(1 - has_min) * self.negatives_for_hard]])
+                                            [(1 - has_min) * self.negatives_for_hard]])
         num_neg_batch = tf.reduce_min(tf.boolean_mask(num_neg,
                                                       tf.greater(num_neg, 0)))
         num_neg_batch = tf.to_int32(num_neg_batch)
@@ -386,6 +392,65 @@ class MultiboxLoss(object):
         total_loss = pos_conf_loss + neg_conf_loss
         total_loss /= (num_pos + tf.to_float(num_neg_batch))
         num_pos = tf.where(tf.not_equal(num_pos, 0), num_pos,
-                            tf.ones_like(num_pos))
+                           tf.ones_like(num_pos))
         total_loss += (self.alpha * pos_loc_loss) / num_pos
         return total_loss
+
+
+def SSDMetrics(input_shape=(3, 640, 640),
+               num_classes=45,
+               priors=None):
+    def _SSDMetrics(y_true, y_pred, name=None):
+        net_out = tf.transpose(y_pred, perm=[0, 2, 3, 1])
+
+        _, h, w, c = net_out.get_shape().as_list()
+        b = len(priors)
+        anchors = np.array(priors)
+
+        _probs, _confs, _coord, _areas, _upleft, _botright = tf.split(y_true, [num_classes, 1, 4, 1, 2, 2], axis=3)
+        _confs = tf.squeeze(_confs, 3)
+        _areas = tf.squeeze(_areas, 3)
+
+        net_out_reshape = tf.reshape(net_out, [-1, h, w, b, (4 + 1 + num_classes)])
+        # Extract the coordinate prediction from net.out
+        coords = net_out_reshape[:, :, :, :, :4]
+        coords = tf.reshape(coords, [-1, h * w, b, 4])
+        adjusted_coords_xy = logistic_activate_tensor(coords[:, :, :, 0:2])
+        adjusted_coords_wh = tf.sqrt(
+            tf.exp(coords[:, :, :, 2:4]) * np.reshape(anchors, [1, 1, b, 2]) / np.reshape([w, h], [1, 1, 1, 2]))
+        coords = tf.concat([adjusted_coords_xy, adjusted_coords_wh], 3)
+
+        adjusted_c = logistic_activate_tensor(net_out_reshape[:, :, :, :, 4])
+        adjusted_c = tf.reshape(adjusted_c, [-1, h * w, b, 1])
+
+        adjusted_prob = tf.nn.softmax(net_out_reshape[:, :, :, :, 5:])
+        adjusted_prob = tf.reshape(adjusted_prob, [-1, h * w, b, num_classes])
+
+        adjusted_net_out = tf.concat([adjusted_coords_xy, adjusted_coords_wh, adjusted_c, adjusted_prob], 3)
+
+        wh = tf.pow(coords[:, :, :, 2:4], 2) * np.reshape([w, h], [1, 1, 1, 2])
+        area_pred = wh[:, :, :, 0] * wh[:, :, :, 1]
+        centers = coords[:, :, :, 0:2]
+        floor = centers - (wh * .5)
+        ceil = centers + (wh * .5)
+
+        # calculate the intersection areas
+        intersect_upleft = tf.maximum(floor, _upleft)
+        intersect_botright = tf.minimum(ceil, _botright)
+        intersect_wh = intersect_botright - intersect_upleft
+        intersect_wh = tf.maximum(intersect_wh, 0.0)
+        intersect = tf.multiply(intersect_wh[:, :, :, 0], intersect_wh[:, :, :, 1])
+
+        # calculate the best IOU and metrics
+        iou = tf.truediv(intersect, _areas + area_pred - intersect)
+        best_ious = tf.reduce_max(iou, [2], True)
+        recall = tf.reduce_sum(tf.to_float(tf.greater(best_ious, 0.5)), [1])
+        sum_best_ious = tf.reduce_sum(best_ious, [1])
+        gt_obj_areas = tf.reduce_mean(_areas, [2], True)
+        num_gt_obj = tf.reduce_sum(tf.to_float(tf.greater(gt_obj_areas, tf.zeros_like(gt_obj_areas))), [1])
+        avg_iou = tf.truediv(sum_best_ious, num_gt_obj)
+        avg_recall = tf.truediv(recall, num_gt_obj)
+
+        return {'avg_iou': tf.reduce_mean(avg_iou), 'avg_recall': tf.reduce_mean(avg_recall)}
+
+    return _SSDMetrics

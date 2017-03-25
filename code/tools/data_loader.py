@@ -23,7 +23,7 @@ from six.moves import range
 from skimage.color import rgb2gray, gray2rgb
 from tools.save_images import save_img2
 from tools.yolo_utils import yolo_build_gt_batch
-
+from tools.ssd_utils import BBoxUtility
 
 # Pad image
 def pad_image(x, pad_amount, mode='reflect', constant=0.):
@@ -222,7 +222,7 @@ class ImageDataGenerator(object):
                  class_mode='categorical',
                  rgb_mean=None,
                  rgb_std=None,
-                 crop_size=None):
+                 crop_size=None, yolo = False):
         if dim_ordering == 'default':
             dim_ordering = K.image_dim_ordering()
         self.__dict__.update(locals())
@@ -230,7 +230,7 @@ class ImageDataGenerator(object):
         # self.rescale = rescale
         self.preprocessing_function = preprocessing_function
         self.cb_weights = None
-
+        self.yolo = yolo
         if dim_ordering not in {'tf', 'th'}:
             raise Exception('dim_ordering should be "tf" (channel after row '
                             'and column) or "th" (channel before row and '
@@ -302,7 +302,7 @@ class ImageDataGenerator(object):
             batch_size=batch_size, shuffle=shuffle, seed=seed,
             gt_directory=gt_directory,
             save_to_dir=save_to_dir, save_prefix=save_prefix,
-            save_format=save_format)
+            save_format=save_format, yolo=self.yolo)
 
     def flow_from_directory2(self, directory,
                              resize=None, target_size=(256, 256),
@@ -836,12 +836,13 @@ class ImageDataGenerator(object):
 
 
 class DirectoryIterator(Iterator):
+
     def __init__(self, directory, image_data_generator,
                  resize=None, target_size=None, color_mode='rgb',
                  dim_ordering='default',
                  classes=None, class_mode='categorical',
                  batch_size=32, shuffle=True, seed=None, gt_directory=None,
-                 save_to_dir=None, save_prefix='', save_format='jpeg'):
+                 save_to_dir=None, save_prefix='', save_format='jpeg', model_name=None, yolo=False):
         # Check dim order
         if dim_ordering == 'default':
             dim_ordering = K.image_dim_ordering()
@@ -854,7 +855,8 @@ class DirectoryIterator(Iterator):
         self.save_to_dir = save_to_dir
         self.save_prefix = save_prefix
         self.save_format = save_format
-
+        self.model_name = model_name
+        self.yolo = yolo
         # Check target size
         if target_size is None and batch_size > 1:
             raise ValueError('Target_size None works only with batch_size=1')
@@ -906,13 +908,22 @@ class DirectoryIterator(Iterator):
         self.filenames = []
         self.classes = []
 
+        ###########################
+        ## SDD utility if needed ##
+        ###########################
+        if self.class_mode == 'detection' and not yolo:
+            self.ssd_generator = BBoxUtility(self.nb_class)
+        else:
+            self.ssd_generator = None
+
+
         # Get filenames
         if self.class_mode == 'detection':
             for fname in os.listdir(directory):
                 if has_valid_extension(fname):
                     self.filenames.append(fname)
                     # Look for the GT filename
-                    gt_fname = os.path.join(directory, fname.replace('jpg', 'txt'))
+                    gt_fname = os.path.join(directory,fname.replace('jpg','txt'))
                     if not os.path.isfile(gt_fname):
                         raise ValueError('GT file not found: ' + gt_fname)
             self.filenames = np.sort(self.filenames)
@@ -937,7 +948,7 @@ class DirectoryIterator(Iterator):
 
         self.nb_sample = len(self.filenames)
         print('   Found %d images belonging to %d classes' % (self.nb_sample,
-                                                              self.nb_class))
+                                                            self.nb_class))
 
         super(DirectoryIterator, self).__init__(self.nb_sample, batch_size,
                                                 shuffle, seed)
@@ -978,20 +989,21 @@ class DirectoryIterator(Iterator):
 
             # Load GT image if detection
             if self.class_mode == 'detection':
-                label_path = os.path.join(self.directory, fname).replace('jpg', 'txt')
+                label_path = os.path.join(self.directory, fname).replace('jpg','txt')
                 gt = np.loadtxt(label_path)
                 if len(gt.shape) == 1:
                     gt = gt[np.newaxis,]
                 y = gt.copy()
-                y = y[((y[:, 1] > 0.) & (y[:, 1] < 1.))]
-                y = y[((y[:, 2] > 0.) & (y[:, 2] < 1.))]
-                y = y[((y[:, 3] > 0.) & (y[:, 3] < 1.))]
-                y = y[((y[:, 4] > 0.) & (y[:, 4] < 1.))]
+                y = y[((y[:,1] > 0.) & (y[:,1] < 1.))]
+                y = y[((y[:,2] > 0.) & (y[:,2] < 1.))]
+                y = y[((y[:,3] > 0.) & (y[:,3] < 1.))]
+                y = y[((y[:,4] > 0.) & (y[:,4] < 1.))]
                 if (y.shape != gt.shape) or (y.shape[0] == 0):
                     warnings.warn('DirectoryIterator: found an invalid annotation '
-                                  'on GT file ' + label_path)
+                                  'on GT file '+label_path)
                 # shuffle gt boxes order
                 np.random.shuffle(y)
+
 
             # Standarize image
             x = self.image_data_generator.standardize(x, y)
@@ -1024,7 +1036,7 @@ class DirectoryIterator(Iterator):
 
                 if self.class_mode == 'segmentation':
                     nclasses = self.classes  # TODO: Change
-                    color_map = sns.hls_palette(nclasses + 1)
+                    color_map = sns.hls_palette(nclasses+1)
                     void_label = nclasses
                     save_img2(batch_x[i], batch_y[i],
                               os.path.join(self.save_to_dir, fname), color_map,
@@ -1047,7 +1059,10 @@ class DirectoryIterator(Iterator):
         elif self.class_mode == 'detection':
             # TODO detection: check model, other networks may expect a different batch_y format and shape
             # YOLOLoss expects a particular batch_y format and shape
-            batch_y = yolo_build_gt_batch(batch_y, self.image_shape, self.nb_class)
+            if self.yolo:
+                batch_y = yolo_build_gt_batch(batch_y, self.image_shape, self.nb_class)
+            else:
+                batch_y = self.ssd_generator.ssd_build_gt_batch(batch_y, self.image_shape)
         elif self.class_mode == None:
             return batch_x
 

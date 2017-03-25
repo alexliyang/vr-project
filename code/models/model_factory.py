@@ -1,8 +1,8 @@
 import os
-
+import pickle
 from keras import backend as K
 from keras.utils.visualize_util import plot
-from metrics.metrics import cce_flatt, IoU, YOLOLoss, YOLOMetrics, MultiboxLoss
+from metrics.metrics import cce_flatt, IoU, YOLOLoss, YOLOMetrics, MultiboxLoss, SSDMetrics
 from models.densenetFCN import build_densenetFCN
 from models.fcn8 import build_fcn8
 from models.model import One_Net_Model
@@ -53,8 +53,12 @@ class Model_Factory():
             elif cf.model_name == 'ssd300':
                 in_shape = (cf.target_size_train[0],
                             cf.target_size_train[1], cf.dataset.n_channels)
+
                 loss = MultiboxLoss(cf.dataset.n_classes, neg_pos_ratio=0.2).compute_loss
                 metrics = None
+                # TODO: Add metrics for SSD
+                # priors = pickle.load(open('prior_boxes_ssd300.pkl', 'rb'))
+                # metrics = [SSDMetrics(priors, cf.dataset.n_classes)]
             else:
                 raise NotImplementedError
 
@@ -166,7 +170,7 @@ class Model_Factory():
                                load_pretrained=cf.load_imageNet,
                                freeze_layers_from=cf.freeze_layers_from, tiny=True)
         elif cf.model_name == 'ssd300':
-            model = build_ssd300(in_shape, cf.dataset.n_classes, cf.weight_decay,
+            model = build_ssd300(in_shape, cf.dataset.n_classes+1, cf.weight_decay,
                                  load_pretrained=cf.load_imageNet,
                                  freeze_layers_from=cf.freeze_layers_from)
         else:

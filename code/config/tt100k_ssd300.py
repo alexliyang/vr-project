@@ -18,16 +18,16 @@ test_model = True  # Test the model
 pred_model = False  # Predict using the model
 
 # Debug
-debug = True  # Use only few images for debuging
+debug = False  # Use only few images for debuging
 debug_images_train = 16  # N images for training in debug mode (-1 means all)
 debug_images_valid = 16  # N images for validation in debug mode (-1 means all)
 debug_images_test = 16  # N images for testing in debug mode (-1 means all)
 debug_n_epochs = 2  # N of training epochs in debug mode
 
 # Batch sizes
-batch_size_train = 16  # Batch size during training
-batch_size_valid = 32  # Batch size during validation
-batch_size_test = 32  # Batch size during testing
+batch_size_train = 8  # Batch size during training
+batch_size_valid = 24  # Batch size during validation
+batch_size_test = 24  # Batch size during testing
 crop_size_train = None  # Crop size during training (Height, Width) or None
 crop_size_valid = None  # Crop size during validation
 crop_size_test = None  # Crop size during testing
