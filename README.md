@@ -244,7 +244,7 @@ For object detection we have considered two single-shot models: the most recent 
 
   - `analyze_datasets.py` - extended functionality to analyze detection datasets and report distributions over several variables. 
   
-  - `eval_detection_fscore.py` - extended to evaluate the TinyYOLO model. 
+  - `eval_detection_fscore.py` - extended to evaluate the SSD model. 
   
 #### Milestones
 
