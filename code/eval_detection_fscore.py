@@ -71,9 +71,6 @@ ok = 0.
 total_true = 0.
 total_pred = 0.
 
-mean_p = 0.
-mean_r = 0.
-mean_f = 0.
 mean_fps = 0.
 iterations = 0.
 
@@ -134,21 +131,18 @@ for i,img_path in enumerate(imfiles):
     #print 'total_true:',total_true,' total_pred:',total_pred,' ok:',ok
     p = 0. if total_pred == 0 else (ok/total_pred)
     r = ok/total_true
-    print('Precision = '+str(p))
-    print('Recall     = '+str(r))
+    print('Running Precision = '+str(p))
+    print('Running Recall     = '+str(r))
     f = 0. if (p+r) == 0 else (2*p*r/(p+r))
-    print('F-score    = '+str(f))
+    print('Running F-score    = '+str(f))
     
-    mean_p += p
-    mean_r += r
-    mean_f += f
     mean_fps += fps
     
 print('-----------------------------------')
 print('-----------------------------------')
-print('Average precision = ' + str(mean_p/iterations))
-print('Average recall = ' + str(mean_r/iterations))
-print('Average f_score = ' + str(mean_f/iterations))
+print('Final precision = ' + str(p))
+print('Final recall = ' + str(r))
+print('Final f_score = ' + str(f))
 print('Average fps = ' + str(mean_fps/iterations))
 print('-----------------------------------')
 print('-----------------------------------')
