@@ -134,51 +134,51 @@ In `vr_project/code` directory:
 
 - YOLO
 
-  - Baseline [TT100K detection]
+    - Baseline [TT100K detection]
   
-  ```
-  python train.py -c config/tt100k_detection.py -e baseline_yolo
-  ```
+    ```
+    python train.py -c config/tt100k_detection.py -e baseline_yolo
+    ```
 
-  - Baseline [Udacity]
-  
-  ```
-  python train.py -c config/udacity_yolo_baseline.py -e baseline_yolo
-  ```
+    - Baseline [Udacity]
 
-  - Fine-tune baseline model [TT100K detection]
-  
-  ```
-  python train.py -c config/tt100k_yolo_improvements.py -e finetune_yolo
-  ```
+    ```
+    python train.py -c config/udacity_yolo_baseline.py -e baseline_yolo
+    ```
+
+    - Fine-tune baseline model [TT100K detection]
+
+    ```
+    python train.py -c config/tt100k_yolo_improvements.py -e finetune_yolo
+    ```
 
 - Tiny-YOLO
 
-  - Baseline [TT100K detection]
-  
-  ```
-  python train.py -c config/tt100k_tiny_yolo.py -e baseline_tiny_yolo
-  ```
-  
-  - Baseline [Udacity]
-  
-  ```
-  python train.py -c config/udacity_tiny_yolo_baseline.py -e baseline_tiny_yolo
-  ```
+    - Baseline [TT100K detection]
+
+    ```
+    python train.py -c config/tt100k_tiny_yolo.py -e baseline_tiny_yolo
+    ```
+
+    - Baseline [Udacity]
+
+    ```
+    python train.py -c config/udacity_tiny_yolo_baseline.py -e baseline_tiny_yolo
+    ```
 
 - SSD300
 
-  - Baseline [TT100K detection]
-  
-  ```
-  python train.py -c config/tt100k_ssd300.py -e baseline_ssd300
-  ```
+    - Baseline [TT100K detection]
 
-  - Baseline [Udacity]
-  
-  ```
-  python train.py -c config/udacity_ssd300.py -e baseline_ssd300
-  ```
+    ```
+    python train.py -c config/tt100k_ssd300.py -e baseline_ssd300
+    ```
+
+    - Baseline [Udacity]
+
+    ```
+    python train.py -c config/udacity_ssd300.py -e baseline_ssd300
+    ```
     
 - Analyze datasets
     
@@ -244,7 +244,7 @@ For object detection we have considered two single-shot models: the most recent 
 
   - `analyze_datasets.py` - extended functionality to analyze detection datasets and report distributions over several variables. 
   
-  - `eval_detection_fscore.py` - extended to evaluate the TinyYOLO model. 
+  - `eval_detection_fscore.py` - extended to evaluate the TinyYOLO model. 
   
 #### Milestones
 
