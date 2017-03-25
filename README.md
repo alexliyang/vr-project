@@ -131,6 +131,54 @@ In `vr_project/code` directory:
     ```
     python train.py -c config/tt100k_densenet_opt_different_opt.py -e densenet_trying_different_opt
     ```
+
+- YOLO
+
+  - Baseline [TT100K detection]
+  
+  ```
+  python train.py -c config/tt100k_detection.py -e baseline_yolo
+  ```
+
+  - Baseline [Udacity]
+  
+  ```
+  python train.py -c config/udacity_yolo_baseline.py -e baseline_yolo
+  ```
+
+  - Fine-tune baseline model [TT100K detection]
+  
+  ```
+  python train.py -c config/tt100k_yolo_improvements.py -e finetune_yolo
+  ```
+
+- Tiny-YOLO
+
+  - Baseline [TT100K detection]
+  
+  ```
+  python train.py -c config/tt100k_tiny_yolo.py -e baseline_tiny_yolo
+  ```
+  
+  - Baseline [Udacity]
+  
+  ```
+  python train.py -c config/udacity_tiny_yolo_baseline.py -e baseline_tiny_yolo
+  ```
+
+- SSD300
+
+  - Baseline [TT100K detection]
+  
+  ```
+  python train.py -c config/tt100k_ssd300.py -e baseline_ssd300
+  ```
+
+  - Baseline [Udacity]
+  
+  ```
+  python train.py -c config/udacity_ssd300.py -e baseline_ssd300
+  ```
     
 - Analyze datasets
     
@@ -188,11 +236,39 @@ In order to choose a good-performing object recognition network for our system, 
   
 ### Object detection  
 
+For object detection we have considered two single-shot models: the most recent version of You Only Look Once (YOLO) together with its smaller counterpart, Tiny-YOLO, and Single-Shot Multibox Detector (SSD). The first two have been trained by fine-tuning the pre-trained ImageNet weights, while the latter has been trained from scratch. All these models have been trained to detect a variety of traffic signs in the [TT100K detection dataset](http://cg.cs.tsinghua.edu.cn/traffic-sign/) and to detect pedestrians, cars and trucks in the [Udacity](https://github.com/udacity/self-driving-car) dataset.
+
 #### Contributions to the code
-TODO
+
+  - `models/ssd300.py` - adaptation of [this](https://github.com/rykov8/ssd_keras) implementation of SSD300 to the framework, including the loss and batch generator utilities required to train it.
+
+  - `analyze_datasets.py` - extended functionality to analyze detection datasets and report distributions over several variables. 
   
+  - `eval_detection_fscore.py` - extended to evaluate the TinyYOLO model. 
+  
 #### Milestones
-TODO
+
+1. **YOLO**:
+  - [x] Fine-tune from ImageNet weights on TT100K detection dataset
+  - [x] Fine-tune from ImageNet weights on Udacity dataset
+  - [ ] Evaluate performance on TT100K detection dataset
+  - [ ] Evaluate performance on Udacity dataset
+2. **Tiny YOLO**:
+  - [x] Fine-tune from ImageNet weights on TT100K detection dataset
+  - [x] Fine-tune from ImageNet weights on Udacity dataset
+  - [ ] Evaluate performance on TT100K detection dataset
+  - [ ] Evaluate performance on Udacity dataset
+  - [ ] Compare results and performance  between TinyYOLO and YOLO
+3. **SSD**:
+  - [x] Implement it and adapt it to the framework
+  - [ ] Train from scratch on TT100K detection dataset
+  - [ ] Train from scratch on Udacity dataset
+4. **Dataset Analysis**
+  - [x] Analyze TT100K detection dataset: distribution of classes, bounding boxes' aspect ratios and bounding boxes' areas per dataset split.
+  - [x] Analyze Udacity dataset: distribution of classes, bounding boxes' aspect ratios and bounding boxes' areas per dataset split.
+  - [x] Assess similarities and differences between splits on Udacity dataset.
+4. **Boost performance** 
+  - [ ] T.B.D.
 
 ### Experimental results
 
