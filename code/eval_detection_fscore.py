@@ -10,6 +10,7 @@ from keras.preprocessing import image
 from models.yolo import build_yolo
 from models.ssd300 import build_ssd300
 from tools.yolo_utils import *
+from tools.ssd_utils import BBoxUtility
 
 # Net output post-processing needs two parameters:
 detection_threshold = 0.6  # Min probablity for a prediction to be considered
@@ -44,14 +45,13 @@ NUM_PRIORS = len(priors)
 NUM_CLASSES = len(classes)
 
 if model_name == 'tiny-yolo':
-
     model = build_yolo(img_shape=input_shape, n_classes=NUM_CLASSES, n_priors=5,
                        load_pretrained=False, freeze_layers_from='base_model',
                        tiny=True)
 
 elif model_name == 'ssd':
-
-    model = build_ssd300(input_shape, NUM_CLASSES, 0,
+    input_shape_ssd = np.roll(input_shape,-1)	
+    model = build_ssd300(input_shape_ssd.tolist(), NUM_CLASSES+1, 0,
                          load_pretrained=False,
                          freeze_layers_from='base_model')
 elif model_name == 'yolo':
@@ -81,9 +81,6 @@ ok = 0.
 total_true = 0.
 total_pred = 0.
 
-mean_p = 0.
-mean_r = 0.
-mean_f = 0.
 mean_fps = 0.
 iterations = 0.
 
@@ -105,7 +102,10 @@ for i, img_path in enumerate(imfiles):
 
         # find correct detections (per image)
         for i, img_path in enumerate(img_paths):
-            boxes_pred = yolo_postprocess_net_out(net_out[i], priors, classes, detection_threshold, nms_threshold)
+            if model_name == 'yolo' or model_name == 'tiny-yolo':
+                boxes_pred = yolo_postprocess_net_out(net_out[i], priors, classes, detection_threshold, nms_threshold)
+            elif model_name == 'ssd':
+                boxes_pred = BBoxUtility.detection_out(net_out[i], confidence_threshold=detection_threshold)
             boxes_true = []
             label_path = img_path.replace('jpg', 'txt')
             gt = np.loadtxt(label_path)
@@ -143,21 +143,18 @@ for i, img_path in enumerate(imfiles):
         # print 'total_true:',total_true,' total_pred:',total_pred,' ok:',ok
         p = 0. if total_pred == 0 else (ok / total_pred)
         r = ok / total_true
-        print('Precision = ' + str(p))
-        print('Recall     = ' + str(r))
+        print('Running Precision = ' + str(p))
+        print('Running Recall     = ' + str(r))
         f = 0. if (p + r) == 0 else (2 * p * r / (p + r))
-        print('F-score    = ' + str(f))
+        print('Running F-score    = ' + str(f))
 
-        mean_p += p
-        mean_r += r
-        mean_f += f
         mean_fps += fps
 
 print('-----------------------------------')
 print('-----------------------------------')
-print('Average precision = ' + str(mean_p / iterations))
-print('Average recall = ' + str(mean_r / iterations))
-print('Average f_score = ' + str(mean_f / iterations))
+print('Final precision = ' + str(p))
+print('Final recall = ' + str(r))
+print('Final f_score = ' + str(f))
 print('Average fps = ' + str(mean_fps / iterations))
 print('-----------------------------------')
 print('-----------------------------------')
@@ -165,7 +162,7 @@ print('-----------------------------------')
 weights_path = sys.argv[3]
 file_path = weights_path.replace('weights.hdf5', 'evaluation.txt')
 with open(file_path, 'a') as f:
-    f.write('Average precision = ' + str(mean_p / iterations))
-    f.write('Average recall = ' + str(mean_r / iterations))
-    f.write('Average f_score = ' + str(mean_f / iterations))
-    f.write('Average fps = ' + str(mean_fps / iterations))
+    f.write('Final precision = ' + str(p))
+    f.write('\nFinal recall = ' + str(r))
+    f.write('\nFinal f_score = ' + str(f))
+    f.write('\nAverage fps = ' + str(mean_fps / iterations))
