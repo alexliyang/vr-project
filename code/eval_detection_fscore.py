@@ -161,3 +161,11 @@ print('Average f_score = ' + str(mean_f / iterations))
 print('Average fps = ' + str(mean_fps / iterations))
 print('-----------------------------------')
 print('-----------------------------------')
+
+weights_path = sys.argv[3]
+file_path = weights_path.replace('weights.hdf5', 'evaluation.txt')
+with open(file_path, 'w') as f:
+    f.write('Average precision = ' + str(mean_p / iterations))
+    f.write('Average recall = ' + str(mean_r / iterations))
+    f.write('Average f_score = ' + str(mean_f / iterations))
+    f.write('Average fps = ' + str(mean_fps / iterations))
