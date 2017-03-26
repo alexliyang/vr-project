@@ -43,6 +43,8 @@ input_shape = (3, 320, 320)
 priors = [[0.9, 1.2], [1.05, 1.35], [2.15, 2.55], [3.25, 3.75], [5.35, 5.1]]
 NUM_PRIORS = len(priors)
 NUM_CLASSES = len(classes)
+if 'ssd' in model_name:
+    NUM_CLASSES += 1    # Background class included
 
 if model_name == 'tiny-yolo':
     model = build_yolo(img_shape=input_shape, n_classes=NUM_CLASSES, n_priors=5,
@@ -50,8 +52,8 @@ if model_name == 'tiny-yolo':
                        tiny=True)
 
 elif model_name == 'ssd':
-    input_shape_ssd = np.roll(input_shape,-1)	
-    model = build_ssd300(input_shape_ssd.tolist(), NUM_CLASSES+1, 0,
+    input_shape_ssd = np.roll(input_shape, -1)
+    model = build_ssd300(input_shape_ssd.tolist(), NUM_CLASSES, 0,
                          load_pretrained=False,
                          freeze_layers_from='base_model')
 elif model_name == 'yolo':
@@ -105,7 +107,8 @@ for i, img_path in enumerate(imfiles):
             if model_name == 'yolo' or model_name == 'tiny-yolo':
                 boxes_pred = yolo_postprocess_net_out(net_out[i], priors, classes, detection_threshold, nms_threshold)
             elif model_name == 'ssd':
-                boxes_pred = BBoxUtility.detection_out(net_out[i], confidence_threshold=detection_threshold)
+                bbox_util = BBoxUtility(NUM_CLASSES, priors=priors, nms_thresh=nms_threshold)
+                boxes_pred = bbox_util.detection_out(net_out[i], background_label_id=NUM_CLASSES)
             boxes_true = []
             label_path = img_path.replace('jpg', 'txt')
             gt = np.loadtxt(label_path)

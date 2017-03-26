@@ -40,12 +40,12 @@ python eval_detection_fscore.py tiny-yolo TT100K_detection ../../data/master/Exp
 
 # Evaluate baseline SSD on the test set
 
-python eval_detection_fscore.py ssd TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_ssd/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/test/
+python eval_detection_fscore.py ssd TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_ssd300/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/test/
 
 # Evaluate baseline SSD on the training set
 
-python eval_detection_fscore.py ssd TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_ssd/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/train/
+python eval_detection_fscore.py ssd TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_ssd300/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/train/
 
 # Evaluate baseline SSD on the validation set
 
-python eval_detection_fscore.py ssd TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_ssd/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/valid/
+python eval_detection_fscore.py ssd TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_ssd300/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/valid/

@@ -4,6 +4,10 @@ import urllib
 import os
 import tensorflow as tf
 
+import keras.backend as K
+
+from tools.yolo_utils import BoundBox, box_iou, prob_compare
+
 """
     SSD utilities
     from: https://github.com/rykov8/ssd_keras
@@ -46,6 +50,7 @@ class BBoxUtility(object):
         self.nms = tf.image.non_max_suppression(self.boxes, self.scores,
                                                 self._top_k,
                                                 iou_threshold=self._nms_thresh)
+        self.sess = K.get_session()
 
     @property
     def nms_thresh(self):
@@ -232,35 +237,105 @@ class BBoxUtility(object):
             results: List of predictions for every picture. Each prediction is:
                 [label, confidence, xmin, ymin, xmax, ymax]
         """
-        mbox_loc = predictions[:, :, :4]
-        variances = predictions[:, :, -4:]
-        mbox_priorbox = predictions[:, :, -8:-4]
-        mbox_conf = predictions[:, :, 4:-8]
+        mbox_loc = predictions[:, :4]
+        variances = predictions[:, -4:]
+        mbox_priorbox = predictions[:, -8:-4]
+        mbox_conf = predictions[:, 4:-8]
+        decode_bbox = self.decode_boxes(mbox_loc, mbox_priorbox, variances)
+
         results = []
-        for i in range(len(mbox_loc)):
-            results.append([])
-            decode_bbox = self.decode_boxes(mbox_loc[i],
-                                            mbox_priorbox[i], variances[i])
-            for c in range(self.num_classes):
-                if c == background_label_id:
+        boxes = []
+
+        for c in range(self.num_classes):
+            if c == background_label_id:
+                continue
+            c_confs = mbox_conf[:, c]
+            c_confs_m = c_confs > confidence_threshold
+            if len(c_confs[c_confs_m]) > 0:
+                boxes_to_process = decode_bbox[c_confs_m]
+                confs_to_process = c_confs[c_confs_m]
+                feed_dict = {self.boxes: boxes_to_process,
+                             self.scores: confs_to_process}
+                idx = self.sess.run(self.nms, feed_dict=feed_dict)
+                good_boxes = boxes_to_process[idx]
+                confs = confs_to_process[idx][:, None]
+                labels = c * np.ones((len(idx), 1))
+                c_pred = np.concatenate((labels, confs, good_boxes),
+                                        axis=1)
+                results.extend(c_pred)
+
+        if len(results) > 0:
+            results = np.array(results)
+            argsort = np.argsort(results[:, 1])[::-1]
+            results = results[argsort]
+            results = results[:keep_top_k]
+
+        # Convert the bounding boxes into BoundBox objects (to be compatible with the framework)
+        for box in results:
+            # Get values from the bounding box: label, confidence and coords
+            xmin, ymin, xmax, ymax = box[2:]
+            label = int(box[0])
+            confidence = box[1]
+            confidences = np.zeros(self.num_classes)
+            confidences[label] = confidence
+            # Create a BoundBox object to hold the information
+            bx = BoundBox(self.num_classes)
+            bx.x, bx.y, bx.w, bx.h = xmin, ymin, xmax - xmin, ymax - ymin
+            bx.c = confidence
+            bx.probs = confidences
+            boxes.append(bx)
+
+        return boxes
+
+    def detection_out_slow(self, predictions, background_label_id=0, confidence_threshold=0.01):
+        """Do non maximum suppression (nms) on prediction results.
+        # Arguments
+            predictions: Numpy array of predicted values for a single image
+            num_classes: Number of classes for prediction.
+            background_label_id: Label of background class.
+            confidence_threshold: Only consider detections,
+                whose confidences are larger than a threshold.
+        # Return
+            results: List of predictions for every picture. Each prediction is:
+                [label, confidence, xmin, ymin, xmax, ymax]
+        """
+        mbox_loc = predictions[:, :4]
+        variances = predictions[:, -4:]
+        mbox_priorbox = predictions[:, -8:-4]
+        mbox_conf = predictions[:, 4:-8]
+
+        # Decode bboxes for this image
+        decode_bbox = self.decode_boxes(mbox_loc,
+                                        mbox_priorbox,
+                                        variances)
+
+        # List of BoundBox objects
+        bound_boxes = list()
+
+        for i in range(mbox_loc.shape[0]):
+            bx = BoundBox(self.num_classes)
+            xmin, ymin, xmax, ymax = decode_bbox[i, :].tolist()
+            bx.x, bx.y, bx.w, bx.h = xmin, ymin, xmax - xmin, ymax - ymin
+            confidences = mbox_conf[i, :]
+            bx.c = np.max(confidences)
+            bx.probs = confidences
+            bx.probs *= bx.probs > confidence_threshold
+            bound_boxes.append(bx)
+
+        # Non-Maximum Supression (for each class c, except background)
+        for c in range(self.num_classes):
+            if c == background_label_id:
+                continue
+            for i in range(len(bound_boxes)):
+                bound_boxes[i].class_num = c
+            bound_boxes = sorted(bound_boxes, key=prob_compare)
+            for i in range(len(bound_boxes)):
+                boxi = bound_boxes[i]
+                if boxi.probs[c] == 0:
                     continue
-                c_confs = mbox_conf[i, :, c]
-                c_confs_m = c_confs > confidence_threshold
-                if len(c_confs[c_confs_m]) > 0:
-                    boxes_to_process = decode_bbox[c_confs_m]
-                    confs_to_process = c_confs[c_confs_m]
-                    feed_dict = {self.boxes: boxes_to_process,
-                                 self.scores: confs_to_process}
-                    idx = self.sess.run(self.nms, feed_dict=feed_dict)
-                    good_boxes = boxes_to_process[idx]
-                    confs = confs_to_process[idx][:, None]
-                    labels = c * np.ones((len(idx), 1))
-                    c_pred = np.concatenate((labels, confs, good_boxes),
-                                            axis=1)
-                    results[-1].extend(c_pred)
-            if len(results[-1]) > 0:
-                results[-1] = np.array(results[-1])
-                argsort = np.argsort(results[-1][:, 1])[::-1]
-                results[-1] = results[-1][argsort]
-                results[-1] = results[-1][:keep_top_k]
-        return results
+                for j in range(i + 1, len(bound_boxes)):
+                    boxj = bound_boxes[j]
+                    if box_iou(boxi, boxj) >= self._nms_thresh:
+                        bound_boxes[j].probs[c] = 0.
+
+        return bound_boxes
