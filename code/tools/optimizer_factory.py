@@ -14,9 +14,11 @@ class Optimizer_Factory():
                    'clipnorm=10'.format(cf.learning_rate))
 
         elif cf.optimizer == 'adam':
+            print ('   Optimizer: adam. Lr: {}. beta_1: 0.9, beta_2: 0.999, epsilon=1e-8'.format(cf.learning_rate))
             opt = Adam(lr=cf.learning_rate, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
 
         elif cf.optimizer == 'sgd':
+            print ('   Optimizer: SGD. Lr: {}. momentum: 0.9, nesterov: true'.format(cf.learning_rate))
             opt = SGD(lr=cf.learning_rate, momentum=0.9, nesterov=True)
 
         else:

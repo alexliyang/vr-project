@@ -1,16 +1,15 @@
 import os
-
-# Keras imports
-from metrics.metrics import cce_flatt, IoU, YOLOLoss, YOLOMetrics
+import pickle
 from keras import backend as K
 from keras.utils.visualize_util import plot
-from models.model import One_Net_Model
-from models.vgg import build_vgg
-from models.resnet import build_resnet50
+from metrics.metrics import cce_flatt, IoU, YOLOLoss, YOLOMetrics, MultiboxLoss, SSDMetrics
 from models.densenetFCN import build_densenetFCN
 from models.fcn8 import build_fcn8
-from models.yolo import build_yolo
+from models.model import One_Net_Model
+from models.resnet import build_resnet50
 from models.ssd300 import build_ssd300
+from models.vgg import build_vgg
+from models.yolo import build_yolo
 
 """
 from models.lenet import build_lenet
@@ -43,12 +42,26 @@ class Model_Factory():
             loss = 'categorical_crossentropy'
             metrics = ['accuracy']
         elif cf.dataset.class_mode == 'detection':
-            in_shape = (cf.dataset.n_channels,
-                        cf.target_size_train[0],
-                        cf.target_size_train[1])
-            # TODO detection : check model, different detection nets may have different losses and metrics
-            loss = YOLOLoss(in_shape, cf.dataset.n_classes, cf.dataset.priors)
-            metrics = [YOLOMetrics(in_shape, cf.dataset.n_classes, cf.dataset.priors)]
+
+            # Check model, different detection nets may have different losses and metrics
+            if cf.model_name in ['yolo', 'tiny-yolo']:
+                in_shape = (cf.dataset.n_channels,
+                            cf.target_size_train[0],
+                            cf.target_size_train[1])
+                loss = YOLOLoss(in_shape, cf.dataset.n_classes, cf.dataset.priors)
+                metrics = [YOLOMetrics(in_shape, cf.dataset.n_classes, cf.dataset.priors)]
+            elif cf.model_name == 'ssd300':
+                in_shape = (cf.target_size_train[0],
+                            cf.target_size_train[1], cf.dataset.n_channels)
+
+                loss = MultiboxLoss(cf.dataset.n_classes, neg_pos_ratio=2.0).compute_loss
+                metrics = None
+                # TODO: Add metrics for SSD
+                # priors = pickle.load(open('prior_boxes_ssd300.pkl', 'rb'))
+                # metrics = [SSDMetrics(priors, cf.dataset.n_classes)]
+            else:
+                raise NotImplementedError
+
         elif cf.dataset.class_mode == 'segmentation':
             if K.image_dim_ordering() == 'th':
                 if variable_input_size:
@@ -157,9 +170,9 @@ class Model_Factory():
                                load_pretrained=cf.load_imageNet,
                                freeze_layers_from=cf.freeze_layers_from, tiny=True)
         elif cf.model_name == 'ssd300':
-            model = build_ssd300(in_shape, cf.dataset.n_classes,
-                                load_pretrained=cf.load_imageNet,
-                                freeze_layers_from=cf.freeze_layers_from)
+            model = build_ssd300(in_shape, cf.dataset.n_classes + 1, cf.weight_decay,
+                                 load_pretrained=cf.load_imageNet,
+                                 freeze_layers_from=cf.freeze_layers_from)
         else:
             raise ValueError('Unknown model')
 

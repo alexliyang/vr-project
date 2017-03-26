@@ -1,17 +1,13 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import warnings
-import skimage.io as io
-from skimage.color import rgb2gray, gray2rgb
-import skimage.transform
-import numpy as np
-from numpy import ma
-from numpy.linalg import inv
-from six.moves import range
 import os
-import SimpleITK as sitk
+import warnings
 
+import SimpleITK as sitk
+import numpy as np
+import skimage.io as io
+import skimage.transform
 from keras import backend as K
 from keras.preprocessing.image import (Iterator,
                                        img_to_array,
@@ -21,17 +17,21 @@ from keras.preprocessing.image import (Iterator,
                                        array_to_img,
                                        NumpyArrayIterator,
                                        random_channel_shift)
-
+from numpy import ma
+from numpy.linalg import inv
+from six.moves import range
+from skimage.color import rgb2gray, gray2rgb
 from tools.save_images import save_img2
 from tools.yolo_utils import yolo_build_gt_batch
+from tools.ssd_utils import BBoxUtility
 
 # Pad image
 def pad_image(x, pad_amount, mode='reflect', constant=0.):
     e = pad_amount
     shape = list(x.shape)
-    shape[:2] += 2*e
+    shape[:2] += 2 * e
     if mode == 'constant':
-        x_padded = np.ones(shape, dtype=np.float32)*constant
+        x_padded = np.ones(shape, dtype=np.float32) * constant
         x_padded[e:-e, e:-e] = x.copy()
     else:
         x_padded = np.zeros(shape, dtype=np.float32)
@@ -65,13 +65,13 @@ def pad_image(x, pad_amount, mode='reflect', constant=0.):
 # Define warp
 def gen_warp_field(shape, sigma=0.1, grid_size=3):
     # Initialize bspline transform
-    args = shape+(sitk.sitkFloat32,)
+    args = shape + (sitk.sitkFloat32,)
     ref_image = sitk.Image(*args)
     tx = sitk.BSplineTransformInitializer(ref_image, [grid_size, grid_size])
 
     # Initialize shift in control points:
     # mesh size = number of control points - spline order
-    p = sigma * np.random.randn(grid_size+3, grid_size+3, 2)
+    p = sigma * np.random.randn(grid_size + 3, grid_size + 3, 2)
 
     # Anchor the edges of the image
     p[:, 0, :] = 0
@@ -130,7 +130,7 @@ def list_subdirs(directory):
 
 
 # Checks if a file is an image
-def has_valid_extension(fname, white_list_formats = {'png', 'jpg', 'jpeg', 'bmp', 'tif'}):
+def has_valid_extension(fname, white_list_formats={'png', 'jpg', 'jpeg', 'bmp', 'tif'}):
     for extension in white_list_formats:
         if fname.lower().endswith('.' + extension):
             return True
@@ -150,9 +150,9 @@ def load_img(path, grayscale=False, resize=None, order=1):
         # print('Final resize: ' + str(img.shape))
 
     # Color conversion
-    if len(img.shape)==2 and not grayscale:
+    if len(img.shape) == 2 and not grayscale:
         img = gray2rgb(img)
-    elif len(img.shape)>2 and img.shape[2]==3 and grayscale:
+    elif len(img.shape) > 2 and img.shape[2] == 3 and grayscale:
         img = rgb2gray(img)
 
     # Return image
@@ -160,7 +160,8 @@ def load_img(path, grayscale=False, resize=None, order=1):
 
 
 class ImageDataGenerator(object):
-    '''Generate minibatches withGT4_DAComb_3cl_224x224_rescale_lr10-4_noCWB
+    """
+    Generate minibatches withGT4_DAComb_3cl_224x224_rescale_lr10-4_noCWB
     real-time data augmentation.
     # Arguments
         featurewise_center: set input mean to 0 over the dataset.
@@ -191,14 +192,15 @@ class ImageDataGenerator(object):
             It defaults to the `image_dim_ordering` value found in your
             Keras config file at `~/.keras/keras.json`.
             If you never set it, then it will be "th".
-    '''
+    """
+
     def __init__(self,
                  featurewise_center=False,
                  samplewise_center=False,
                  featurewise_std_normalization=False,
                  samplewise_std_normalization=False,
-                 gcn=False,#
-                 imageNet=False,#
+                 gcn=False,  #
+                 imageNet=False,  #
                  zca_whitening=False,
                  rotation_range=0.,
                  width_shift_range=0.,
@@ -220,7 +222,7 @@ class ImageDataGenerator(object):
                  class_mode='categorical',
                  rgb_mean=None,
                  rgb_std=None,
-                 crop_size=None):
+                 crop_size=None, yolo = False):
         if dim_ordering == 'default':
             dim_ordering = K.image_dim_ordering()
         self.__dict__.update(locals())
@@ -228,7 +230,7 @@ class ImageDataGenerator(object):
         # self.rescale = rescale
         self.preprocessing_function = preprocessing_function
         self.cb_weights = None
-
+        self.yolo = yolo
         if dim_ordering not in {'tf', 'th'}:
             raise Exception('dim_ordering should be "tf" (channel after row '
                             'and column) or "th" (channel before row and '
@@ -248,14 +250,14 @@ class ImageDataGenerator(object):
             broadcast_shape = [1, 1, 1]
             broadcast_shape[self.channel_index - 1] = len(rgb_mean)
             self.mean = np.reshape(rgb_mean, broadcast_shape)
-            print ('   Mean {}: {}'.format(self.mean.shape, self.rgb_mean))
+            print('   Mean {}: {}'.format(self.mean.shape, self.rgb_mean))
 
         # Broadcast the shape of std
         if rgb_std is not None and featurewise_std_normalization:
             broadcast_shape = [1, 1, 1]
             broadcast_shape[self.channel_index - 1] = len(rgb_std)
             self.std = np.reshape(rgb_std, broadcast_shape)
-            print ('   Std {}: {}'.format(self.std.shape, self.rgb_std))
+            print('   Std {}: {}'.format(self.std.shape, self.rgb_std))
 
         if np.isscalar(zoom_range):
             self.zoom_range = [1 - zoom_range, 1 + zoom_range]
@@ -300,7 +302,7 @@ class ImageDataGenerator(object):
             batch_size=batch_size, shuffle=shuffle, seed=seed,
             gt_directory=gt_directory,
             save_to_dir=save_to_dir, save_prefix=save_prefix,
-            save_format=save_format)
+            save_format=save_format, yolo=self.yolo)
 
     def flow_from_directory2(self, directory,
                              resize=None, target_size=(256, 256),
@@ -367,8 +369,7 @@ class ImageDataGenerator(object):
             x = s * (x - mean_masked) / max(eps, std_masked)
 
             # Set void pixels to 0
-            x = x*mask
-
+            x = x * mask
 
         if self.samplewise_center:
             x -= np.mean(x, axis=img_channel_index, keepdims=True)
@@ -415,11 +416,11 @@ class ImageDataGenerator(object):
         if self.class_mode == 'detection':
             h, w = x.shape[img_row_index], x.shape[img_col_index]
             # convert relative coordinates x,y,w,h to absolute x1,y1,x2,y2
-            b = np.copy(y[:,1:5])
-            b[:,0] = y[:,1]*w - y[:,3]*w/2
-            b[:,1] = y[:,2]*h - y[:,4]*h/2
-            b[:,2] = y[:,1]*w + y[:,3]*w/2
-            b[:,3] = y[:,2]*h + y[:,4]*h/2
+            b = np.copy(y[:, 1:5])
+            b[:, 0] = y[:, 1] * w - y[:, 3] * w / 2
+            b[:, 1] = y[:, 2] * h - y[:, 4] * h / 2
+            b[:, 2] = y[:, 1] * w + y[:, 3] * w / 2
+            b[:, 3] = y[:, 2] * h + y[:, 4] * h / 2
 
         # use composition of homographies to generate final transform that
         # needs to be applied
@@ -464,7 +465,6 @@ class ImageDataGenerator(object):
                                        self.zoom_range[1], 2)
             need_transform = True
 
-
         if need_transform:
             rotation_matrix = np.array([[np.cos(theta), -np.sin(theta), 0],
                                         [np.sin(theta), np.cos(theta), 0],
@@ -499,22 +499,22 @@ class ImageDataGenerator(object):
                     # point transformation is the inverse of image transformation
                     p_transform_matrix = inv(transform_matrix)
                     for ii in range(b.shape[0]):
-                        x1,y1,x2,y2 = b.astype(int)[ii]
+                        x1, y1, x2, y2 = b.astype(int)[ii]
                         # get the four edge points of the bounding box
-                        v1 = np.array([y1,x1,1])
-                        v2 = np.array([y2,x2,1]) 
-                        v3 = np.array([y2,x1,1])
-                        v4 = np.array([y1,x2,1])
+                        v1 = np.array([y1, x1, 1])
+                        v2 = np.array([y2, x2, 1])
+                        v3 = np.array([y2, x1, 1])
+                        v4 = np.array([y1, x2, 1])
                         # transform the 4 points
                         v1 = np.dot(p_transform_matrix, v1)
                         v2 = np.dot(p_transform_matrix, v2)
                         v3 = np.dot(p_transform_matrix, v3)
                         v4 = np.dot(p_transform_matrix, v4)
                         # compute the new bounding box edges
-                        b[ii,0] = np.min([v1[1],v2[1],v3[1],v4[1]]) 
-                        b[ii,1] = np.min([v1[0],v2[0],v3[0],v4[0]])
-                        b[ii,2] = np.max([v1[1],v2[1],v3[1],v4[1]])
-                        b[ii,3] = np.max([v1[0],v2[0],v3[0],v4[0]]) 
+                        b[ii, 0] = np.min([v1[1], v2[1], v3[1], v4[1]])
+                        b[ii, 1] = np.min([v1[0], v2[0], v3[0], v4[0]])
+                        b[ii, 2] = np.max([v1[1], v2[1], v3[1], v4[1]])
+                        b[ii, 3] = np.max([v1[0], v2[0], v3[0], v4[0]])
 
         if self.channel_shift_range != 0:
             x = random_channel_shift(x, self.channel_shift_range,
@@ -527,7 +527,7 @@ class ImageDataGenerator(object):
                     if self.has_gt_image:
                         y = flip_axis(y, img_col_index)
                     elif self.class_mode == 'detection':
-                        b[:,0],b[:,2] = w - b[:,2], w - b[:,0]
+                        b[:, 0], b[:, 2] = w - b[:, 2], w - b[:, 0]
 
         if self.vertical_flip:
             if np.random.random() < 0.5:
@@ -536,7 +536,7 @@ class ImageDataGenerator(object):
                     if self.has_gt_image:
                         y = flip_axis(y, img_row_index)
                     elif self.class_mode == 'detection':
-                        b[:,1],b[:,3] = h - b[:,3], h - b[:,1]
+                        b[:, 1], b[:, 3] = h - b[:, 3], h - b[:, 1]
 
         if self.spline_warp:
             warp_field = gen_warp_field(shape=x.shape[-2:],
@@ -568,11 +568,11 @@ class ImageDataGenerator(object):
             pad_h1, pad_h2, pad_w1, pad_w2 = 0, 0, 0, 0
             if h < crop[0]:
                 total_pad = crop[0] - h
-                pad_h1 = total_pad/2
-                pad_h2 = total_pad-pad_h1
+                pad_h1 = total_pad / 2
+                pad_h2 = total_pad - pad_h1
             if w < crop[1]:
                 total_pad = crop[1] - w
-                pad_w1 = total_pad/2
+                pad_w1 = total_pad / 2
                 pad_w2 = total_pad - pad_w1
             if h < crop[0] or w < crop[1]:
                 x = np.lib.pad(x, ((0, 0), (pad_h1, pad_h2), (pad_w1, pad_w2)),
@@ -582,11 +582,10 @@ class ImageDataGenerator(object):
                         y = np.lib.pad(y, ((0, 0), (pad_h1, pad_h2), (pad_w1, pad_w2)),
                                        'constant', constant_values=self.void_label)
                     elif self.class_mode == 'detection':
-                        b[:,0] = b[:,0] + pad_w1
-                        b[:,1] = b[:,1] + pad_h1
-                        b[:,2] = b[:,2] + pad_w1
-                        b[:,3] = b[:,3] + pad_h1
-
+                        b[:, 0] = b[:, 0] + pad_w1
+                        b[:, 1] = b[:, 1] + pad_h1
+                        b[:, 2] = b[:, 2] + pad_w1
+                        b[:, 3] = b[:, 3] + pad_h1
 
                 h, w = x.shape[img_row_index], x.shape[img_col_index]
                 # print ('New size X: ' + str(x.shape))
@@ -596,48 +595,48 @@ class ImageDataGenerator(object):
             if crop[0] < h:
                 top = np.random.randint(h - crop[0])
             else:
-                #print('Data augmentation: Crop height >= image size')
+                # print('Data augmentation: Crop height >= image size')
                 top, crop[0] = 0, h
             if crop[1] < w:
                 left = np.random.randint(w - crop[1])
             else:
-                #print('Data augmentation: Crop width >= image size')
+                # print('Data augmentation: Crop width >= image size')
                 left, crop[1] = 0, w
 
             if self.dim_ordering == 'th':
-                x = x[..., :, top:top+crop[0], left:left+crop[1]]
+                x = x[..., :, top:top + crop[0], left:left + crop[1]]
                 if y is not None:
                     if self.has_gt_image:
-                        y = y[..., :, top:top+crop[0], left:left+crop[1]]
+                        y = y[..., :, top:top + crop[0], left:left + crop[1]]
             else:
-                x = x[..., top:top+crop[0], left:left+crop[1], :]
+                x = x[..., top:top + crop[0], left:left + crop[1], :]
                 if y is not None:
                     if self.has_gt_image:
-                        y = y[..., top:top+crop[0], left:left+crop[1], :]
+                        y = y[..., top:top + crop[0], left:left + crop[1], :]
 
             if self.class_mode == 'detection':
-                b[:,0] = b[:,0] - left
-                b[:,1] = b[:,1] - top
-                b[:,2] = b[:,2] - left
-                b[:,3] = b[:,3] - top
+                b[:, 0] = b[:, 0] - left
+                b[:, 1] = b[:, 1] - top
+                b[:, 2] = b[:, 2] - left
+                b[:, 3] = b[:, 3] - top
 
-            # print ('X after: ' + str(x.shape))
-            # print ('Y after: ' + str(y.shape))
+                # print ('X after: ' + str(x.shape))
+                # print ('Y after: ' + str(y.shape))
 
         if self.class_mode == 'detection':
             # clamp to valid coordinate values
-            b[:,0] = np.clip( b[:,0] , 0 , w )
-            b[:,1] = np.clip( b[:,1] , 0 , h )
-            b[:,2] = np.clip( b[:,2] , 0 , w )
-            b[:,3] = np.clip( b[:,3] , 0 , h )
+            b[:, 0] = np.clip(b[:, 0], 0, w)
+            b[:, 1] = np.clip(b[:, 1], 0, h)
+            b[:, 2] = np.clip(b[:, 2], 0, w)
+            b[:, 3] = np.clip(b[:, 3], 0, h)
             # convert back from absolute x1,y1,x2,y2 coordinates to relative x,y,w,h
-            y[:,1] = (b[:,0] + (b[:,2]-b[:,0])/2 ) / w
-            y[:,2] = (b[:,1] + (b[:,3]-b[:,1])/2 ) / h
-            y[:,3] = (b[:,2]-b[:,0]) / w
-            y[:,4] = (b[:,3]-b[:,1]) / h
+            y[:, 1] = (b[:, 0] + (b[:, 2] - b[:, 0]) / 2) / w
+            y[:, 2] = (b[:, 1] + (b[:, 3] - b[:, 1]) / 2) / h
+            y[:, 3] = (b[:, 2] - b[:, 0]) / w
+            y[:, 4] = (b[:, 3] - b[:, 1]) / h
             # reject regions that are too small
-            y = y[y[:,3]>0.005]
-            y = y[y[:,4]>0.005]
+            y = y[y[:, 3] > 0.005]
+            y = y[y[:, 4] > 0.005]
             if y.shape[0] == 0:
                 warnings.warn('DirectoryIterator: your data augmentation strategy '
                               'is is moving all the boxes out of the image ')
@@ -671,9 +670,11 @@ class ImageDataGenerator(object):
             raise ValueError(
                 'Expected input to be images (as Numpy array) '
                 'following the dimension ordering convention "' + self.dim_ordering + '" '
-                '(channels on axis ' + str(self.channel_index) + '), i.e. expected '
-                'either 1, 3 or 4 channels on axis ' + str(self.channel_index) + '. '
-                'However, it was passed an array with shape ' + str(X.shape) +
+                                                                                      '(channels on axis ' + str(
+                    self.channel_index) + '), i.e. expected '
+                                          'either 1, 3 or 4 channels on axis ' + str(self.channel_index) + '. '
+                                                                                                           'However, it was passed an array with shape ' + str(
+                    X.shape) +
                 ' (' + str(X.shape[self.channel_index]) + ' channels).')
 
         if seed is not None:
@@ -719,6 +720,7 @@ class ImageDataGenerator(object):
             void_labels: Void labels (Only for segmentation)
             cb_weights_method: Class weight balance (Only for segmentation)
         """
+
         # Get file names
         def get_filenames(directory):
             subdirs = list_subdirs(directory)
@@ -745,8 +747,8 @@ class ImageDataGenerator(object):
                 # Load image and reshape as a vector
                 x = io.imread(file_name)
                 if self.rescale:
-                    x = x*self.rescale
-                x = x.reshape((x.shape[0]*x.shape[1], x.shape[2]))
+                    x = x * self.rescale
+                x = x.reshape((x.shape[0] * x.shape[1], x.shape[2]))
                 n += x.shape[0]
 
                 # Compute mean or std
@@ -754,9 +756,9 @@ class ImageDataGenerator(object):
                     sum += np.sum(x, axis=0)
                 elif method == 'var':
                     x -= mean
-                    sum += np.sum(x*x, axis=0)
+                    sum += np.sum(x * x, axis=0)
 
-            return sum/n
+            return sum / n
 
         # Compute mean
         if self.featurewise_center:
@@ -766,8 +768,8 @@ class ImageDataGenerator(object):
             broadcast_shape = [1, 1, 1]
             broadcast_shape[self.channel_index - 1] = len(self.rgb_mean)
             self.mean = np.reshape(self.rgb_mean, broadcast_shape)
-            print ('   Mean {}: {}'.format(self.mean.shape, self.rgb_mean,
-                                           self.mean))
+            print('   Mean {}: {}'.format(self.mean.shape, self.rgb_mean,
+                                          self.mean))
 
         # Compute std
         if self.featurewise_std_normalization:
@@ -780,7 +782,7 @@ class ImageDataGenerator(object):
             broadcast_shape = [1, 1, 1]
             broadcast_shape[self.channel_index - 1] = len(self.rgb_std)
             self.std = np.reshape(self.rgb_std, broadcast_shape)
-            print ('   Std {}: {}'.format(self.std.shape, self.rgb_std))
+            print('   Std {}: {}'.format(self.std.shape, self.rgb_std))
 
         # Compute ZCA
         if self.zca_whitening:
@@ -811,7 +813,7 @@ class ImageDataGenerator(object):
             total_count_per_label = total_count_per_label[:n_classes]
 
             # Compute the priors
-            priors = count_per_label/total_count_per_label
+            priors = count_per_label / total_count_per_label
 
             # Compute the weights
             self.weights_median_freq_cost = np.median(priors) / priors
@@ -825,10 +827,10 @@ class ImageDataGenerator(object):
 
             if cb_weights_method == 'median_freq_cost':
                 self.cb_weights = self.weights_median_freq_cost
-                print ('Weights median_freq_cost: ' + str(self.weights_median_freq_cost))
+                print('Weights median_freq_cost: ' + str(self.weights_median_freq_cost))
             elif cb_weights_method == 'rare_freq_cost':
                 self.cb_weights = self.weights_rare_freq_cost
-                print ('Weights rare_freq_cost: ' + str(self.weights_rare_freq_cost))
+                print('Weights rare_freq_cost: ' + str(self.weights_rare_freq_cost))
             else:
                 raise ValueError('Unknown class balancing method: ' + cb_weights_method)
 
@@ -840,7 +842,7 @@ class DirectoryIterator(Iterator):
                  dim_ordering='default',
                  classes=None, class_mode='categorical',
                  batch_size=32, shuffle=True, seed=None, gt_directory=None,
-                 save_to_dir=None, save_prefix='', save_format='jpeg'):
+                 save_to_dir=None, save_prefix='', save_format='jpeg', model_name=None, yolo=False):
         # Check dim order
         if dim_ordering == 'default':
             dim_ordering = K.image_dim_ordering()
@@ -853,7 +855,8 @@ class DirectoryIterator(Iterator):
         self.save_to_dir = save_to_dir
         self.save_prefix = save_prefix
         self.save_format = save_format
-
+        self.model_name = model_name
+        self.yolo = yolo
         # Check target size
         if target_size is None and batch_size > 1:
             raise ValueError('Target_size None works only with batch_size=1')
@@ -904,6 +907,15 @@ class DirectoryIterator(Iterator):
         self.nb_sample = 0
         self.filenames = []
         self.classes = []
+
+        ###########################
+        ## SDD utility if needed ##
+        ###########################
+        if self.class_mode == 'detection' and not yolo:
+            self.ssd_generator = BBoxUtility(self.nb_class)
+        else:
+            self.ssd_generator = None
+
 
         # Get filenames
         if self.class_mode == 'detection':
@@ -1047,7 +1059,10 @@ class DirectoryIterator(Iterator):
         elif self.class_mode == 'detection':
             # TODO detection: check model, other networks may expect a different batch_y format and shape
             # YOLOLoss expects a particular batch_y format and shape
-            batch_y = yolo_build_gt_batch(batch_y, self.image_shape, self.nb_class)
+            if self.yolo:
+                batch_y = yolo_build_gt_batch(batch_y, self.image_shape, self.nb_class)
+            else:
+                batch_y = self.ssd_generator.ssd_build_gt_batch(batch_y, self.image_shape)
         elif self.class_mode == None:
             return batch_x
 
@@ -1055,7 +1070,6 @@ class DirectoryIterator(Iterator):
 
 
 class DirectoryIterator2(object):
-
     def __init__(self, directory, image_data_generator,
                  resize=None, target_size=None, color_mode='rgb',
                  dim_ordering='default',
@@ -1063,7 +1077,6 @@ class DirectoryIterator2(object):
                  batch_size=32, shuffle=True, seed=None, gt_directory=None,
                  save_to_dir=None, save_prefix='', save_format='jpeg',
                  directory2=None, gt_directory2=None, batch_size2=None):
-
         self.DI1 = DirectoryIterator(
             directory, image_data_generator, resize=resize,
             target_size=target_size, color_mode=color_mode,

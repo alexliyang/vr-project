@@ -67,8 +67,12 @@ class Configuration():
             cf.n_epochs = cf.debug_n_epochs
 
         # If data augmentation, use more samples
-        if cf.debug==False and cf.data_augmentation and cf.data_augmentation_train_samples>0:
-            cf.dataset.n_images_train=cf.data_augmentation_train_samples
+       # try:
+        #    if cf.debug is False and cf.data_augmentation and cf.data_augmentation_train_samples > 0:
+         #       cf.dataset.n_images_train = cf.data_augmentation_train_samples
+       # except AttributeError:
+            # Leave it as it is
+         #   pass
 
         # Define target sizes
         if cf.crop_size_train is not None:
@@ -112,11 +116,20 @@ class Configuration():
             cf.best_metric = 'val_jaccard'
             cf.best_type = 'max'
         elif cf.dataset.class_mode == 'detection':
-            # TODO detection : different nets may have other metrics
-            cf.train_metrics = ['loss', 'avg_recall', 'avg_iou']
-            cf.valid_metrics = ['val_loss', 'val_avg_recall', 'val_avg_iou']
-            cf.best_metric = 'val_avg_recall'
-            cf.best_type = 'max'
+            # Metrics are model dependent
+
+            # Standard metrics
+            cf.train_metrics = ['loss']
+            cf.valid_metrics = ['val_loss']
+            cf.best_metric = 'val_loss'
+            cf.best_type = 'min'
+
+            # YOLO
+            if cf.model_name in ['yolo', 'tiny_yolo']:
+                cf.train_metrics += ['avg_recall', 'avg_iou']
+                cf.valid_metrics += ['val_avg_recall', 'val_avg_iou']
+                cf.best_metric = 'val_avg_recall'
+                cf.best_type = 'max'
         else:
             cf.train_metrics = ['loss', 'acc']
             cf.valid_metrics = ['val_loss', 'val_acc']

@@ -107,6 +107,23 @@ python train.py -c config/udacity_tiny_yolo_baseline.py -e baseline_tiny_yolo
 # Fine-tune Tiny-YOLO on TT100K for detection, from the baseline_tiny_yolo weights
 python train.py -c config/tt100k_tiny_yolo_improvements.py -e tiny_yolo_improvements
 
+#####################
+###### SSD300 #######
+#####################
+
+# Train SSD300 on TT100K detection dataset
+python train.py -c config/tt100k_ssd300.py -e baseline_ssd300
+
+# Train SSD300 on Udacity dataset
+python train.py -c config/udacity_ssd300.py -e baseline_ssd300
+
+
+######################
+#### Improvements ####
+######################
+
+# Train YOLO on TT100K for detection
+python train.py -c config/tt100k_yolo_improvements.py -e finetune_yolo
 
 # ------------------------------------------------------------------------------------------------ #
 # ------------------------------------ SEMANTIC SEGMENTATION ------------------------------------- #
