@@ -10,9 +10,30 @@
 # Train SSD300 on Udacity dataset
 #python train.py -c config/udacity_ssd300.py -e baseline_ssd300
 
+# Evaluate baseline YOLO on the test set
+
+python eval_detection_fscore.py yolo TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_yolo/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/test/
+
+# Evaluate baseline YOLO on the training set
+
+python eval_detection_fscore.py yolo TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_yolo/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/train/
+
 # Evaluate baseline YOLO on the validation set
 
 python eval_detection_fscore.py yolo TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_yolo/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/valid/
+
+# Evaluate baseline YOLO on the test set
+
+python eval_detection_fscore.py yolo TT100K_detection ../../data/master/Experiments/Udacity/baseline_yolo/weights.hdf5 /data/module5/Datasets/detection/Udacity/test/
+
+# Evaluate baseline YOLO on the training set
+
+python eval_detection_fscore.py yolo TT100K_detection ../../data/master/Experiments/Udacity/baseline_yolo/weights.hdf5 /data/module5/Datasets/detection/Udacity/train/
+
+# Evaluate baseline YOLO on the validation set
+
+python eval_detection_fscore.py yolo TT100K_detection ../../data/master/Experiments/Udacity/baseline_yolo/weights.hdf5 /data/module5/Datasets/detection/Udacity/valid/
+
 
 # Evaluate YOLO improvements on the test set
 
@@ -38,6 +59,18 @@ python eval_detection_fscore.py tiny-yolo TT100K_detection ../../data/master/Exp
 
 python eval_detection_fscore.py tiny-yolo TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_tiny_yolo/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/valid/
 
+# Evaluate baseline tiny-YOLO on the test set
+
+python eval_detection_fscore.py tiny-yolo udacity ../../data/master/Experiments/Udacity/baseline_tiny_yolo/weights.hdf5 /data/module5/Datasets/detection/Udacity/test/
+
+# Evaluate baseline tiny-YOLO on the training set
+
+python eval_detection_fscore.py tiny-yolo udacity ../../data/master/Experiments/Udacity/baseline_tiny_yolo/weights.hdf5 /data/module5/Datasets/detection/Udacity/train/
+
+# Evaluate baseline tiny-YOLO on the validation set
+
+python eval_detection_fscore.py tiny-yolo udacity ../../data/master/Experiments/Udacity/baseline_tiny_yolo/weights.hdf5 /data/module5/Datasets/detection/Udacity/valid/
+
 # Evaluate baseline SSD on the test set
 
 python eval_detection_fscore.py ssd TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_ssd300/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/test/
@@ -49,3 +82,7 @@ python eval_detection_fscore.py ssd TT100K_detection ../../data/master/Experimen
 # Evaluate baseline SSD on the validation set
 
 python eval_detection_fscore.py ssd TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_ssd300/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/valid/
+
+# Train Yolo on Udacity dataset with Data Aumentation
+
+#python train.py -c config/udacity_tiny_yolo_da.py -e tiny_yolo_da
