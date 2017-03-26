@@ -24,7 +24,7 @@ plt.rcParams['image.interpolation'] = 'nearest'
 if __name__ == '__main__':
 
     """ CONSTANTS """
-    available_models = ['yolo', 'tiny_yolo', 'ssd']
+    available_models = ['yolo', 'tiny-yolo', 'ssd']
     available_datasets = {
         'TT100K_detection': [
             'i2', 'i4', 'i5', 'il100', 'il60', 'il80', 'io', 'ip', 'p10', 'p11', 'p12', 'p19', 'p23', 'p26', 'p27',
@@ -52,6 +52,8 @@ if __name__ == '__main__':
                                   default=0.5, type=float)
     arguments_parser.add_argument('--nms-threshold', help='Non-maxima supression threshold (between 0 and 1)',
                                   default=0.2, type=float)
+    arguments_parser.add_argument('--display', help='Display the image, the predicted bounding boxes and the ground'
+                                                    ' truth bounding boxes.', default=False, type=bool)
 
     arguments = arguments_parser.parse_args()
 
@@ -62,6 +64,7 @@ if __name__ == '__main__':
     dataset_split_name = test_dir.split('/')[-2]
     detection_threshold = arguments.detection_threshold
     nms_threshold = arguments.nms_threshold
+    display_results = arguments.display
 
     # Create directory to store predictions
     try:
@@ -167,7 +170,7 @@ if __name__ == '__main__':
                 true_matched = np.zeros(len(boxes_true))
 
                 # Plot first image
-                if i == 0:
+                if display_results and i == 0:
                     if 'yolo' in model_name:
                         img = np.transpose(img, (1, 2, 0))
                     plt.imshow(img)
@@ -179,7 +182,7 @@ if __name__ == '__main__':
 
                     total_pred += 1.
 
-                    if i == 0:
+                    if display_results and i == 0:
                         # Plot current prediction
                         xmin = int(round((b.x - b.w / 2) * image_width))
                         ymin = int(round((b.y - b.h / 2) * image_height))
@@ -197,7 +200,7 @@ if __name__ == '__main__':
                         if true_matched[t]:
                             continue
 
-                        if i == 0:
+                        if display_results and i == 0:
                             # Plot current GT annotation
                             xmin = int(round((a.x - a.w / 2) * image_width))
                             ymin = int(round((a.y - a.h / 2) * image_height))
@@ -216,7 +219,7 @@ if __name__ == '__main__':
                             ok += 1.
                             break
 
-                if i == 0:
+                if display_results and i == 0:
                     plt.savefig('{}/{}_{}_{}_{}.png'.format(
                         prediction_images_dir,
                         model_name,
@@ -239,6 +242,7 @@ if __name__ == '__main__':
 
             mean_fps += fps
 
+    print('\n')
     print('-----------------------------------')
     print('-----------------------------------')
     print('Final precision = ' + str(p))
@@ -247,11 +251,18 @@ if __name__ == '__main__':
     print('Average fps = ' + str(mean_fps / iterations))
     print('-----------------------------------')
     print('-----------------------------------')
+    print('')
 
-    weights_path = sys.argv[3]
     file_path = weights_path.replace('weights.hdf5', 'evaluation.txt')
-    with open(file_path, 'a') as f:
-        f.write('Final precision = ' + str(p))
-        f.write('\nFinal recall = ' + str(r))
-        f.write('\nFinal f_score = ' + str(f))
-        f.write('\nAverage fps = ' + str(mean_fps / iterations))
+    with open(file_path, 'a') as eval_f:
+        eval_f.write('\n')
+        eval_f.write('-' * 20)
+        eval_f.write('\n')
+        eval_f.write('{:^20}\n'.format(dataset_split_name.upper()))
+        eval_f.write('-' * 20)
+        eval_f.write('\n')
+
+        eval_f.write('\nFinal precision = ' + str(p))
+        eval_f.write('\nFinal recall = ' + str(r))
+        eval_f.write('\nFinal f_score = ' + str(f))
+        eval_f.write('\nAverage fps = ' + str(mean_fps / iterations))
