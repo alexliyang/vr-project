@@ -12,7 +12,7 @@
 
 # Evaluate baseline YOLO on the validation set
 
-python eval_detection_fscore.py yolo TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_yolo/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/val/
+python eval_detection_fscore.py yolo TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_yolo/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/valid/
 
 # Evaluate YOLO improvements on the test set
 
@@ -24,7 +24,7 @@ python eval_detection_fscore.py yolo TT100K_detection ../../data/master/Experime
 
 # Evaluate YOLO improvements on the validation set
 
-python eval_detection_fscore.py yolo TT100K_detection ../../data/master/Experiments/TT100K_detection/yolo_improvements/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/val/
+python eval_detection_fscore.py yolo TT100K_detection ../../data/master/Experiments/TT100K_detection/yolo_improvements/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/valid/
 
 # Evaluate baseline tiny-YOLO on the test set
 
@@ -36,7 +36,7 @@ python eval_detection_fscore.py tiny-yolo TT100K_detection ../../data/master/Exp
 
 # Evaluate baseline tiny-YOLO on the validation set
 
-python eval_detection_fscore.py tiny-yolo TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_tiny_yolo/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/val/
+python eval_detection_fscore.py tiny-yolo TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_tiny_yolo/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/valid/
 
 # Evaluate baseline SSD on the test set
 
@@ -48,4 +48,4 @@ python eval_detection_fscore.py ssd300 TT100K_detection ../../data/master/Experi
 
 # Evaluate baseline SSD on the validation set
 
-python eval_detection_fscore.py ssd300 TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_ssd/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/val/
+python eval_detection_fscore.py ssd300 TT100K_detection ../../data/master/Experiments/TT100K_detection/baseline_ssd/weights.hdf5 /data/module5/Datasets/detection/TT100K_detection/valid/
