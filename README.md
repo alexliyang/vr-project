@@ -36,6 +36,8 @@ Prior to all experiments for each problem type (classification, detection and se
   
 In `vr_project/code` directory:
 
+#### Object recognition
+
   - VGG 
  
     - Baseline [TT100K dataset]
@@ -131,6 +133,8 @@ In `vr_project/code` directory:
     ```
     python train.py -c config/tt100k_densenet_opt_different_opt.py -e densenet_trying_different_opt
     ```
+
+#### Object detection
 
 - YOLO
 
