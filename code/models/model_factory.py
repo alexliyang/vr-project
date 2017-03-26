@@ -54,7 +54,7 @@ class Model_Factory():
                 in_shape = (cf.target_size_train[0],
                             cf.target_size_train[1], cf.dataset.n_channels)
 
-                loss = MultiboxLoss(cf.dataset.n_classes, neg_pos_ratio=0.2).compute_loss
+                loss = MultiboxLoss(cf.dataset.n_classes, neg_pos_ratio=2.0).compute_loss
                 metrics = None
                 # TODO: Add metrics for SSD
                 # priors = pickle.load(open('prior_boxes_ssd300.pkl', 'rb'))
@@ -170,7 +170,7 @@ class Model_Factory():
                                load_pretrained=cf.load_imageNet,
                                freeze_layers_from=cf.freeze_layers_from, tiny=True)
         elif cf.model_name == 'ssd300':
-            model = build_ssd300(in_shape, cf.dataset.n_classes+1, cf.weight_decay,
+            model = build_ssd300(in_shape, cf.dataset.n_classes + 1, cf.weight_decay,
                                  load_pretrained=cf.load_imageNet,
                                  freeze_layers_from=cf.freeze_layers_from)
         else:

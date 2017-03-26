@@ -29,7 +29,6 @@ class BBoxUtility(object):
         https://arxiv.org/abs/1512.02325
     """
 
-    # TODO add setter methods for nms_thresh and top_K
     def __init__(self, num_classes, priors=None, overlap_threshold=0.5,
                  nms_thresh=0.45, top_k=400):
         self.num_classes = num_classes + 1
@@ -226,7 +225,7 @@ class BBoxUtility(object):
                       confidence_threshold=0.01):
         """Do non maximum suppression (nms) on prediction results.
         # Arguments
-            predictions: Numpy array of predicted values.
+            predictions: Numpy array of predicted values for a specific image.
             num_classes: Number of classes for prediction.
             background_label_id: Label of background class.
             keep_top_k: Number of total bboxes to be kept per image
@@ -241,6 +240,7 @@ class BBoxUtility(object):
         variances = predictions[:, -4:]
         mbox_priorbox = predictions[:, -8:-4]
         mbox_conf = predictions[:, 4:-8]
+
         decode_bbox = self.decode_boxes(mbox_loc, mbox_priorbox, variances)
 
         results = []
@@ -274,13 +274,14 @@ class BBoxUtility(object):
         for box in results:
             # Get values from the bounding box: label, confidence and coords
             xmin, ymin, xmax, ymax = box[2:]
-            label = int(box[0])
+            label = int(box[0]) - 1
             confidence = box[1]
             confidences = np.zeros(self.num_classes)
             confidences[label] = confidence
             # Create a BoundBox object to hold the information
             bx = BoundBox(self.num_classes)
-            bx.x, bx.y, bx.w, bx.h = xmin, ymin, xmax - xmin, ymax - ymin
+            bx.w, bx.h = xmax - xmin, ymax - ymin
+            bx.x, bx.y = xmin + bx.w / 2, ymin + bx.h / 2
             bx.c = confidence
             bx.probs = confidences
             boxes.append(bx)
