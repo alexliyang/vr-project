@@ -5,12 +5,10 @@ import time
 import numpy as np
 from keras.engine.training import GeneratorEnqueuer
 from tools.save_images import save_img3
-<<<<<<< HEAD
 
-=======
 from tools.yolo_utils import *
 from keras.preprocessing import image
->>>>>>> dvazquezcvc/master
+
 """
 Interface for normal (one net) models and adversarial models. Objects of
 classes derived from Model are returned by method make() of the Model_Factory
@@ -118,7 +116,7 @@ class One_Net_Model(Model):
 
             # Evaluate model
             start_time_global = time.time()
-            test_metrics = self.model.evaluate_generator(test_gen,
+            test_metrics = self.model.evaluate_generator(data_generator,
                                                          self.cf.dataset.n_images_test,
                                                          max_q_size=10,
                                                          nb_worker=1,
@@ -152,7 +150,7 @@ class One_Net_Model(Model):
                 
 
                 
-                test_dir = test_gen.directory
+                test_dir = data_generator.directory
                 imfiles = [os.path.join(test_dir,f) for f in os.listdir(test_dir) 
                                     if os.path.isfile(os.path.join(test_dir,f)) 
                                     and f.endswith('jpg')]
