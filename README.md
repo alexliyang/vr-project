@@ -261,8 +261,8 @@ For object detection we have considered two single-shot models: the most recent 
   - [ ] Compare results and performance  between TinyYOLO and YOLO
 3. **SSD**:
   - [x] Implement it and adapt it to the framework
-  - [ ] Train from scratch on TT100K detection dataset
-  - [ ] Train from scratch on Udacity dataset
+  - [x] Train from scratch on TT100K detection dataset
+  - [x] Train from scratch on Udacity dataset
 4. **Dataset Analysis**
   - [x] Analyze TT100K detection dataset: distribution of classes, bounding boxes' aspect ratios and bounding boxes' areas per dataset split.
   - [x] Analyze Udacity dataset: distribution of classes, bounding boxes' aspect ratios and bounding boxes' areas per dataset split.
