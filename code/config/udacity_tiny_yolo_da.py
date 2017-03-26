@@ -8,8 +8,8 @@ perc_mb2 = None  # Percentage of data from the second dataset in each minibatch
 model_name = 'tiny-yolo'  # Model to use: one of 'yolo' or 'tiny-yolo'
 freeze_layers_from = None  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
 show_model = False  # Show the architecture layers
-load_imageNet = True  # Load Imagenet weights and normalize following imagenet procedure
-load_pretrained = False  # Load a pretrained model for doing finetuning
+load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
+load_pretrained = True  # Load a pretrained model for doing finetuning
 weights_file = 'weights.hdf5'  # Training weight file name
 
 # Parameters
@@ -75,8 +75,8 @@ plotHist_enabled = True  # Enable the Callback
 plotHist_verbose = 0  # Verbosity of the callback
 
 # Callback LR decay scheduler
-lrDecayScheduler_enabled = False  # Enable the Callback
-lrDecayScheduler_epochs = [5, 10, 20]  # List of epochs were decay is applied or None for all epochs
+lrDecayScheduler_enabled = True  # Enable the Callback
+lrDecayScheduler_epochs = [10, 20, 30]  # List of epochs were decay is applied or None for all epochs
 lrDecayScheduler_rate = 2  # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
 
 # Data augmentation for training and normalization
@@ -87,7 +87,7 @@ norm_featurewise_center = True  # Substract mean - dataset
 norm_featurewise_std_normalization = True  # Divide std - dataset
 norm_samplewise_center = False  # Substract mean - sample
 norm_samplewise_std_normalization = False  # Divide std - sample
-norm_gcn = False  # Global contrast normalization
+norm_gcn = True  # Global contrast normalization
 norm_zca_whitening = False  # Apply ZCA whitening
 cb_weights_method = None  # Label weight balance [None | 'median_freq_cost' | 'rare_freq_cost']
 
