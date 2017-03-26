@@ -23,7 +23,7 @@ class Model():
     def predict(self, test_gen, tag='pred'):
         pass
 
-    def test(self, test_gen):
+    def test(self, test_gen, test_tag):
         pass
 
 
@@ -108,7 +108,7 @@ class One_Net_Model(Model):
             print ('   Predicting time: {}. FPS: {}. Seconds per Frame: {}'.format(total_time, fps, s_p_f))
 
     # Test the model
-    def test(self, data_generator, dataset_tag):
+    def test(self, test_gen, test_tag):
         if self.cf.test_model:
             print('\n > Testing the model...')
             # Load best trained model
@@ -116,7 +116,7 @@ class One_Net_Model(Model):
 
             # Evaluate model
             start_time_global = time.time()
-            test_metrics = self.model.evaluate_generator(data_generator,
+            test_metrics = self.model.evaluate_generator(test_gen,
                                                          self.cf.dataset.n_images_test,
                                                          max_q_size=10,
                                                          nb_worker=1,
