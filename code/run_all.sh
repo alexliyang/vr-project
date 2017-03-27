@@ -104,8 +104,6 @@ python train.py -c config/tt100k_tiny_yolo.py -e baseline_tiny_yolo
 # Train Tiny-YOLO on Udacity dataset
 python train.py -c config/udacity_tiny_yolo_baseline.py -e baseline_tiny_yolo
 
-# Fine-tune Tiny-YOLO on TT100K for detection, from the baseline_tiny_yolo weights
-python train.py -c config/tt100k_tiny_yolo_improvements.py -e tiny_yolo_improvements
 
 #####################
 ###### SSD300 #######
@@ -122,8 +120,16 @@ python train.py -c config/udacity_ssd300.py -e baseline_ssd300
 #### Improvements ####
 ######################
 
+# Fine-tune Tiny-YOLO on TT100K for detection, from the baseline_tiny_yolo weights
+python train.py -c config/tt100k_tiny_yolo_improvements.py -e tiny_yolo_improvements
+
 # Train YOLO on TT100K for detection
 python train.py -c config/tt100k_yolo_improvements.py -e finetune_yolo
+
+# Tiny-YOLO and use data augmentation on Udacity to overcome the unbalanced datasets problem
+python train.py -c config/udacity_tiny_yolo_da.py -e tiny_yolo_da
+
+
 
 # ------------------------------------------------------------------------------------------------ #
 # ------------------------------------ SEMANTIC SEGMENTATION ------------------------------------- #
