@@ -104,6 +104,8 @@ python train.py -c config/tt100k_tiny_yolo.py -e baseline_tiny_yolo
 # Train Tiny-YOLO on Udacity dataset
 python train.py -c config/udacity_tiny_yolo_baseline.py -e baseline_tiny_yolo
 
+# Fine-tune Tiny-YOLO on TT100K for detection, from the baseline_tiny_yolo weights
+python train.py -c config/tt100k_tiny_yolo_improvements.py -e tiny_yolo_improvements
 
 #####################
 ###### SSD300 #######

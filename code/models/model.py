@@ -5,6 +5,8 @@ import time
 import numpy as np
 from keras.engine.training import GeneratorEnqueuer
 from tools.save_images import save_img3
+from tools.yolo_utils import *
+from keras.preprocessing import image
 
 from tools.yolo_utils import *
 from keras.preprocessing import image
@@ -191,7 +193,6 @@ class One_Net_Model(Model):
                                 bx.probs[int(gt[j, 0])] = 1.
                                 bx.x, bx.y, bx.w, bx.h = gt[j, 1:].tolist()
                                 boxes_true.append(bx)
-
                             total_true += len(boxes_true)
                             true_matched = np.zeros(len(boxes_true))
                             for b in boxes_pred:
@@ -205,6 +206,7 @@ class One_Net_Model(Model):
                                         true_matched[t] = 1
                                         ok += 1.
                                         break
+
                         inputs = []
                         img_paths = []
 
@@ -215,7 +217,6 @@ class One_Net_Model(Model):
                         print('Recall     = ' + str(r))
                         f = 0. if (p + r) == 0 else (2 * p * r / (p + r))
                         print('F-score    = ' + str(f))
-
             total_time_global = time.time() - start_time_global
             fps = float(self.cf.dataset.n_images_test) / total_time_global
             s_p_f = total_time_global / float(self.cf.dataset.n_images_test)
