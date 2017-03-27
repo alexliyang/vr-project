@@ -18,7 +18,7 @@ test_model = True  # Test the model
 pred_model = False  # Predict using the model
 
 # Debug
-debug = True  # Use only few images for debuging
+debug = False  # Use only few images for debuging
 debug_images_train = 16  # N images for training in debug mode (-1 means all)
 debug_images_valid = 16  # N images for validation in debug mode (-1 means all)
 debug_images_test = 16  # N images for testing in debug mode (-1 means all)
@@ -87,7 +87,7 @@ norm_featurewise_center = True  # Substract mean - dataset
 norm_featurewise_std_normalization = True  # Divide std - dataset
 norm_samplewise_center = False  # Substract mean - sample
 norm_samplewise_std_normalization = False  # Divide std - sample
-norm_gcn = True  # Global contrast normalization
+norm_gcn = False  # Global contrast normalization
 norm_zca_whitening = False  # Apply ZCA whitening
 cb_weights_method = None  # Label weight balance [None | 'median_freq_cost' | 'rare_freq_cost']
 
