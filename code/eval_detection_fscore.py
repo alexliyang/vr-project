@@ -147,9 +147,10 @@ if __name__ == '__main__':
                                                           nms_threshold)
                 elif model_name == 'ssd':
                     priors = pickle.load(open('prior_boxes_ssd300.pkl', 'rb'))
-                    bbox_util = BBoxUtility(num_classes, priors=priors, nms_thresh=nms_threshold)
+                    real_num_classes = num_classes - 1  # Background is not included
+                    bbox_util = BBoxUtility(real_num_classes, priors=priors, nms_thresh=nms_threshold)
                     boxes_pred = bbox_util.detection_out(net_out[i],
-                                                         background_label_id=num_classes,
+                                                         background_label_id=0,
                                                          confidence_threshold=detection_threshold)
                 else:
                     print "Error: Model not supported!"
@@ -171,11 +172,29 @@ if __name__ == '__main__':
 
                 # Plot first image
                 if display_results and i == 0:
+                    current_img = inputs[0]
                     if 'yolo' in model_name:
-                        img = np.transpose(img, (1, 2, 0))
-                    plt.imshow(img)
+                        current_img = np.transpose(current_img, (1, 2, 0))
+                    plt.imshow(current_img)
                     currentAxis = plt.gca()
 
+                # Draw al GT boxes
+                if display_results and i == 0:
+
+                    for a in boxes_true:
+                        # Plot current GT annotation
+                        xmin = int(round((a.x - a.w / 2) * image_width))
+                        ymin = int(round((a.y - a.h / 2) * image_height))
+                        xmax = int(round((a.x + a.w / 2) * image_width))
+                        ymax = int(round((a.y + a.h / 2) * image_height))
+                        label = int(np.argmax(a.probs))
+                        display_txt = 'true label={}'.format(label)
+                        coords = (xmin, ymin), xmax - xmin + 1, ymax - ymin + 1
+                        color = colors[label]
+                        currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=3))
+                        currentAxis.text(xmin, ymin, display_txt)
+
+                # Compute number of predictions that match with GT with a minimum of 50% IoU
                 for b in boxes_pred:
                     if b.probs[np.argmax(b.probs)] < detection_threshold:
                         continue
@@ -199,19 +218,6 @@ if __name__ == '__main__':
                     for t, a in enumerate(boxes_true):
                         if true_matched[t]:
                             continue
-
-                        if display_results and i == 0:
-                            # Plot current GT annotation
-                            xmin = int(round((a.x - a.w / 2) * image_width))
-                            ymin = int(round((a.y - a.h / 2) * image_height))
-                            xmax = int(round((a.x + a.w / 2) * image_width))
-                            ymax = int(round((a.y + a.h / 2) * image_height))
-                            label = int(np.argmax(a.probs))
-                            display_txt = 'true label={}'.format(label)
-                            coords = (xmin, ymin), xmax - xmin + 1, ymax - ymin + 1
-                            color = colors[label]
-                            currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=3))
-                            currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor': color, 'alpha': 0.8})
 
                         # Check if prediction corresponds to current gt bounding box
                         if box_iou(a, b) > 0.5 and np.argmax(a.probs) == np.argmax(b.probs):
