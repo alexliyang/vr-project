@@ -314,7 +314,7 @@ For object detection we have considered two single-shot models: the most recent 
   - [x] Assess similarities and differences between splits on Udacity dataset
 4. **Boost performance** 
   - [x] Fine-tune Tiny YOLO from baseline weights on TT100K detection
-  - [ ] Fine-tune Tiny YOLO and use preprocessing and data augmentation techniques to overcome the differences in dataset splits in Udacity dataset, thus improving the performance of the model on this dataset
+  - [x] Fine-tune Tiny YOLO and use preprocessing and data augmentation techniques to overcome the differences in dataset splits in Udacity dataset, thus improving the performance of the model on this dataset
 
 ### Experimental results
 
