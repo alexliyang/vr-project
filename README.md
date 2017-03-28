@@ -169,11 +169,23 @@ In `vr_project/code` directory:
     ```
     python train.py -c config/udacity_tiny_yolo_baseline.py -e baseline_tiny_yolo
     ```
+    
+    - Fine-tune from the baseline_tiny_yolo weights [TT100K detection]
 
+    ```
+    python train.py -c config/tt100k_tiny_yolo_improvements.py -e tiny_yolo_improvements
+    ```
+    
+    - Data augmentation to try to overcome the unbalanced datasets problem [Udacity]
+    
+    ```
+    python train.py -c config/udacity_tiny_yolo_da.py -e tiny_yolo_da
+    ```
+    
 - SSD300
 
-    - Baseline [TT100K detection]
-
+    - Baseline [TT100K detection]
+    
     ```
     python train.py -c config/tt100k_ssd300.py -e baseline_ssd300
     ```
@@ -183,7 +195,34 @@ In `vr_project/code` directory:
     ```
     python train.py -c config/udacity_ssd300.py -e baseline_ssd300
     ```
+
+- Evaluation
     
+    ```
+    python eval_detection_fscore.py model dataset weights_path test_folder --detection-threshold=det_thr --nms-threshold=nms_thr --display display_bool --ignore-class idx
+    ```
+    
+where:
+
+- model: 'yolo', 'tiny-yolo' or 'ssd'
+      
+- dataset: 'TT100k_detection' or 'Udacity'
+      
+- weights_path: path to the weights HDF5 file for this model
+      
+- test_folder: path to the folder containing the dataset split to be evaluated
+      
+- det_thr: minimum confidence value for a prediction to be considered [Optional, default value = 0.5]
+      
+- nms_thr: Non-Maxima Supression threshold [Optional, default value = 0.2]
+      
+- display_bool: true or false, whether to store an image with the predictions for each chunk of processed data [Optional, default value = False]
+      
+- idx: list with the indices of the classes to be ignored, that is, not taken into account as predictions [Optional, default value = None]
+      
+    
+#### Utilities
+
 - Analyze datasets
     
     ```
@@ -244,35 +283,38 @@ For object detection we have considered two single-shot models: the most recent 
 
 #### Contributions to the code
 
-  - `models/ssd300.py` - adaptation of [this](https://github.com/rykov8/ssd_keras) implementation of SSD300 to the framework, including the loss and batch generator utilities required to train it.
+  - `models/ssd300.py`, `ssd_utils.py` and `metrics.py` - adaptation of [this](https://github.com/rykov8/ssd_keras) implementation of SSD300 to the framework, including the loss and batch generator utilities required to train it.
 
   - `analyze_datasets.py` - extended functionality to analyze detection datasets and report distributions over several variables. 
   
-  - `eval_detection_fscore.py` - extended to evaluate the SSD model. 
+  - `eval_detection_fscore.py` - extended to evaluate the SSD model. Included options to control the detection and NMS thersholds. Added option to store the predictions for the first image in each processed chunk. Generalized the script to ignore specific classes, so that they are not taken into account when computing the metrics.
   
 #### Milestones
 
 1. **YOLO**:
   - [x] Fine-tune from ImageNet weights on TT100K detection dataset
   - [x] Fine-tune from ImageNet weights on Udacity dataset
-  - [ ] Evaluate performance on TT100K detection dataset
-  - [ ] Evaluate performance on Udacity dataset
+  - [x] Evaluate performance on TT100K detection dataset
+  - [x] Evaluate performance on Udacity dataset
 2. **Tiny YOLO**:
   - [x] Fine-tune from ImageNet weights on TT100K detection dataset
   - [x] Fine-tune from ImageNet weights on Udacity dataset
-  - [ ] Evaluate performance on TT100K detection dataset
-  - [ ] Evaluate performance on Udacity dataset
-  - [ ] Compare results and performance  between TinyYOLO and YOLO
+  - [x] Evaluate performance on TT100K detection dataset
+  - [x] Evaluate performance on Udacity dataset
+  - [x] Compare results and performance  between TinyYOLO and YOLO
 3. **SSD**:
   - [x] Implement it and adapt it to the framework
   - [x] Train from scratch on TT100K detection dataset
   - [x] Train from scratch on Udacity dataset
+  - [x] Evaluate performance on TT100K detection dataset
+  - [x] Evaluate performance on Udacity dataset
 4. **Dataset Analysis**
-  - [x] Analyze TT100K detection dataset: distribution of classes, bounding boxes' aspect ratios and bounding boxes' areas per dataset split.
-  - [x] Analyze Udacity dataset: distribution of classes, bounding boxes' aspect ratios and bounding boxes' areas per dataset split.
-  - [x] Assess similarities and differences between splits on Udacity dataset.
+  - [x] Analyze TT100K detection dataset: distribution of classes, bounding boxes' aspect ratios and bounding boxes' areas per dataset split
+  - [x] Analyze Udacity dataset: distribution of classes, bounding boxes' aspect ratios and bounding boxes' areas per dataset split
+  - [x] Assess similarities and differences between splits on Udacity dataset
 4. **Boost performance** 
-  - [ ] T.B.D.
+  - [x] Fine-tune Tiny YOLO from baseline weights on TT100K detection
+  - [ ] Fine-tune Tiny YOLO and use preprocessing and data augmentation techniques to overcome the differences in dataset splits in Udacity dataset, thus improving the performance of the model on this dataset
 
 ### Experimental results
 
