@@ -12,7 +12,7 @@ def create_config(newconfig_name, problem_type, dataset_name=None, model_name=No
         config_original_filename = 'config/tt100k_classif.py'
     # Config file for segmentation
     elif problem_type == 'segmentation':
-        config_original_filename = 'config/camvid_segmentation.py'
+        config_original_filename = 'config/camvid_fcn.py'
     else:
         raise Exception('{} is not supported. Only classification and segmentation problems are supported so far.')
 

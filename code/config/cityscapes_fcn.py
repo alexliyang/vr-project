@@ -1,12 +1,12 @@
 # Dataset
 problem_type = 'segmentation'  # ['classification' | 'detection' | 'segmentation']
-dataset_name = 'camvid'  # Dataset name
+dataset_name = 'cityscapes'  # Dataset name
 dataset_name2 = None  # Second dataset name. None if not Domain Adaptation
 perc_mb2 = None  # Percentage of data from the second dataset in each minibatch
 
 # Model
 model_name = 'fcn8'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
-freeze_layers_from = None  # Freeze layers from 0 to this layer during training (Useful for finetunning) [None | 'base_model' | Layer_id]
+freeze_layers_from = None  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
 show_model = False  # Show the architecture layers
 load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
 load_pretrained = False  # Load a pretrained model for doing finetuning
@@ -14,7 +14,7 @@ weights_file = 'weights.hdf5'  # Training weight file name
 
 # Parameters
 train_model = True  # Train the model
-test_model = False  # Test the model
+test_model = True  # Test the model
 pred_model = False  # Predict using the model
 
 # Debug
@@ -80,7 +80,7 @@ lrDecayScheduler_rate = 2  # Decay rate (new_lr = lr / decay_rate). Usually betw
 
 # Data augmentation for training and normalization
 norm_imageNet_preprocess = False  # Normalize following imagenet procedure
-norm_fit_dataset = True  # If True it recompute std and mean from images. Either it uses the std and mean set at the dataset config file
+norm_fit_dataset = True  # If True it recompute std and mean from images.
 norm_rescale = 1 / 255.  # Scalar to divide and set range 0-1
 norm_featurewise_center = False  # Substract mean - dataset
 norm_featurewise_std_normalization = False  # Divide std - dataset
