@@ -113,7 +113,8 @@ class Dataset_Generators():
                                    zca_whitening=cf.norm_zca_whitening,
                                    crop_size=cf.crop_size_valid,
                                    dim_ordering='th' if 'yolo' in cf.model_name else 'default',
-                                   class_mode=cf.dataset.class_mode, yolo=True if 'yolo' in cf.model_name else False)
+                                   class_mode=cf.dataset.class_mode,
+                                   yolo=True if 'yolo' in cf.model_name else False)
         valid_gen = dg_va.flow_from_directory(directory=cf.dataset.path_valid_img,
                                               gt_directory=cf.dataset.path_valid_mask,
                                               resize=cf.resize_valid,
@@ -140,7 +141,8 @@ class Dataset_Generators():
                                        zca_whitening=cf.norm_zca_whitening,
                                        crop_size=cf.crop_size_test,
                                        dim_ordering='th' if 'yolo' in cf.model_name else 'default',
-                                       class_mode=cf.dataset.class_mode, yolo=True if 'yolo' in cf.model_name else False)
+                                       class_mode=cf.dataset.class_mode,
+                                       yolo=True if 'yolo' in cf.model_name else False)
             test_gen = dg_ts.flow_from_directory(directory=cf.dataset.path_test_img,
                                                  gt_directory=cf.dataset.path_test_mask,
                                                  resize=cf.resize_test,

@@ -6,3 +6,6 @@
 
 # Ignore weights
 weights
+
+# Prediction images
+code/prediction_images

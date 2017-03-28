@@ -10,7 +10,7 @@ freeze_layers_from = None  # Freeze layers from 0 to this layer during training 
 show_model = False  # Show the architecture layers
 load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
 load_pretrained = True  # Load a pretrained model for doing finetuning
-weights_file = 'weights.hdf5'  # Training weight file name
+weights_file = '/home/master/data/master/Experiments/Udacity/baseline_tiny_yolo/weights.hdf5'
 
 # Parameters
 train_model = True  # Train the model
@@ -87,7 +87,7 @@ norm_featurewise_center = True  # Substract mean - dataset
 norm_featurewise_std_normalization = True  # Divide std - dataset
 norm_samplewise_center = False  # Substract mean - sample
 norm_samplewise_std_normalization = False  # Divide std - sample
-norm_gcn = True  # Global contrast normalization
+norm_gcn = False  # Global contrast normalization
 norm_zca_whitening = False  # Apply ZCA whitening
 cb_weights_method = None  # Label weight balance [None | 'median_freq_cost' | 'rare_freq_cost']
 

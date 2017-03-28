@@ -1,3 +1,5 @@
+from __future__ import print_function, division
+
 import os
 import sys
 import time
@@ -54,6 +56,9 @@ if __name__ == '__main__':
                                   default=0.2, type=float)
     arguments_parser.add_argument('--display', help='Display the image, the predicted bounding boxes and the ground'
                                                     ' truth bounding boxes.', default=False, type=bool)
+    arguments_parser.add_argument('--ignore-class', help='List of classes to be ignore from predictions',
+                                  type=int,
+                                  nargs='+')
 
     arguments = arguments_parser.parse_args()
 
@@ -65,6 +70,7 @@ if __name__ == '__main__':
     detection_threshold = arguments.detection_threshold
     nms_threshold = arguments.nms_threshold
     display_results = arguments.display
+    ignore_class = arguments.ignore_class or []
 
     # Create directory to store predictions
     try:
@@ -77,6 +83,13 @@ if __name__ == '__main__':
     num_classes = len(classes)
     if 'ssd' in model_name:
         num_classes += 1  # Background class included
+
+    # Ignored classes
+    if ignore_class:
+        list_ignored_classes = ', '.join([classes[i] for i in ignore_class])
+        print()
+        print('IGNORED CLASSES: {}'.format(list_ignored_classes))
+        print()
 
     # Plotting options
     colors = plt.cm.hsv(np.linspace(0, 1, num_classes)).tolist()
@@ -98,7 +111,7 @@ if __name__ == '__main__':
                            load_pretrained=False, freeze_layers_from='base_model',
                            tiny=False)
     else:
-        print "Error: Model not supported!"
+        print("Error: Model not supported!")
         exit(1)
 
     # Load weights
@@ -110,7 +123,7 @@ if __name__ == '__main__':
                and f.endswith('jpg')]
 
     if len(imfiles) == 0:
-        print "ERR: path_to_images does not contain any jpg file"
+        print("ERR: path_to_images does not contain any jpg file")
         exit(1)
 
     inputs = []
@@ -138,7 +151,7 @@ if __name__ == '__main__':
             net_out = model.predict(inputs, batch_size=16, verbose=1)
             sec = time.time() - start_time
             fps = len(inputs) / sec
-            print '{} images predicted in {:.5f} seconds. {:.5f} fps'.format(len(inputs), sec, fps)
+            print('{} images predicted in {:.5f} seconds. {:.5f} fps'.format(len(inputs), sec, fps))
 
             # find correct detections (per image)
             for i, img_path in enumerate(img_paths):
@@ -147,12 +160,13 @@ if __name__ == '__main__':
                                                           nms_threshold)
                 elif model_name == 'ssd':
                     priors = pickle.load(open('prior_boxes_ssd300.pkl', 'rb'))
-                    bbox_util = BBoxUtility(num_classes, priors=priors, nms_thresh=nms_threshold)
+                    real_num_classes = num_classes - 1  # Background is not included
+                    bbox_util = BBoxUtility(real_num_classes, priors=priors, nms_thresh=nms_threshold)
                     boxes_pred = bbox_util.detection_out(net_out[i],
-                                                         background_label_id=num_classes,
+                                                         background_label_id=0,
                                                          confidence_threshold=detection_threshold)
                 else:
-                    print "Error: Model not supported!"
+                    print("Error: Model not supported!")
                     exit(1)
 
                 boxes_true = []
@@ -171,13 +185,35 @@ if __name__ == '__main__':
 
                 # Plot first image
                 if display_results and i == 0:
+                    current_img = inputs[0]
                     if 'yolo' in model_name:
-                        img = np.transpose(img, (1, 2, 0))
-                    plt.imshow(img)
+                        current_img = np.transpose(current_img, (1, 2, 0))
+                    plt.imshow(current_img)
                     currentAxis = plt.gca()
 
+                # Draw al GT boxes
+                if display_results and i == 0:
+
+                    for a in boxes_true:
+                        # Plot current GT annotation
+                        xmin = int(round((a.x - a.w / 2) * image_width))
+                        ymin = int(round((a.y - a.h / 2) * image_height))
+                        xmax = int(round((a.x + a.w / 2) * image_width))
+                        ymax = int(round((a.y + a.h / 2) * image_height))
+                        label_idx = int(np.argmax(a.probs))
+                        label = classes[label_idx]
+                        display_txt = 'true label={}'.format(label)
+                        coords = (xmin, ymin), xmax - xmin + 1, ymax - ymin + 1
+                        color = colors[label_idx]
+                        currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=3))
+                        currentAxis.text(xmin, ymin, display_txt)
+
+                # Compute number of predictions that match with GT with a minimum of 50% IoU
                 for b in boxes_pred:
-                    if b.probs[np.argmax(b.probs)] < detection_threshold:
+                    pred_idx = np.argmax(b.probs)
+
+                    # Do not count as prediction if it is below the detection threshold or in the ignore list
+                    if (b.probs[pred_idx] < detection_threshold) or (pred_idx in ignore_class):
                         continue
 
                     total_pred += 1.
@@ -189,29 +225,17 @@ if __name__ == '__main__':
                         xmax = int(round((b.x + b.w / 2) * image_width))
                         ymax = int(round((b.y + b.h / 2) * image_height))
                         score = b.c
-                        label = int(np.argmax(b.probs))
+                        label_idx = int(np.argmax(b.probs))
+                        label = classes[label_idx]
                         display_txt = '{:0.2f}, label={}'.format(score, label)
                         coords = (xmin, ymin), xmax - xmin + 1, ymax - ymin + 1
-                        color = colors[label]
+                        color = colors[label_idx]
                         currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=1))
                         currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor': color, 'alpha': 0.6})
 
                     for t, a in enumerate(boxes_true):
                         if true_matched[t]:
                             continue
-
-                        if display_results and i == 0:
-                            # Plot current GT annotation
-                            xmin = int(round((a.x - a.w / 2) * image_width))
-                            ymin = int(round((a.y - a.h / 2) * image_height))
-                            xmax = int(round((a.x + a.w / 2) * image_width))
-                            ymax = int(round((a.y + a.h / 2) * image_height))
-                            label = int(np.argmax(a.probs))
-                            display_txt = 'true label={}'.format(label)
-                            coords = (xmin, ymin), xmax - xmin + 1, ymax - ymin + 1
-                            color = colors[label]
-                            currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=3))
-                            currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor': color, 'alpha': 0.8})
 
                         # Check if prediction corresponds to current gt bounding box
                         if box_iou(a, b) > 0.5 and np.argmax(a.probs) == np.argmax(b.probs):

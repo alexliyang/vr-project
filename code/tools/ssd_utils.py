@@ -270,73 +270,23 @@ class BBoxUtility(object):
             results = results[argsort]
             results = results[:keep_top_k]
 
-        # Convert the bounding boxes into BoundBox objects (to be compatible with the framework)
-        for box in results:
-            # Get values from the bounding box: label, confidence and coords
-            xmin, ymin, xmax, ymax = box[2:]
-            label = int(box[0]) - 1
-            confidence = box[1]
-            confidences = np.zeros(self.num_classes)
-            confidences[label] = confidence
-            # Create a BoundBox object to hold the information
-            bx = BoundBox(self.num_classes)
-            bx.w, bx.h = xmax - xmin, ymax - ymin
-            bx.x, bx.y = xmin + bx.w / 2, ymin + bx.h / 2
-            bx.c = confidence
-            bx.probs = confidences
-            boxes.append(bx)
+            # Convert the bounding boxes into BoundBox objects (to be compatible with the framework)
+            for box in results:
+                # Get values from the bounding box: label, confidence and coords
+                xmin, ymin, xmax, ymax = box[2:]
+                label = int(box[0]) - 1  # Background class is 0, so everything must be shifted 1 position to the left
+                confidence = box[1]
+                confidences = np.zeros(self.num_classes - 1)  # Without background
+                confidences[label] = confidence
+                # Create a BoundBox object to hold the information
+                bx = BoundBox(self.num_classes)
+                bx.w, bx.h = 2*(xmax - xmin), 2*(ymax - ymin)
+                bx.x, bx.y = xmin + bx.w / 2, ymin + bx.h / 2
+                bx.c = confidence
+                bx.probs = confidences
+                boxes.append(bx)
 
-        return boxes
+            return boxes
 
-    def detection_out_slow(self, predictions, background_label_id=0, confidence_threshold=0.01):
-        """Do non maximum suppression (nms) on prediction results.
-        # Arguments
-            predictions: Numpy array of predicted values for a single image
-            num_classes: Number of classes for prediction.
-            background_label_id: Label of background class.
-            confidence_threshold: Only consider detections,
-                whose confidences are larger than a threshold.
-        # Return
-            results: List of predictions for every picture. Each prediction is:
-                [label, confidence, xmin, ymin, xmax, ymax]
-        """
-        mbox_loc = predictions[:, :4]
-        variances = predictions[:, -4:]
-        mbox_priorbox = predictions[:, -8:-4]
-        mbox_conf = predictions[:, 4:-8]
-
-        # Decode bboxes for this image
-        decode_bbox = self.decode_boxes(mbox_loc,
-                                        mbox_priorbox,
-                                        variances)
-
-        # List of BoundBox objects
-        bound_boxes = list()
-
-        for i in range(mbox_loc.shape[0]):
-            bx = BoundBox(self.num_classes)
-            xmin, ymin, xmax, ymax = decode_bbox[i, :].tolist()
-            bx.x, bx.y, bx.w, bx.h = xmin, ymin, xmax - xmin, ymax - ymin
-            confidences = mbox_conf[i, :]
-            bx.c = np.max(confidences)
-            bx.probs = confidences
-            bx.probs *= bx.probs > confidence_threshold
-            bound_boxes.append(bx)
-
-        # Non-Maximum Supression (for each class c, except background)
-        for c in range(self.num_classes):
-            if c == background_label_id:
-                continue
-            for i in range(len(bound_boxes)):
-                bound_boxes[i].class_num = c
-            bound_boxes = sorted(bound_boxes, key=prob_compare)
-            for i in range(len(bound_boxes)):
-                boxi = bound_boxes[i]
-                if boxi.probs[c] == 0:
-                    continue
-                for j in range(i + 1, len(bound_boxes)):
-                    boxj = bound_boxes[j]
-                    if box_iou(boxi, boxj) >= self._nms_thresh:
-                        bound_boxes[j].probs[c] = 0.
-
-        return bound_boxes
+        else:
+            return []
