@@ -171,20 +171,20 @@ In `vr_project/code` directory:
     ```
     
     - Fine-tune from the baseline_tiny_yolo weights [TT100K detection]
-
-    ```
+    
+    ```
     python train.py -c config/tt100k_tiny_yolo_improvements.py -e tiny_yolo_improvements
-    ```
+    ```
     
     - Data augmentation to try to overcome the unbalanced datasets problem [Udacity]
     
-    ```
+    ```
     python train.py -c config/udacity_tiny_yolo_da.py -e tiny_yolo_da
-    ```
+    ```
     
 - SSD300
 
-    - Baseline [TT100K detection]
+    - Baseline [TT100K detection]
     
     ```
     python train.py -c config/tt100k_ssd300.py -e baseline_ssd300
