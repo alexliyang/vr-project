@@ -17,27 +17,29 @@ dim_ordering = K.image_dim_ordering()
 
 
 
-def build_segnet(img_shape=(3, None, None), nclasses=8, weight_decay=0.,
+def build_segnet(img_shape=(None, None, 3), nclasses=8, weight_decay=0.,
                freeze_layers_from=None, path_weights=None, basic=False):
+
+    #TODO: implement 'segnet_basic' option
 
     # Regularization warning
     if weight_decay > 0.:
         print ("Regularizing the weights: " + str(weight_decay))
 
 
+    # Set axis in which to do batch normalization
     if K.image_dim_ordering() == 'tf':
         bn_axis = 3
     else:
         bn_axis = 1
 
-    # Build network
 
+    # Build network
 
     # CONTRACTING PATH
 
     # Input layer
     input_tensor = Input(img_shape)
-    #padded = ZeroPadding2D(padding=(100, 100), name='pad100')(inputs)
 
     x = conv_block(input_tensor, 64, 3, weight_decay, bn_axis, block='1', num='1')
     x = conv_block(x, 64, 3, weight_decay, bn_axis, block='1', num='2')
@@ -46,6 +48,7 @@ def build_segnet(img_shape=(3, None, None), nclasses=8, weight_decay=0.,
     x = conv_block(pool1, 128, 3, weight_decay, bn_axis, block='2', num='1')
     x = conv_block(x, 128, 3, weight_decay, bn_axis, block='2', num='2')
     pool2 = MaxPooling2D(pool_size=(2,2), strides=(2,2), name='block2_pool1')(x)
+
 
     x = conv_block(pool2, 256, 3, weight_decay, bn_axis, block='3', num='1')
     x = conv_block(x, 256, 3, weight_decay, bn_axis, block='3', num='2')
@@ -65,26 +68,29 @@ def build_segnet(img_shape=(3, None, None), nclasses=8, weight_decay=0.,
 
     # DECONTRACTING PATH
 
-    x = DePool2D(pool5, size=(2,2), name='block6_unpool1')(x)
+    x = DePool2D(pool2d_layer=pool5, size=(2,2), name='block6_unpool1')(pool5)
     x = conv_block(x, 512, 3, weight_decay, bn_axis, block='6', num='1')
     x = conv_block(x, 512, 3, weight_decay, bn_axis, block='6', num='2')
     x = conv_block(x, 512, 3, weight_decay, bn_axis, block='6', num='3')
 
-    x = DePool2D(pool4, size=(2,2), name='block7_unpool1')(x)
+    x = DePool2D(pool2d_layer=pool4, size=(2,2), name='block7_unpool1')(x)
     x = conv_block(x, 512, 3, weight_decay, bn_axis, block='7', num='1')
     x = conv_block(x, 512, 3, weight_decay, bn_axis, block='7', num='2')
     x = conv_block(x, 512, 3, weight_decay, bn_axis, block='7', num='3')
 
-    x = DePool2D(pool3, size=(2,2), name='block8_unpool1')(x)
+    #TODO: try to make the padding generic...
+    x = ZeroPadding2D(padding=(1, 0, 0, 0), name='pad100')(x)
+
+    x = DePool2D(pool2d_layer=pool3, size=(2,2), name='block8_unpool1')(x)
     x = conv_block(x, 256, 3, weight_decay, bn_axis, block='8', num='1')
     x = conv_block(x, 256, 3, weight_decay, bn_axis, block='8', num='2')
     x = conv_block(x, 256, 3, weight_decay, bn_axis, block='8', num='3')
 
-    x = DePool2D(pool2, size=(2,2), name='block9_unpool1')(x)
+    x = DePool2D(pool2d_layer=pool2, size=(2,2), name='block9_unpool1')(x)
     x = conv_block(x, 128, 3, weight_decay, bn_axis, block='9', num='1')
     x = conv_block(x, 128, 3, weight_decay, bn_axis, block='9', num='2')
 
-    x = DePool2D(pool1, size=(2,2), name='block10_unpool1')(x)
+    x = DePool2D(pool2d_layer=pool1, size=(2,2), name='block10_unpool1')(x)
     x = conv_block(x, 64, 3, weight_decay, bn_axis, block='10', num='1')
     x = conv_block(x, nclasses, 3, weight_decay, bn_axis, block='10', num='2')
 
@@ -94,12 +100,12 @@ def build_segnet(img_shape=(3, None, None), nclasses=8, weight_decay=0.,
     # Complete model
     model = Model(input=input_tensor, output=softmax_segnet)
 
-    plot(model, to_file='model_1.png', show_shapes=True)
-
+    #TODO: load weights from caffe
     # Load pretrained Model
     #if path_weights:
     #    load_matcovnet(model, path_weights, n_classes=nclasses)
 
+    #TODO: review freeze layers
     # Freeze some layers
     if freeze_layers_from is not None:
         freeze_layers(model, freeze_layers_from)
@@ -118,48 +124,7 @@ def conv_block(input_tensor, n_filters, kernel_size, weight_decay, bn_axis, bloc
     return x
 
 
-def decoder_block(input_tensor, n_filters, kernel_size, weight_decay, bn_axis, unpool_size, block, nclasses=8):
 
-    x = DePool2D(input_tensor, size=unpool_size, name='block{}_unpool1'.format(block))
-
-    x = Convolution2D(n_filters, kernel_size, kernel_size, border_mode='same',
-                      W_regularizer=l2(weight_decay), b_regularizer=l2(weight_decay),
-                      name='block{}_conv1'.format(block))(input_tensor)
-    x = BatchNormalization(axis=bn_axis, name='block{}_bn1'.format(block))(x)
-    x = Activation('relu')(x)
-
-    if block == '10':
-        n_filters=nclasses
-        x = Convolution2D(n_filters, kernel_size, kernel_size, border_mode='same',
-                          W_regularizer=l2(weight_decay), b_regularizer=l2(weight_decay),
-                          name='block{}_conv2'.format(block))(x)
-        return x
-
-    x = Convolution2D(n_filters, kernel_size, kernel_size, border_mode='same',
-                      W_regularizer=l2(weight_decay), b_regularizer=l2(weight_decay),
-                      name='block{}_conv2'.format(block))(x)
-    x = BatchNormalization(axis=bn_axis, name='block{}_bn2'.format(block))(x)
-    x = Activation('relu')(x)
-
-    if block == '3' or block == '4' or block == '5':
-        x = Convolution2D(n_filters, kernel_size, kernel_size, border_mode='same',
-                          W_regularizer=l2(weight_decay), b_regularizer=l2(weight_decay),
-                          name='block{}_conv1'.format(block))(input_tensor)
-        x = BatchNormalization(axis=bn_axis, name='block{}_bn1'.format(block))(x)
-        x = Activation('relu')(x)
-
-    return x
-
-
-
-def custom_sum(tensors):
-    t1, t2 = tensors
-    return t1 + t2
-
-
-def custom_sum_shape(tensors):
-    t1, t2 = tensors
-    return t1
 
 
 # Freeze layers for finetunning
