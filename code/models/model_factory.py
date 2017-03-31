@@ -10,13 +10,13 @@ from models.resnet import build_resnet50
 from models.ssd300 import build_ssd300
 from models.vgg import build_vgg
 from models.yolo import build_yolo
+from models.segnet import build_segnet
 
 """
 from models.lenet import build_lenet
 from models.alexNet import build_alexNet
 from models.inceptionV3 import build_inceptionV3
 from models.unet import build_unet
-from models.segnet import build_segnet
 from models.resnetFCN import build_resnetFCN
 from models.adversarial_semseg import Adversarial_Semseg
 """
