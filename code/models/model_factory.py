@@ -10,6 +10,7 @@ from models.resnet import build_resnet50
 from models.ssd300 import build_ssd300
 from models.vgg import build_vgg
 from models.yolo import build_yolo
+from models.deeplabV2 import build_deeplabv2
 
 """
 from models.lenet import build_lenet
@@ -87,7 +88,7 @@ class Model_Factory():
     def make(self, cf, optimizer=None):
         if cf.model_name in ['lenet', 'alexNet', 'vgg16', 'vgg19', 'resnet50',
                              'InceptionV3', 'fcn8', 'unet', 'segnet',
-                             'segnet_basic', 'resnetFCN', 'densenetFCN', 'yolo', 'tiny-yolo', 'ssd300']:
+                             'segnet_basic', 'resnetFCN', 'densenetFCN', 'yolo', 'tiny-yolo', 'ssd300', 'deeplabV2']:
             if optimizer is None:
                 raise ValueError('optimizer can not be None')
 
@@ -173,6 +174,10 @@ class Model_Factory():
             model = build_ssd300(in_shape, cf.dataset.n_classes + 1, cf.weight_decay,
                                  load_pretrained=cf.load_imageNet,
                                  freeze_layers_from=cf.freeze_layers_from)
+        elif cf.model_name == 'deeplabV2':
+            model = build_deeplabv2(in_shape, classes= cf.dataset.n_classes, load_pretrained=cf.load_imageNet,
+                                    freeze_layers_from=cf.freeze_layers_from)
+
         else:
             raise ValueError('Unknown model')
 
