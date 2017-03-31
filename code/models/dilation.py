@@ -29,79 +29,87 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
 
     # Input layer
     inputs = Input(img_shape)
-    padded = ZeroPadding2D(padding=(100, 100), name='pad100')(inputs)
+    #padded = ZeroPadding2D(padding=(100, 100), name='pad100')(inputs)
 
-    # Block 1
-    conv1_1 = Convolution2D(64, 3, 3, init, 'relu', border_mode='valid',
-                            name='conv1_1', W_regularizer=l2(l2_reg))(padded)
+    #Block1
+    conv1_1 = Convolution2D(64, 3, 3, init, 'relu', border_mode='same',
+                            name='conv1_1', W_regularizer=l2(l2_reg))(inputs)
     conv1_2 = Convolution2D(64, 3, 3, init, 'relu', border_mode='same',
-                            name='conv1_2', W_regularizer=l2(l2_reg))(conv1_1)
-    pool1 = MaxPooling2D((2, 2), (2, 2), name='pool1')(conv1_2)
+                      name='conv1_2', W_regularizer=l2(l2_reg))(conv1_1)
+    pool1 = MaxPooling2D((2, 2), strides=(2, 2))(conv1_2)
 
-    # Block 2
+    # Block2
     conv2_1 = Convolution2D(128, 3, 3, init, 'relu', border_mode='same',
                             name='conv2_1', W_regularizer=l2(l2_reg))(pool1)
     conv2_2 = Convolution2D(128, 3, 3, init, 'relu', border_mode='same',
                             name='conv2_2', W_regularizer=l2(l2_reg))(conv2_1)
-    pool2 = MaxPooling2D((2, 2), (2, 2), name='pool2')(conv2_2)
+    pool2= MaxPooling2D((2, 2), strides=(2, 2))(conv2_2)
 
-    # Block 3
+    # Block3
     conv3_1 = Convolution2D(256, 3, 3, init, 'relu', border_mode='same',
                             name='conv3_1', W_regularizer=l2(l2_reg))(pool2)
     conv3_2 = Convolution2D(256, 3, 3, init, 'relu', border_mode='same',
                             name='conv3_2', W_regularizer=l2(l2_reg))(conv3_1)
     conv3_3 = Convolution2D(256, 3, 3, init, 'relu', border_mode='same',
                             name='conv3_3', W_regularizer=l2(l2_reg))(conv3_2)
-    pool3 = MaxPooling2D((2, 2), (2, 2), name='pool3')(conv3_3)
+    pool3 = MaxPooling2D((2, 2), strides=(2, 2))(conv3_3)
 
-    # Block 4
+    # Block4
     conv4_1 = Convolution2D(512, 3, 3, init, 'relu', border_mode='same',
                             name='conv4_1', W_regularizer=l2(l2_reg))(pool3)
     conv4_2 = Convolution2D(512, 3, 3, init, 'relu', border_mode='same',
                             name='conv4_2', W_regularizer=l2(l2_reg))(conv4_1)
     conv4_3 = Convolution2D(512, 3, 3, init, 'relu', border_mode='same',
                             name='conv4_3', W_regularizer=l2(l2_reg))(conv4_2)
-    pool4 = MaxPooling2D((2, 2), (2, 2), name='pool4')(conv4_3)
 
-    # Block 5
-    conv5_1 = Convolution2D(512, 3, 3, init, 'relu', border_mode='same',
-                            name='conv5_1', W_regularizer=l2(l2_reg))(pool4)
-    conv5_2 = Convolution2D(512, 3, 3, init, 'relu', border_mode='same',
-                            name='conv5_2', W_regularizer=l2(l2_reg))(conv5_1)
-    conv5_3 = Convolution2D(512, 3, 3, init, 'relu', border_mode='same',
-                            name='conv5_3', W_regularizer=l2(l2_reg))(conv5_2)
-    pool5 = MaxPooling2D((2, 2), (2, 2), name='pool5')(conv5_3)
+    #Block5
+    x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2,
+               kernel_initializer='identity')(conv4_3)
+    x = Activation('relu')(x)
+    x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2,
+               kernel_initializer='identity')(x)
+    x = Activation('relu')(x)
+    x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2,
+               kernel_initializer='identity')(x)
+    x = Activation('relu')(x)
 
-    # Block 6 (fully conv)
-    fc6 = Convolution2D(4096, 7, 7, init, 'relu', border_mode='valid',
-                        name='fc6', W_regularizer=l2(l2_reg))(pool5)
-    fc6 = Dropout(0.5)(fc6)
+    #Block6
+    x = Conv2D(4096, 7, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=4,
+               kernel_initializer='identity')(x)
+    x = Activation('relu')(x)
+    x = Dropout(0.5)(x)
 
-    # Block 7 (fully conv)
-    fc7 = Convolution2D(4096, 1, 1, init, 'relu', border_mode='valid',
-                        name='fc7', W_regularizer=l2(l2_reg), )(fc6)
-    fc7 = Dropout(0.5)(fc7)
+    # Block7
+    x = Conv2D(4096, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1,
+               kernel_initializer='identity')(x)
+    x = Activation('relu')(x)
+    x = Dropout(0.5)(x)
 
-    score_fr = Convolution2D(nclasses, 1, 1, init, 'relu',
-                             border_mode='valid', name='score_fr')(fc7)
-
-
+    #Final block
+    x = Conv2D(19, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1,
+               kernel_initializer='identity')(x)
     # Appending context block
 
-    context_out= context_block(x,[1,1,2,4,8,16,1],nclasses)
+    context_out= context_block(x,[1,1,2,4,8,16,32,64,1],19)
+
+    deconv_out = Deconvolution2D(19, 16, 16, context_out._keras_shape, init,
+                             'bilinear', border_mode='valid', subsample=(8, 8),bias=False,
+                             name='score2', W_regularizer=l2(l2_reg))(context_out)
+
+
     # Softmax
-   # softmax_fcn8 = NdSoftmax()(context_out)
+    prob = NdSoftmax()(deconv_out)
 
     # Complete model
-    model = Model(input=inputs, output=softmax_fcn8)
+    model = Model(input=inputs, output=prob)
 
     # Load pretrained Model
-    if path_weights:
+   # if path_weights:
       #  load_matcovnet(model, path_weights, n_classes=nclasses)
 
     # Freeze some layers
-    if freeze_layers_from is not None:
-        freeze_layers(model, freeze_layers_from)
+    #if freeze_layers_from is not None:
+    #    freeze_layers(model, freeze_layers_from)
 
     return model
 

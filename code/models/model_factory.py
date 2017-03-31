@@ -10,6 +10,7 @@ from models.resnet import build_resnet50
 from models.ssd300 import build_ssd300
 from models.vgg import build_vgg
 from models.yolo import build_yolo
+from models.dilation import build_dilation
 
 """
 from models.lenet import build_lenet
@@ -86,7 +87,7 @@ class Model_Factory():
     # Creates a Model object (not a Keras model)
     def make(self, cf, optimizer=None):
         if cf.model_name in ['lenet', 'alexNet', 'vgg16', 'vgg19', 'resnet50',
-                             'InceptionV3', 'fcn8', 'unet', 'segnet',
+                             'InceptionV3', 'fcn8', 'dilation', 'unet', 'segnet',
                              'segnet_basic', 'resnetFCN', 'densenetFCN', 'yolo', 'tiny-yolo', 'ssd300']:
             if optimizer is None:
                 raise ValueError('optimizer can not be None')
@@ -119,6 +120,11 @@ class Model_Factory():
                                freeze_layers_from=cf.freeze_layers_from,
                                # path_weights='weights/pascal-fcn8s-dag.mat')
                                path_weights=None)
+        if cf.model_name == 'dilation':
+            model = build_dilation(in_shape, cf.dataset.n_classes, cf.weight_decay,
+                                   freeze_layers_from=cf.freeze_layers_from,
+                                   # path_weights='weights/pascal-fcn8s-dag.mat')
+                                   path_weights=None)
         elif cf.model_name == 'unet':
             model = build_unet(in_shape, cf.dataset.n_classes, cf.weight_decay,
                                freeze_layers_from=cf.freeze_layers_from,
