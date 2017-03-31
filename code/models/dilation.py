@@ -63,30 +63,30 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
                             name='conv4_3', W_regularizer=l2(l2_reg))(conv4_2)
 
     #Block5
-    x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2,
+    x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
                kernel_initializer='identity')(conv4_3)
     x = Activation('relu')(x)
-    x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2,
+    x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
                kernel_initializer='identity')(x)
     x = Activation('relu')(x)
-    x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2,
+    x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
                kernel_initializer='identity')(x)
     x = Activation('relu')(x)
 
     #Block6
-    x = Conv2D(4096, 7, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=4,
+    x = Conv2D(4096, 7, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=4, activation='None', use_bias=False,
                kernel_initializer='identity')(x)
     x = Activation('relu')(x)
     x = Dropout(0.5)(x)
 
     # Block7
-    x = Conv2D(4096, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1,
+    x = Conv2D(4096, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1, activation='None', use_bias=False,
                kernel_initializer='identity')(x)
     x = Activation('relu')(x)
     x = Dropout(0.5)(x)
 
     #Final block
-    x = Conv2D(19, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1,
+    x = Conv2D(19, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1, activation='None', use_bias=False,
                kernel_initializer='identity')(x)
     # Appending context block
 
@@ -116,7 +116,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
 
 def context_block (x, dilation_array,num_classes):
     for dil in range(dilation_array):
-       x=Conv2D(num_classes, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=dil, kernel_initializer='identity')(x)
+       x=Conv2D(num_classes, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=dil,  activation='None', use_bias=False,kernel_initializer='identity')(x)
        x = Activation('relu')(x)
     x = Conv2D(num_classes, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1,
                kernel_initializer='identity')(x)
