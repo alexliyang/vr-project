@@ -79,7 +79,7 @@ def build_segnet(img_shape=(None, None, 3), nclasses=8, weight_decay=0.,
     x = conv_block(x, 512, 3, weight_decay, bn_axis, block='7', num='3')
 
     #TODO: try to make the padding generic...
-    x = ZeroPadding2D(padding=(1, 0, 0, 0), name='pad100')(x)
+    x = ZeroPadding2D(padding=(1, 0, 0, 0), name='block7_pad')(x)
 
     x = DePool2D(pool2d_layer=pool3, size=(2,2), name='block8_unpool1')(x)
     x = conv_block(x, 256, 3, weight_decay, bn_axis, block='8', num='1')
