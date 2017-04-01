@@ -7,7 +7,13 @@
 # FCN
 
 # Train on CamVid
-python train.py -c config/camvid_fcn.py -e fcn_baseline
+#python train.py -c config/camvid_fcn.py -e fcn_baseline
 
 # Train on CityScapes
-python train.py -c config/cityscapes_fcn.py -e fcn_baseline
+#python train.py -c config/cityscapes_fcn.py -e fcn_baseline
+
+
+# SEGNET
+
+# Train on CamVid
+python train.py -c config/camvid_segnet.py -e segnet_baseline_scratch

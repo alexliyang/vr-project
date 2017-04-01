@@ -10,13 +10,13 @@ from models.resnet import build_resnet50
 from models.ssd300 import build_ssd300
 from models.vgg import build_vgg
 from models.yolo import build_yolo
+from models.segnet import build_segnet
 
 """
 from models.lenet import build_lenet
 from models.alexNet import build_alexNet
 from models.inceptionV3 import build_inceptionV3
 from models.unet import build_unet
-from models.segnet import build_segnet
 from models.resnetFCN import build_resnetFCN
 from models.adversarial_semseg import Adversarial_Semseg
 """
@@ -86,7 +86,7 @@ class Model_Factory():
     # Creates a Model object (not a Keras model)
     def make(self, cf, optimizer=None):
         if cf.model_name in ['lenet', 'alexNet', 'vgg16', 'vgg19', 'resnet50',
-                             'InceptionV3', 'fcn8', 'unet', 'segnet',
+                             'InceptionV3', 'fcn8', 'unet', 'segnet_vgg',
                              'segnet_basic', 'resnetFCN', 'densenetFCN', 'yolo', 'tiny-yolo', 'ssd300']:
             if optimizer is None:
                 raise ValueError('optimizer can not be None')
