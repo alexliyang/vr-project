@@ -139,16 +139,17 @@ def context_block (x, dilation_array,num_classes,init):
     i=0
     for dil in dilation_array:
       # x=Conv2D(num_classes, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=dil,  activation='None', use_bias=False,kernel_initializer='identity')(x)
-      x = AtrousConvolution2D(num_classes, 3, 3, atrous_rate=(dil, dil), name='cb_{}'.format(i),
+      x = AtrousConvolution2D(num_classes, 3, 3, atrous_rate=(dil, dil), name='cb_3_{}'.format(i),
                               border_mode='same', dim_ordering=dim_ordering, init=init) (x)
-      i=i+1
+
       x = Activation('relu')(x)
     #x = Conv2D(num_classes, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1,
      #          kernel_initializer='identity')(x)
-      x = AtrousConvolution2D(num_classes, 1, 1, atrous_rate=(1, 1),name='cb_final',
+      x = AtrousConvolution2D(num_classes, 1, 1, atrous_rate=(1, 1),name='cb_1_{}'.format(i),
                                border_mode='same', dim_ordering=dim_ordering, init=init)(x)
 
-    x = Activation('relu')(x)
+      x = Activation('relu')(x)
+      i = i + 1
     return x
 
 # Freeze layers for finetunning
