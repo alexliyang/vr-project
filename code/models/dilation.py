@@ -64,6 +64,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
                             name='conv4_3', W_regularizer=l2(l2_reg))(conv4_2)
 
     #Block5
+    #TODO: initialization need sto be identity. Does not work.
     #x = Conv2D(512, 3, strides=(1, 1), padding='same',data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
      #          kernel_initializer=Identity(gain=1.0))(conv4_3)
     conv5_1 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_1',
@@ -111,9 +112,9 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
     # Appending context block
 
     context_out= context_block(x,[1,1,2,4,8,16,32,64,1],19,init)
-
+ #TODO: change for bilinear. It gives an error.
     deconv_out = Deconvolution2D(19, 16, 16, context_out._keras_shape, init,
-                             'bilinear', border_mode='valid', subsample=(8, 8),bias=False,
+                             'linear', border_mode='valid', subsample=(8, 8),bias=False,
                              name='score2', W_regularizer=l2(l2_reg))(context_out)
 
 
@@ -136,7 +137,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
 
 def context_block (x, dilation_array,num_classes,init):
     i=0
-    for dil in range(dilation_array):
+    for dil in dilation_array:
       # x=Conv2D(num_classes, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=dil,  activation='None', use_bias=False,kernel_initializer='identity')(x)
       x = AtrousConvolution2D(num_classes, 3, 3, atrous_rate=(dil, dil), name='cb_{}'.format(i),
                               border_mode='same', dim_ordering=dim_ordering, init=init) (x)
