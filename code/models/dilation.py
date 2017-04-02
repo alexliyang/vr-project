@@ -2,10 +2,11 @@
 from keras import backend as K
 from keras.layers import Input, merge,Activation
 from keras.layers.convolutional import (Convolution2D, MaxPooling2D,
-                                        ZeroPadding2D,Conv2D)
+                                          ZeroPadding2D,Conv2D)
 from keras.layers.core import Dropout
 from keras.models import Model
 from keras.regularizers import l2
+from keras.initializations import Identity
 from layers.deconv import Deconvolution2D
 from layers.ourlayers import (CropLayer2D, NdSoftmax)
 
@@ -63,14 +64,14 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
                             name='conv4_3', W_regularizer=l2(l2_reg))(conv4_2)
 
     #Block5
-    x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
-               kernel_initializer='identity')(conv4_3)
+    x = Conv2D(512, 3, strides=(1, 1), padding='same',data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
+               kernel_initializer=Identity(gain=1.0))(conv4_3)
     x = Activation('relu')(x)
     x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
-               kernel_initializer='identity')(x)
+               kernel_initializer=Identity(gain=1.0))(x)
     x = Activation('relu')(x)
     x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
-               kernel_initializer='identity')(x)
+               kernel_initializer=Identity(gain=1.0))(x)
     x = Activation('relu')(x)
 
     #Block6
