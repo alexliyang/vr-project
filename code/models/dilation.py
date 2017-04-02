@@ -6,7 +6,7 @@ from keras.layers.convolutional import (Convolution2D, MaxPooling2D,
 from keras.layers.core import Dropout
 from keras.models import Model
 from keras.regularizers import l2
-from keras.initializations import Identity
+#from keras.initializations import Identity
 from layers.deconv import Deconvolution2D
 from layers.ourlayers import (CropLayer2D, NdSoftmax)
 
@@ -66,19 +66,19 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
     #Block5
     #x = Conv2D(512, 3, strides=(1, 1), padding='same',data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
      #          kernel_initializer=Identity(gain=1.0))(conv4_3)
-    conv5_1 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), activation='none', name='atrous_conv_5_1',
+    conv5_1 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_1',
                             padding='same', data_format=dim_ordering, kernel_initializer='identity')(conv4_3)
 
     conv5_1_relu = Activation('relu')(conv5_1)
     #x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
     #           kernel_initializer=Identity(gain=1.0))(x)
-    conv5_2 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), activation='none', name='atrous_conv_5_2', padding='same',
+    conv5_2 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_2', padding='same',
                                   data_format=dim_ordering, kernel_initializer='identity')(conv5_1_relu)
 
     conv5_2_relu = Activation('relu')(conv5_2)
    # x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
     #           kernel_initializer=Identity(gain=1.0))(x)
-    conv5_3= AtrousConvolution2D(512, 3, 3, atrous_rate=(2,2), activation='none', name='atrous_conv_5_3', padding='same',
+    conv5_3= AtrousConvolution2D(512, 3, 3, atrous_rate=(2,2), name='atrous_conv_5_3', padding='same',
                                   data_format=dim_ordering, kernel_initializer='identity')(conv5_2_relu)
 
     conv5_3_relu = Activation('relu')(conv5_3)
@@ -86,7 +86,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
     #Block6
    # x = Conv2D(4096, 7, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=4, activation='None', use_bias=False,
     #           kernel_initializer='identity')(x)
-    conv6= AtrousConvolution2D(4096, 7, 7, atrous_rate=(4, 4), activation='none', name='atrous_conv_6',
+    conv6= AtrousConvolution2D(4096, 7, 7, atrous_rate=(4, 4), name='atrous_conv_6',
                                padding='same', data_format=dim_ordering, kernel_initializer='identity')(conv5_3_relu)
 
     conv6_relu = Activation('relu')(conv6)
@@ -95,7 +95,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
     # Block7
    #x = Conv2D(4096, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1, activation='None', use_bias=False,
      #          kernel_initializer='identity')(x)
-    conv7 = AtrousConvolution2D(4096, 1, 1, atrous_rate=(1, 1), activation='none', name='atrous_conv_7',
+    conv7 = AtrousConvolution2D(4096, 1, 1, atrous_rate=(1, 1), name='atrous_conv_7',
                              padding='same', data_format=dim_ordering, kernel_initializer='identity')(conv6_relu)
 
     conv7_relu = Activation('relu')(conv7)
@@ -105,7 +105,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
     #x = Conv2D(19, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1, activation='None', use_bias=False,
      #          kernel_initializer='identity')(x)
 
-    x = AtrousConvolution2D(19, 1, 1, atrous_rate=(1, 1), activation='none', name='final_block',
+    x = AtrousConvolution2D(19, 1, 1, atrous_rate=(1, 1), name='final_block',
                             padding='same', data_format=dim_ordering, kernel_initializer='identity')(conv7_relu)
 
     # Appending context block
@@ -138,13 +138,13 @@ def context_block (x, dilation_array,num_classes):
     i=0
     for dil in range(dilation_array):
       # x=Conv2D(num_classes, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=dil,  activation='None', use_bias=False,kernel_initializer='identity')(x)
-      x = AtrousConvolution2D(num_classes, 3, 3, atrous_rate=(dil, dil), activation='none', name='cb_{}'.format(i),
+      x = AtrousConvolution2D(num_classes, 3, 3, atrous_rate=(dil, dil), name='cb_{}'.format(i),
                                padding='same', data_format=dim_ordering, kernel_initializer='identity') (x)
       i=i+1
       x = Activation('relu')(x)
     #x = Conv2D(num_classes, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1,
      #          kernel_initializer='identity')(x)
-      x = AtrousConvolution2D(num_classes, 1, 1, atrous_rate=(1, 1), activation='none', name='cb_final',
+      x = AtrousConvolution2D(num_classes, 1, 1, atrous_rate=(1, 1),name='cb_final',
                                padding='same', data_format=dim_ordering, kernel_initializer='identity')(x)
 
     x = Activation('relu')(x)
