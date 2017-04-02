@@ -67,19 +67,19 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
     #x = Conv2D(512, 3, strides=(1, 1), padding='same',data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
      #          kernel_initializer=Identity(gain=1.0))(conv4_3)
     conv5_1 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_1',
-                                  border_mode='same', dim_ordering=dim_ordering, init='identity')(conv4_3)
+                                  border_mode='same', dim_ordering=dim_ordering, init=init)(conv4_3)
 
     conv5_1_relu = Activation('relu')(conv5_1)
     #x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
     #           kernel_initializer=Identity(gain=1.0))(x)
     conv5_2 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_2',  border_mode='same',
-                                  dim_ordering=dim_ordering, init='identity')(conv5_1_relu)
+                                  dim_ordering=dim_ordering, init=init)(conv5_1_relu)
 
     conv5_2_relu = Activation('relu')(conv5_2)
    # x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
     #           kernel_initializer=Identity(gain=1.0))(x)
     conv5_3= AtrousConvolution2D(512, 3, 3, atrous_rate=(2,2), name='atrous_conv_5_3',  border_mode='same',
-                                 dim_ordering=dim_ordering, init='identity')(conv5_2_relu)
+                                 dim_ordering=dim_ordering, init=init)(conv5_2_relu)
 
     conv5_3_relu = Activation('relu')(conv5_3)
 
@@ -87,7 +87,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
    # x = Conv2D(4096, 7, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=4, activation='None', use_bias=False,
     #           kernel_initializer='identity')(x)
     conv6= AtrousConvolution2D(4096, 7, 7, atrous_rate=(4, 4), name='atrous_conv_6',
-                               border_mode='same', dim_ordering=dim_ordering, init='identity')(conv5_3_relu)
+                               border_mode='same', dim_ordering=dim_ordering, init=init)(conv5_3_relu)
 
     conv6_relu = Activation('relu')(conv6)
     conv6_relu = Dropout(0.5)(conv6_relu)
@@ -96,7 +96,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
    #x = Conv2D(4096, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1, activation='None', use_bias=False,
      #          kernel_initializer='identity')(x)
     conv7 = AtrousConvolution2D(4096, 1, 1, atrous_rate=(1, 1), name='atrous_conv_7',
-                                border_mode='same', dim_ordering=dim_ordering, init='identity')(conv6_relu)
+                                border_mode='same', dim_ordering=dim_ordering, init=init)(conv6_relu)
 
     conv7_relu = Activation('relu')(conv7)
     conv7_relu= Dropout(0.5)(conv7_relu)
@@ -106,11 +106,11 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
      #          kernel_initializer='identity')(x)
 
     x = AtrousConvolution2D(19, 1, 1, atrous_rate=(1, 1), name='final_block',
-                            border_mode='same', dim_ordering=dim_ordering, init='identity')(conv7_relu)
+                            border_mode='same', dim_ordering=dim_ordering, init=init)(conv7_relu)
 
     # Appending context block
 
-    context_out= context_block(x,[1,1,2,4,8,16,32,64,1],19)
+    context_out= context_block(x,[1,1,2,4,8,16,32,64,1],19,init)
 
     deconv_out = Deconvolution2D(19, 16, 16, context_out._keras_shape, init,
                              'bilinear', border_mode='valid', subsample=(8, 8),bias=False,
@@ -134,18 +134,18 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
     return model
 
 
-def context_block (x, dilation_array,num_classes):
+def context_block (x, dilation_array,num_classes,init):
     i=0
     for dil in range(dilation_array):
       # x=Conv2D(num_classes, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=dil,  activation='None', use_bias=False,kernel_initializer='identity')(x)
       x = AtrousConvolution2D(num_classes, 3, 3, atrous_rate=(dil, dil), name='cb_{}'.format(i),
-                              border_mode='same', dim_ordering=dim_ordering, init='identity') (x)
+                              border_mode='same', dim_ordering=dim_ordering, init=init) (x)
       i=i+1
       x = Activation('relu')(x)
     #x = Conv2D(num_classes, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1,
      #          kernel_initializer='identity')(x)
       x = AtrousConvolution2D(num_classes, 1, 1, atrous_rate=(1, 1),name='cb_final',
-                               border_mode='same', dim_ordering=dim_ordering, init='identity')(x)
+                               border_mode='same', dim_ordering=dim_ordering, init=init)(x)
 
     x = Activation('relu')(x)
     return x
