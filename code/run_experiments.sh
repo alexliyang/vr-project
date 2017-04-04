@@ -33,8 +33,8 @@ python train.py -c config/camvid_tiramisu_fc67.py -e tiramisu_fc67_baseline
 
 python train.py -c config/camvid_tiramisu_fc103.py -e tiramisu_fc103_baseline
 
-python train.py -c config/cityscapes_tiramisu_fc56.py -e tiramisu_fc56_baseline
-
-python train.py -c config/cityscapes_tiramisu_fc67.py -e tiramisu_fc67_baseline
-
-python train.py -c config/cityscapes_tiramisu_fc103.py -e tiramisu_fc103_baseline
+#python train.py -c config/cityscapes_tiramisu_fc56.py -e tiramisu_fc56_baseline
+#
+#python train.py -c config/cityscapes_tiramisu_fc67.py -e tiramisu_fc67_baseline
+#
+#python train.py -c config/cityscapes_tiramisu_fc103.py -e tiramisu_fc103_baseline
