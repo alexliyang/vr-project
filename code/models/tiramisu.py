@@ -4,15 +4,15 @@ import numpy as np
 
 from keras import backend as K
 from keras.layers import Input, merge
-from keras.layers.convolutional import Convolution2D, MaxPooling2D
+from keras.layers.convolutional import Convolution2D
 
 from keras.layers.core import Dropout
 from keras.models import Model
 from keras.regularizers import l2
-from keras.layers import Activation, BatchNormalization, MaxPooling2D
+from keras.layers import Activation, BatchNormalization, MaxPooling2D, Deconvolution2D
 
 from code.layers.ourlayers import NdSoftmax
-from code.layers.deconv import Deconvolution2D
+
 
 # Batch normalization dimensions
 dim_ordering = K.image_dim_ordering()
@@ -102,7 +102,6 @@ def tiramisu_network(img_shape, n_layers_block, growth_rate,
 
     # Transition index
     transition_index = int(np.floor(len(n_layers_block) / 2))
-    print('Total number of blocks: {}   Transition block index: {}'.format(len(n_layers_block), transition_index))
 
     # Layers per block for the 3 main structures: downsampling path, transition and upsampling path
     down_layers_block = n_layers_block[:transition_index]
@@ -127,7 +126,8 @@ def tiramisu_network(img_shape, n_layers_block, growth_rate,
                                   nb_filter=nb_filter, growth_rate=growth_rate,
                                   dropout_rate=dropout,
                                   weight_decay=weight_decay,
-                                  stack_input=True)
+                                  stack_input=True,
+                                  block_id='down_db{}'.format(block_idx))
         feature_name = 'db_{}'.format(block_idx)
         net[feature_name] = x
         skip_connection.append(x)
@@ -136,7 +136,10 @@ def tiramisu_network(img_shape, n_layers_block, growth_rate,
         nb_filter = int(compression * nb_filter)
 
         # Transition Down
-        x = transition_down(x, nb_filter, dropout_rate=dropout, weight_decay=weight_decay)
+        x = transition_down(x, nb_filter,
+                            dropout_rate=dropout,
+                            weight_decay=weight_decay,
+                            td_id='down_td{}'.format(block_idx))
         feature_name = 'td_{}'.format(block_idx)
         net[feature_name] = x
 
@@ -148,39 +151,46 @@ def tiramisu_network(img_shape, n_layers_block, growth_rate,
                               nb_filter=nb_filter, growth_rate=growth_rate,
                               dropout_rate=dropout,
                               weight_decay=weight_decay,
-                              stack_input=False)
+                              stack_input=True,
+                              block_id='transition')
     feature_name = 'db_{}'.format(transition_index)
     net[feature_name] = x
 
     # Upsampling path
-    x_up = x
+    x_up = x  # Initial features to be upsampled come from the transition layer
+    keep_filters = growth_rate * transition_layers_block  # Number of filters for the first transposed convolution
     for block_idx, n_layers_block in enumerate(up_layers_block):
-        # Number of filters to be keeped
-        keep_filters = growth_rate * n_layers_block
-
         # Skip connection related to this block
         skip = skip_connection[block_idx]
-        x_up = transition_up(x, skip, keep_filters, weight_decay=weight_decay)
+        x_up = transition_up(x, skip, keep_filters,
+                             weight_decay=weight_decay,
+                             tu_id='up_tu{}'.format(block_idx))
         feature_name = 'tu_{}'.format(block_idx)
         net[feature_name] = x_up
+
+        # Update keep_filters for next upsampling block
+        keep_filters = growth_rate * n_layers_block
 
         # Dense block
         x, _ = denseblock(x_up, n_layers_block,
                           nb_filter=0, growth_rate=growth_rate,
                           dropout_rate=dropout,
                           weight_decay=weight_decay,
-                          stack_input=False)
-        feature_name = 'db_up_{}'.format(block_idx)
+                          stack_input=True,
+                          block_id='up_db{}'.format(block_idx))
+        feature_name = 'up_db_{}'.format(block_idx)
         net[feature_name] = x
 
-    # Softmax
-    net['output_features'] = merge([x_up, skip_connection], mode='concat', concat_axis=concat_axis)
-    net['pixel_class'] = Convolution2D(nclasses, 1, 1,
+    # Stack last transition up and denseblock features and compute the class scores for each pixel using a 1x1 conv
+    net['output_features'] = x
+    net['pixel_score'] = Convolution2D(nclasses, 1, 1,
                                        init='he_uniform',
                                        border_mode='same',
                                        W_regularizer=l2(weight_decay),
-                                       b_regularizer=l2(weight_decay))(net['output_features'])
-    net['softmax'] = NdSoftmax()(net['softmax'])
+                                       b_regularizer=l2(weight_decay),
+                                       name='class_score')(net['output_features'])
+    # Softmax
+    net['softmax'] = NdSoftmax(name='softmax')(net['pixel_score'])
 
     # Model
     tiramisu_model = Model(input=[net['input']], output=[net['softmax']], name=network_name)
@@ -201,33 +211,8 @@ def tiramisu_network(img_shape, n_layers_block, growth_rate,
     return tiramisu_model, net
 
 
-def conv_factory(x, nb_filter, dropout_rate=None, weight_decay=1E-4):
-    """Apply BatchNorm, Relu 3x3Conv2D, optional dropout
-    :param x: Input keras network
-    :param nb_filter: int -- number of filters
-    :param dropout_rate: int -- dropout rate
-    :param weight_decay: int -- weight decay factor
-    :returns: keras network with b_norm, relu and convolution2d added
-    :rtype: keras network
-    """
-    x = BatchNormalization(mode=0,
-                           axis=bn_axis,
-                           gamma_regularizer=l2(weight_decay),
-                           beta_regularizer=l2(weight_decay))(x)
-    x = Activation('relu')(x)
-    x = Convolution2D(nb_filter, 3, 3,
-                      init="he_uniform",
-                      border_mode="same",
-                      W_regularizer=l2(weight_decay),
-                      b_regularizer=l2(weight_decay))(x)
-    if dropout_rate:
-        x = Dropout(dropout_rate)(x)
-
-    return x
-
-
 def denseblock(x, nb_layers, nb_filter, growth_rate,
-               dropout_rate=None, weight_decay=1e-4, stack_input=True):
+               dropout_rate=None, weight_decay=1e-4, stack_input=True, block_id=""):
     """Build a denseblock where the output of each
        conv_factory is fed to subsequent ones
     :param x: keras model
@@ -238,6 +223,7 @@ def denseblock(x, nb_layers, nb_filter, growth_rate,
     :param dropout_rate: int -- dropout rate
     :param weight_decay: int -- weight decay factor
     :param stack_input: bool -- include the input with the stacked feature maps 
+    :param block_id: str -- identifier for this dense block
     :returns: keras model with nb_layers of conv_factory appended
     :rtype: keras model
     """
@@ -248,71 +234,122 @@ def denseblock(x, nb_layers, nb_filter, growth_rate,
         list_feat = [x]
 
     for i in range(nb_layers):
-        x = conv_factory(x, nb_filter=growth_rate, dropout_rate=dropout_rate, weight_decay=weight_decay)
+        x = conv_factory(x, nb_filter=growth_rate, dropout_rate=dropout_rate, weight_decay=weight_decay,
+                         dense_id='{}_l{}'.format(block_id, i))
         list_feat.append(x)
         if len(list_feat) > 1:
-            x = merge(list_feat, mode='concat', concat_axis=concat_axis)
+            x = merge(list_feat, mode='concat', concat_axis=concat_axis, name='{}_m{}'.format(block_id, i))
         nb_filter += growth_rate
 
     return x, nb_filter
 
 
-def transition_down(x, nb_filter, dropout_rate=None, weight_decay=1E-4):
+def transition_down(x, nb_filter, dropout_rate=None, weight_decay=1e-4, td_id=""):
     """Apply BatchNorm, Relu 1x1Conv2D, optional dropout and Maxpooling2D
     :param x: keras model
     :param nb_filter: int -- number of filters
     :param dropout_rate: int -- dropout rate
     :param weight_decay: int -- weight decay factor
+    :param td_id: str -- transition down identifier
     :returns: model
     :rtype: keras model, after applying batch_norm, relu-conv, dropout, maxpool
     """
     x = BatchNormalization(mode=0,
                            axis=bn_axis,
                            gamma_regularizer=l2(weight_decay),
-                           beta_regularizer=l2(weight_decay))(x)
-    x = Activation('relu')(x)
+                           beta_regularizer=l2(weight_decay),
+                           name='{}_bn'.format(td_id))(x)
+
+    x = Activation('relu', name='{}_relu'.format(td_id))(x)
+
     x = Convolution2D(nb_filter, 1, 1,
                       init="he_uniform",
                       border_mode="same",
                       W_regularizer=l2(weight_decay),
-                      b_regularizer=l2(weight_decay))(x)
+                      b_regularizer=l2(weight_decay),
+                      name='{}_conv'.format(td_id))(x)
     if dropout_rate:
-        x = Dropout(dropout_rate)(x)
-    x = MaxPooling2D((2, 2), strides=(2, 2))(x)
+        x = Dropout(dropout_rate, name='{}_drop'.format(td_id))(x)
+    x = MaxPooling2D((2, 2), strides=(2, 2), name='{}_pool'.format(td_id))(x)
 
     return x
 
 
-def transition_up(x, skip_connection, keep_filters, weight_decay=1E-4):
+def transition_up(x, skip_connection, keep_filters, weight_decay=1e-4, tu_id=""):
     """Apply BatchNorm, Relu 1x1Conv2D, optional dropout and Maxpooling2D
     :param x: keras model
     :param skip_connection: skip connection feature map from downsampling path
     :param keep_filters: number of filters to be convolved with
     :param weight_decay: int -- weight decay factor
+    :param tu_id: str -- transition up identifier
     :returns: model
     :rtype: keras model, after applying batch_norm, relu-conv, dropout, maxpool
     """
+    # Output shape must match skip connection
+    skip_shape = skip_connection._keras_shape
+    if K.image_dim_ordering() == 'th':
+        output_shape = (None, keep_filters, skip_shape[1], skip_shape[2])
+    else:
+        output_shape = (None, skip_shape[1], skip_shape[2], keep_filters)
+
     # Transposed convolution
-    deconv = Deconvolution2D(keep_filters, 3, 3,
-                             input_shape=x._keras_shape,
+    deconv = Deconvolution2D(keep_filters, 3, 3, output_shape,
                              init='he_uniform',
+                             border_mode='valid',
                              subsample=(2, 2),
                              W_regularizer=l2(weight_decay),
-                             b_regularizer=l2(weight_decay))(x)
+                             b_regularizer=l2(weight_decay),
+                             name='{}_deconv'.format(tu_id))(x)
 
-    return merge([deconv, skip_connection], mode='concat', concat_axis=concat_axis)
+    return merge([deconv, skip_connection], mode='concat', concat_axis=concat_axis, name='{}_merge'.format(tu_id))
 
+
+def conv_factory(x, nb_filter, dropout_rate=None, weight_decay=1e-4, dense_id=""):
+    """Apply BatchNorm, Relu 3x3Conv2D, optional dropout
+    :param x: Input keras network
+    :param nb_filter: int -- number of filters
+    :param dropout_rate: int -- dropout rate
+    :param weight_decay: int -- weight decay factor
+    :param dense_id: str -- identifier for this dense layer
+    :returns: keras network with b_norm, relu and convolution2d added
+    :rtype: keras network
+    """
+    x = BatchNormalization(mode=0,
+                           axis=bn_axis,
+                           gamma_regularizer=l2(weight_decay),
+                           beta_regularizer=l2(weight_decay),
+                           name='{}_bn'.format(dense_id))(x)
+    x = Activation('relu', name='{}_relu'.format(dense_id))(x)
+    x = Convolution2D(nb_filter, 3, 3,
+                      init="he_uniform",
+                      border_mode="same",
+                      W_regularizer=l2(weight_decay),
+                      b_regularizer=l2(weight_decay),
+                      name='{}_conv'.format(dense_id))(x)
+    if dropout_rate:
+        x = Dropout(dropout_rate, name='{}_drop'.format(dense_id))(x)
+
+    return x
 
 if __name__ == '__main__':
-    input_shape = (320, 320, 3)
+    import os
+    from keras.utils.visualize_util import plot
+
+    input_shape = (224, 224, 3)
     print(' > Building Tiramisu FC67')
     model = build_tiramisu_fc67(input_shape, nclasses=11, weight_decay=1e-4, dropout=0.2)
     print(' > Compiling Tiramisu FC67')
     model.compile(loss="categorical_crossentropy", optimizer="rmsprop")
     model.summary()
+    plot_path = os.path.abspath('fc67_model.jpg')
+    print(' > Plotting model in {}'.format(plot_path))
+    plot(model, plot_path, show_layer_names=False, show_shapes=False)
 
     print(' > Building Tiramisu FC103')
     model = build_tiramisu_fc103(input_shape, nclasses=11, weight_decay=1e-4, dropout=0.2)
     print(' > Compiling Tiramisu FC103')
     model.compile(loss="categorical_crossentropy", optimizer="rmsprop")
     model.summary()
+    plot_path = os.path.abspath('fc103_model.jpg')
+    print(' > Plotting model in {}'.format(plot_path))
+    plot(model, plot_path, show_layer_names=False, show_shapes=False)
