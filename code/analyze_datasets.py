@@ -4,7 +4,6 @@ import argparse
 from glob import glob
 
 import pandas as pd
-import seaborn
 import numpy as np
 import os
 import matplotlib.pyplot as plt

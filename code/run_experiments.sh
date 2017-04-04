@@ -17,3 +17,9 @@ python train.py -c config/camvid_deeplabv2_adam.py -e deeplabv2_adam
 
 #Train DeepLabv2 in CamVid using adam optimizer and preprocessing
 python train.py -c config/camvid_deeplabv2_adam_preprocessing.py -e deeplabv2_adam_preprocessing
+
+
+# SEGNET
+
+# Train on CamVid
+#python train.py -c config/camvid_segnet.py -e segnet_baseline_scratch

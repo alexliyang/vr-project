@@ -129,7 +129,7 @@ def build_fcn8(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
 
     # Load pretrained Model
     if path_weights:
-        load_matcovnet(model, path_weights, n_classes=nclasses)
+        load_matcovnet(model, n_classes=nclasses)
 
     # Freeze some layers
     if freeze_layers_from is not None:
@@ -167,8 +167,11 @@ def freeze_layers(model, freeze_layers_from):
         layer.trainable = True
 
 
+
 # Load weights from matconvnet
-def load_matcovnet(model, path_weights, n_classes):
+def load_matcovnet(model, path_weights='weights/pascal-fcn8s-dag.mat',
+                   n_classes=11):
+
     import scipy.io as sio
     import numpy as np
 

@@ -11,13 +11,14 @@ from models.ssd300 import build_ssd300
 from models.vgg import build_vgg
 from models.yolo import build_yolo
 from models.deeplabV2 import build_deeplabv2
+from models.segnet import build_segnet
+
 
 """
 from models.lenet import build_lenet
 from models.alexNet import build_alexNet
 from models.inceptionV3 import build_inceptionV3
 from models.unet import build_unet
-from models.segnet import build_segnet
 from models.resnetFCN import build_resnetFCN
 from models.adversarial_semseg import Adversarial_Semseg
 """
@@ -89,6 +90,7 @@ class Model_Factory():
         if cf.model_name in ['lenet', 'alexNet', 'vgg16', 'vgg19', 'resnet50',
                              'InceptionV3', 'fcn8', 'unet', 'segnet',
                              'segnet_basic', 'resnetFCN', 'densenetFCN', 'yolo', 'tiny-yolo', 'ssd300', 'deeplabV2']:
+
             if optimizer is None:
                 raise ValueError('optimizer can not be None')
 
@@ -118,8 +120,7 @@ class Model_Factory():
         if cf.model_name == 'fcn8':
             model = build_fcn8(in_shape, cf.dataset.n_classes, cf.weight_decay,
                                freeze_layers_from=cf.freeze_layers_from,
-                               # path_weights='weights/pascal-fcn8s-dag.mat')
-                               path_weights=None)
+                               path_weights=cf.load_imageNet)
         elif cf.model_name == 'unet':
             model = build_unet(in_shape, cf.dataset.n_classes, cf.weight_decay,
                                freeze_layers_from=cf.freeze_layers_from,
