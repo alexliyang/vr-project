@@ -78,6 +78,24 @@ lrDecayScheduler_enabled = False  # Enable the Callback
 lrDecayScheduler_epochs = [5, 10, 20]  # List of epochs were decay is applied or None for all epochs
 lrDecayScheduler_rate = 2  # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
 
+
+# Callback learning rate scheduler
+LRScheduler_enabled = False  # Enable the Callback
+LRScheduler_batch_epoch = 'batch'  # Schedule the LR each 'batch' or 'epoch'
+LRScheduler_type = 'poly'  # Type of scheduler ['linear' | 'step' | 'square' | 'sqrt' | 'poly']
+LRScheduler_M = 75000  # Number of iterations/epochs expected until convergence
+LRScheduler_decay = 0.1  # Decay for 'step' method
+LRScheduler_S = 10000  # Step for the 'step' method
+LRScheduler_power = 0.9  # Power for te poly method
+
+# Callback TensorBoard
+TensorBoard_enabled = True  # Enable the Callback
+TensorBoard_histogram_freq = 1  # Frequency (in epochs) at which to compute activation histograms for the layers of the model. If set to 0, histograms won't be computed.
+TensorBoard_write_graph = True  # Whether to visualize the graph in Tensorboard. The log file can become quite large when write_graph is set to True.
+TensorBoard_write_images = False  # Whether to write model weights to visualize as image in Tensorboard.
+TensorBoard_logs_folder = None  #
+
+
 # Data augmentation for training and normalization
 norm_imageNet_preprocess = False  # Normalize following imagenet procedure
 norm_fit_dataset = True  # If True it recompute std and mean from images.
