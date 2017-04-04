@@ -4,6 +4,7 @@
 # Reference:
 - [DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution,
     and Fully Connected CRFs](https://arxiv.org/pdf/1606.00915v1.pdf)
+# Adapted from: https://github.com/DavideA/deeplabv2-keras
 """
 
 import warnings
@@ -23,7 +24,7 @@ from keras.engine.topology import get_source_inputs
 
 from layers.ourlayers import bilinear2D, NdSoftmax
 
-
+from tools.crt_utils import CRFLayer
 
 TH_WEIGHTS_PATH = 'http://imagelab.ing.unimore.it/files/deeplabV2_weights/deeplabV2_weights_th.h5'
 
@@ -179,6 +180,8 @@ def DeeplabV2(input_shape, upsampling=8, apply_softmax=True,
         inputs = get_source_inputs(input_tensor)
     else:
         inputs = img_input
+
+    #out = CRFLayer(classes)(logits)
 
     # Create model.
     model = Model(inputs, out, name='deeplabV2')
