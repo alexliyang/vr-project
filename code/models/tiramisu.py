@@ -11,7 +11,8 @@ from keras.models import Model
 from keras.regularizers import l2
 from keras.layers import Activation, BatchNormalization, MaxPooling2D, Deconvolution2D
 
-from code.layers.ourlayers import NdSoftmax
+# from layers.deconv import Deconvolution2D
+from layers.ourlayers import NdSoftmax
 
 
 # Batch normalization dimensions
@@ -30,8 +31,24 @@ else:
 """ MODEL BUILDERS """
 """
 Paper: https://arxiv.org/abs/1611.09326
-Implementation based on the following Theano / Lasagne code: https://github.com/SimJeg/FC-DenseNet
+Implementation based on the Theano / Lasagne code from the original paper
+https://github.com/SimJeg/FC-DenseNet
 """
+
+
+def build_tiramisu_fc56(img_shape=(None, None, 3), nclasses=8, weight_decay=1e-4, compression=0, dropout=0.2,
+                        freeze_layers_from=None, nb_filter=48):
+    # Parameters of the network
+    n_layers_block = [4] * 11  # Dense layers per dense block
+    growth_rate = 12  # Growth rate of dense blocks, k in DenseNet paper
+    compression = 1 - compression  # Compression factor applied in Transition Down (only in case of OOM problems)
+
+    tiramisu_model, network = tiramisu_network(
+        img_shape, n_layers_block, growth_rate, nclasses, weight_decay,
+        compression, dropout, 'Tiramisu_FC56', freeze_layers_from, nb_filter
+    )
+
+    return tiramisu_model
 
 
 def build_tiramisu_fc67(img_shape=(None, None, 3), nclasses=8, weight_decay=1e-4, compression=0, dropout=0.2,
@@ -110,6 +127,19 @@ def tiramisu_network(img_shape, n_layers_block, growth_rate,
 
     assert len(down_layers_block) == len(up_layers_block)
 
+    # Ensure input shape can be handled by the network architecture
+    # if dim_ordering == 'th':
+    #     input_rows = img_shape[1]
+    #     input_cols = img_shape[2]
+    # else:
+    #     input_rows = img_shape[0]
+    #     input_cols = img_shape[1]
+    # num_transitions = len(down_layers_block)
+    # if input_rows is not None:
+    #     assert (input_rows / (2 ** num_transitions)) % 2 == 0
+    # if input_cols is not None:
+    #     assert (input_cols / (2 ** num_transitions)) % 2 == 0
+
     # Initial convolution
     net['input'] = Input(shape=img_shape)
     x = Convolution2D(nb_filter, 3, 3,
@@ -157,7 +187,6 @@ def tiramisu_network(img_shape, n_layers_block, growth_rate,
     net[feature_name] = x
 
     # Upsampling path
-    x_up = x  # Initial features to be upsampled come from the transition layer
     keep_filters = growth_rate * transition_layers_block  # Number of filters for the first transposed convolution
     for block_idx, n_layers_block in enumerate(up_layers_block):
         # Skip connection related to this block
@@ -295,7 +324,7 @@ def transition_up(x, skip_connection, keep_filters, weight_decay=1e-4, tu_id="")
     # Transposed convolution
     deconv = Deconvolution2D(keep_filters, 3, 3, output_shape,
                              init='he_uniform',
-                             border_mode='valid',
+                             border_mode='same',
                              subsample=(2, 2),
                              W_regularizer=l2(weight_decay),
                              b_regularizer=l2(weight_decay),
@@ -335,21 +364,35 @@ if __name__ == '__main__':
     import os
     from keras.utils.visualize_util import plot
 
-    input_shape = (224, 224, 3)
+    input_shape = (256, 256, 3)
+    print('Input size: {}'.format(input_shape))
+    print(' > Building Tiramisu FC56')
+    model = build_tiramisu_fc56(input_shape, nclasses=11, weight_decay=1e-4, dropout=0.2)
+    print(' > Compiling Tiramisu FC56')
+    model.compile(loss="categorical_crossentropy", optimizer="rmsprop")
+    model.summary()
+    plot_path = os.path.expanduser('~/fc56_model.jpg')
+    print(' > Plotting model in {}'.format(plot_path))
+    plot(model, plot_path, show_layer_names=False, show_shapes=False)
+
+    input_shape = (192, 192, 3)
+    print('Input size: {}'.format(input_shape))
     print(' > Building Tiramisu FC67')
     model = build_tiramisu_fc67(input_shape, nclasses=11, weight_decay=1e-4, dropout=0.2)
     print(' > Compiling Tiramisu FC67')
     model.compile(loss="categorical_crossentropy", optimizer="rmsprop")
     model.summary()
-    plot_path = os.path.abspath('fc67_model.jpg')
+    plot_path = os.path.expanduser('~/fc67_model.jpg')
     print(' > Plotting model in {}'.format(plot_path))
     plot(model, plot_path, show_layer_names=False, show_shapes=False)
 
+    input_shape = (320, 448, 3)
+    print('Input size: {}'.format(input_shape))
     print(' > Building Tiramisu FC103')
     model = build_tiramisu_fc103(input_shape, nclasses=11, weight_decay=1e-4, dropout=0.2)
     print(' > Compiling Tiramisu FC103')
     model.compile(loss="categorical_crossentropy", optimizer="rmsprop")
     model.summary()
-    plot_path = os.path.abspath('fc103_model.jpg')
+    plot_path = os.path.expanduser('~/fc103_model.jpg')
     print(' > Plotting model in {}'.format(plot_path))
     plot(model, plot_path, show_layer_names=False, show_shapes=False)

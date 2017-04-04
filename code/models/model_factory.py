@@ -1,5 +1,4 @@
 import os
-import pickle
 from keras import backend as K
 from keras.utils.visualize_util import plot
 from metrics.metrics import cce_flatt, IoU, YOLOLoss, YOLOMetrics, MultiboxLoss, SSDMetrics
@@ -11,6 +10,7 @@ from models.ssd300 import build_ssd300
 from models.vgg import build_vgg
 from models.yolo import build_yolo
 from models.segnet import build_segnet
+from models.tiramisu import build_tiramisu_fc56, build_tiramisu_fc67, build_tiramisu_fc103
 
 """
 from models.lenet import build_lenet
@@ -64,19 +64,13 @@ class Model_Factory():
 
         elif cf.dataset.class_mode == 'segmentation':
             if K.image_dim_ordering() == 'th':
-                if variable_input_size:
-                    in_shape = (cf.dataset.n_channels, None, None)
-                else:
-                    in_shape = (cf.dataset.n_channels,
-                                cf.target_size_train[0],
-                                cf.target_size_train[1])
+                in_shape = (cf.dataset.n_channels,
+                            cf.target_size_train[0],
+                            cf.target_size_train[1])
             else:
-                if variable_input_size:
-                    in_shape = (None, None, cf.dataset.n_channels)
-                else:
-                    in_shape = (cf.target_size_train[0],
-                                cf.target_size_train[1],
-                                cf.dataset.n_channels)
+                in_shape = (cf.target_size_train[0],
+                            cf.target_size_train[1],
+                            cf.dataset.n_channels)
             loss = cce_flatt(cf.dataset.void_class, cf.dataset.cb_weights)
             metrics = [IoU(cf.dataset.n_classes, cf.dataset.void_class)]
         else:
@@ -87,11 +81,19 @@ class Model_Factory():
     def make(self, cf, optimizer=None):
         if cf.model_name in ['lenet', 'alexNet', 'vgg16', 'vgg19', 'resnet50',
                              'InceptionV3', 'fcn8', 'unet', 'segnet_vgg',
-                             'segnet_basic', 'resnetFCN', 'densenetFCN', 'yolo', 'tiny-yolo', 'ssd300']:
+                             'segnet_basic', 'resnetFCN', 'densenetFCN',
+                             'yolo', 'tiny-yolo', 'ssd300',
+                             'tiramisu_fc56', 'tiramisu_fc67', 'tiramisu_fc103']:
             if optimizer is None:
                 raise ValueError('optimizer can not be None')
 
-            in_shape, loss, metrics = self.basic_model_properties(cf, True)
+            # Fix input size at build time for Tiramisu network,
+            # given the limitation of transposed convolutions when it comes to duplication of dimensions
+            if 'tiramisu' in cf.model_name:
+                variable_input_size = False
+            else:
+                variable_input_size = True
+            in_shape, loss, metrics = self.basic_model_properties(cf, variable_input_size)
             model = self.make_one_net_model(cf, in_shape, loss, metrics,
                                             optimizer)
 
@@ -119,10 +121,6 @@ class Model_Factory():
                                freeze_layers_from=cf.freeze_layers_from,
                                # path_weights='weights/pascal-fcn8s-dag.mat')
                                path_weights=None)
-        elif cf.model_name == 'unet':
-            model = build_unet(in_shape, cf.dataset.n_classes, cf.weight_decay,
-                               freeze_layers_from=cf.freeze_layers_from,
-                               path_weights=None)
         elif cf.model_name == 'segnet_basic':
             model = build_segnet(in_shape, cf.dataset.n_classes, cf.weight_decay,
                                  freeze_layers_from=cf.freeze_layers_from,
@@ -131,17 +129,9 @@ class Model_Factory():
             model = build_segnet(in_shape, cf.dataset.n_classes, cf.weight_decay,
                                  freeze_layers_from=cf.freeze_layers_from,
                                  path_weights=None, basic=False)
-        elif cf.model_name == 'resnetFCN':
-            model = build_resnetFCN(in_shape, cf.dataset.n_classes, cf.weight_decay,
-                                    freeze_layers_from=cf.freeze_layers_from,
-                                    path_weights=None)
         elif cf.model_name == 'densenetFCN':
             model = build_densenetFCN(in_shape, cf.dataset.n_classes, cf.weight_decay,
                                       freeze_layers_from=cf.freeze_layers_from)
-        elif cf.model_name == 'lenet':
-            model = build_lenet(in_shape, cf.dataset.n_classes, cf.weight_decay)
-        elif cf.model_name == 'alexNet':
-            model = build_alexNet(in_shape, cf.dataset.n_classes, cf.weight_decay)
         elif cf.model_name == 'vgg16':
             model = build_vgg(in_shape, cf.dataset.n_classes, 16, cf.weight_decay,
                               load_pretrained=cf.load_imageNet,
@@ -154,11 +144,6 @@ class Model_Factory():
             model = build_resnet50(in_shape, cf.dataset.n_classes, cf.weight_decay,
                                    load_pretrained=cf.load_imageNet,
                                    freeze_layers_from=cf.freeze_layers_from)
-        elif cf.model_name == 'InceptionV3':
-            model = build_inceptionV3(in_shape, cf.dataset.n_classes,
-                                      cf.weight_decay,
-                                      load_pretrained=cf.load_imageNet,
-                                      freeze_layers_from=cf.freeze_layers_from)
         elif cf.model_name == 'yolo':
             model = build_yolo(in_shape, cf.dataset.n_classes,
                                cf.dataset.n_priors,
@@ -173,6 +158,24 @@ class Model_Factory():
             model = build_ssd300(in_shape, cf.dataset.n_classes + 1, cf.weight_decay,
                                  load_pretrained=cf.load_imageNet,
                                  freeze_layers_from=cf.freeze_layers_from)
+        elif cf.model_name == 'ssd300':
+            model = build_ssd300(in_shape, cf.dataset.n_classes + 1, cf.weight_decay,
+                                 load_pretrained=cf.load_imageNet,
+                                 freeze_layers_from=cf.freeze_layers_from)
+        elif cf.model_name == 'tiramisu_fc56':
+            model = build_tiramisu_fc56(in_shape, cf.dataset.n_classes, cf.weight_decay,
+                                        compression=0, dropout=0.2, nb_filter=48,
+                                        freeze_layers_from=cf.freeze_layers_from)
+        elif cf.model_name == 'tiramisu_fc67':
+            model = build_tiramisu_fc67(in_shape, cf.dataset.n_classes, cf.weight_decay,
+                                        compression=0, dropout=0.2, nb_filter=48,
+                                        freeze_layers_from=cf.freeze_layers_from)
+
+        elif cf.model_name == 'tiramisu_fc103':
+            model = build_tiramisu_fc103(in_shape, cf.dataset.n_classes, cf.weight_decay,
+                                         compression=0, dropout=0.2, nb_filter=48,
+                                         freeze_layers_from=cf.freeze_layers_from)
+
         else:
             raise ValueError('Unknown model')
 
