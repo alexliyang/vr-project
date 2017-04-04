@@ -44,7 +44,7 @@ seed_valid = 1924  # Random seed for the validation shuffle
 seed_test = 1924  # Random seed for the testing shuffle
 
 # Training parameters
-optimizer = 'rmsprop'  # Optimizer
+optimizer = 'adam'  # Optimizer
 learning_rate = 0.0001  # Training learning rate
 weight_decay = 0.  # Weight decay or L2 parameter norm penalty
 n_epochs = 1000  # Number of epochs during training
@@ -82,8 +82,8 @@ lrDecayScheduler_rate = 2  # Decay rate (new_lr = lr / decay_rate). Usually betw
 norm_imageNet_preprocess = False  # Normalize following imagenet procedure
 norm_fit_dataset = True  # If True it recompute std and mean from images.
 norm_rescale = 1 / 255.  # Scalar to divide and set range 0-1
-norm_featurewise_center = False  # Substract mean - dataset
-norm_featurewise_std_normalization = False  # Divide std - dataset
+norm_featurewise_center = True  # Substract mean - dataset
+norm_featurewise_std_normalization = True  # Divide std - dataset
 norm_samplewise_center = False  # Substract mean - sample
 norm_samplewise_std_normalization = False  # Divide std - sample
 norm_gcn = False  # Global contrast normalization
