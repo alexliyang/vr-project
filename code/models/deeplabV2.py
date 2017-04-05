@@ -21,9 +21,9 @@ from keras.layers.core import Layer, InputSpec
 from keras.utils.layer_utils import convert_all_kernels_in_model
 from keras.utils.data_utils import get_file
 from keras.engine.topology import get_source_inputs
-
+from initializations.initializations import bilinear_init
 from layers.ourlayers import bilinear2D, NdSoftmax
-
+from layers.deconv import Deconvolution2D
 from tools.crt_utils import CRFLayer
 
 TH_WEIGHTS_PATH = 'http://imagelab.ing.unimore.it/files/deeplabV2_weights/deeplabV2_weights_th.h5'
@@ -167,8 +167,9 @@ def DeeplabV2(input_shape, upsampling=8, apply_softmax=True,
     #logits = bilinear2D(ratio=upsampling)(s)
 
     #upsampling=tf.div(s.get_shape(),(tf.TensorShape(input_shape)))
-    logits = UpSampling2D(size=(upsampling, upsampling))(s)
+    #logits = UpSampling2D(size=(upsampling, upsampling))(s)
 
+    logits = Deconvolution2D(classes, upsampling, upsampling, init=bilinear_init, subsample=(upsampling, upsampling), input_shape=s._keras_shape)(s)
     if apply_softmax:
         out = NdSoftmax()(logits)
     else:
