@@ -158,7 +158,7 @@ class Model_Factory():
                                  load_pretrained=cf.load_imageNet, freeze_layers_from=cf.freeze_layers_from)
         elif cf.model_name == 'deeplabV2':
             model = build_deeplabv2(in_shape, classes=cf.dataset.n_classes, load_pretrained=cf.load_imageNet,
-                                    freeze_layers_from=cf.freeze_layers_from)
+                                    freeze_layers_from=cf.freeze_layers_from, weight_decay=cf.weight_decay)
         elif cf.model_name == 'ssd300':
             model = build_ssd300(in_shape, cf.dataset.n_classes + 1, cf.weight_decay,
                                  load_pretrained=cf.load_imageNet,

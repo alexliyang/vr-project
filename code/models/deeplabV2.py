@@ -18,6 +18,7 @@ from keras.models import Model
 from keras.layers import Input, Convolution2D, AtrousConvolution2D, MaxPooling2D, merge, ZeroPadding2D, Dropout, \
     Activation, UpSampling2D
 from keras.layers.core import Layer, InputSpec
+from keras.regularizers import l2
 from keras.utils.layer_utils import convert_all_kernels_in_model
 from keras.utils.data_utils import get_file
 from keras.engine.topology import get_source_inputs
@@ -30,19 +31,19 @@ TH_WEIGHTS_PATH = 'http://imagelab.ing.unimore.it/files/deeplabV2_weights/deepla
 
 
 def build_deeplabv2(input_shape, upsampling=8, apply_softmax=True, load_pretrained=False, freeze_layers_from='base_model',
-                    input_tensor=None, classes=21):
+                    input_tensor=None, classes=21, weight_decay=0.0005):
     print K.image_dim_ordering()
     if load_pretrained:
         weights = 'voc2012'
     else:
         weights = None
     base_model = DeeplabV2(input_shape=input_shape, upsampling=upsampling, apply_softmax=apply_softmax, weights=weights,
-                           input_tensor=input_tensor, classes=classes)
+                           input_tensor=input_tensor, classes=classes, weight_decay=weight_decay)
     return base_model
 
 def DeeplabV2(input_shape, upsampling=8, apply_softmax=True,
               weights='voc2012', input_tensor=None,
-              classes=21):
+              classes=21, weight_decay=0.0005):
     """Instantiate the DeeplabV2 architecture with VGG16 encoder,
     optionally loading weights pre-trained on VOC2012 segmentation.
     Note that pre-trained model is only available for Theano dim ordering.
@@ -85,37 +86,37 @@ def DeeplabV2(input_shape, upsampling=8, apply_softmax=True,
 
     # Block 1
     h = ZeroPadding2D(padding=(1, 1))(img_input)
-    h = Convolution2D(64, 3, 3, activation='relu', name='conv1_1')(h)
+    h = Convolution2D(64, 3, 3, activation='relu', W_regularizer=l2(weight_decay), name='conv1_1')(h)
     h = ZeroPadding2D(padding=(1, 1))(h)
-    h = Convolution2D(64, 3, 3, activation='relu', name='conv1_2')(h)
+    h = Convolution2D(64, 3, 3, activation='relu', W_regularizer=l2(weight_decay), name='conv1_2')(h)
     h = ZeroPadding2D(padding=(1, 1))(h)
     h = MaxPooling2D(pool_size=(3, 3), strides=(2, 2))(h)
 
     # Block 2
     h = ZeroPadding2D(padding=(1, 1))(h)
-    h = Convolution2D(128, 3, 3, activation='relu', name='conv2_1')(h)
+    h = Convolution2D(128, 3, 3, activation='relu', W_regularizer=l2(weight_decay), name='conv2_1')(h)
     h = ZeroPadding2D(padding=(1, 1))(h)
-    h = Convolution2D(128, 3, 3, activation='relu', name='conv2_2')(h)
+    h = Convolution2D(128, 3, 3, activation='relu', W_regularizer=l2(weight_decay), name='conv2_2')(h)
     h = ZeroPadding2D(padding=(1, 1))(h)
     h = MaxPooling2D(pool_size=(3, 3), strides=(2, 2))(h)
 
     # Block 3
     h = ZeroPadding2D(padding=(1, 1))(h)
-    h = Convolution2D(256, 3, 3, activation='relu', name='conv3_1')(h)
+    h = Convolution2D(256, 3, 3, activation='relu', W_regularizer=l2(weight_decay), name='conv3_1')(h)
     h = ZeroPadding2D(padding=(1, 1))(h)
-    h = Convolution2D(256, 3, 3, activation='relu', name='conv3_2')(h)
+    h = Convolution2D(256, 3, 3, activation='relu', W_regularizer=l2(weight_decay), name='conv3_2')(h)
     h = ZeroPadding2D(padding=(1, 1))(h)
-    h = Convolution2D(256, 3, 3, activation='relu', name='conv3_3')(h)
+    h = Convolution2D(256, 3, 3, activation='relu', W_regularizer=l2(weight_decay), name='conv3_3')(h)
     h = ZeroPadding2D(padding=(1, 1))(h)
     h = MaxPooling2D(pool_size=(3, 3), strides=(2, 2))(h)
 
     # Block 4
     h = ZeroPadding2D(padding=(1, 1))(h)
-    h = Convolution2D(512, 3, 3, activation='relu', name='conv4_1')(h)
+    h = Convolution2D(512, 3, 3, activation='relu', W_regularizer=l2(weight_decay), name='conv4_1')(h)
     h = ZeroPadding2D(padding=(1, 1))(h)
-    h = Convolution2D(512, 3, 3, activation='relu', name='conv4_2')(h)
+    h = Convolution2D(512, 3, 3, activation='relu', W_regularizer=l2(weight_decay), name='conv4_2')(h)
     h = ZeroPadding2D(padding=(1, 1))(h)
-    h = Convolution2D(512, 3, 3, activation='relu', name='conv4_3')(h)
+    h = Convolution2D(512, 3, 3, activation='relu', W_regularizer=l2(weight_decay), name='conv4_3')(h)
     h = ZeroPadding2D(padding=(1, 1))(h)
     h = MaxPooling2D(pool_size=(3, 3), strides=(1, 1))(h)
 

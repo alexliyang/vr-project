@@ -46,12 +46,12 @@ seed_test = 1924  # Random seed for the testing shuffle
 # Training parameters
 optimizer = 'rmsprop'  # Optimizer
 learning_rate = 0.0001  # Training learning rate
-weight_decay = 0.  # Weight decay or L2 parameter norm penalty
+weight_decay = 0.0005  # Weight decay or L2 parameter norm penalty
 n_epochs = 1000  # Number of epochs during training
 
 # Callback save results
 save_results_enabled = True  # Enable the Callback
-save_results_nsamples = 5  # Number of samples to save
+save_results_nsamples = 1  # Number of samples to save
 save_results_batch_size = 5  # Size of the batch
 
 # Callback early stoping
