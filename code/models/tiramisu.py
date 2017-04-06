@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, division
 
 import numpy as np
 
@@ -9,11 +9,11 @@ from keras.layers.convolutional import Convolution2D
 from keras.layers.core import Dropout
 from keras.models import Model
 from keras.regularizers import l2
-from keras.layers import Activation, BatchNormalization, MaxPooling2D, Deconvolution2D
+from keras.layers import Activation, BatchNormalization, MaxPooling2D, ZeroPadding2D
 
-# from layers.deconv import Deconvolution2D
+from layers.deconv import Deconvolution2D
 from layers.ourlayers import NdSoftmax
-
+from initializations.initializations import bilinear_init
 
 # Batch normalization dimensions
 dim_ordering = K.image_dim_ordering()
@@ -128,17 +128,20 @@ def tiramisu_network(img_shape, n_layers_block, growth_rate,
     assert len(down_layers_block) == len(up_layers_block)
 
     # Ensure input shape can be handled by the network architecture
-    # if dim_ordering == 'th':
-    #     input_rows = img_shape[1]
-    #     input_cols = img_shape[2]
-    # else:
-    #     input_rows = img_shape[0]
-    #     input_cols = img_shape[1]
-    # num_transitions = len(down_layers_block)
-    # if input_rows is not None:
-    #     assert (input_rows / (2 ** num_transitions)) % 2 == 0
-    # if input_cols is not None:
-    #     assert (input_cols / (2 ** num_transitions)) % 2 == 0
+    if dim_ordering == 'th':
+        input_rows = img_shape[1]
+        input_cols = img_shape[2]
+    else:
+        input_rows = img_shape[0]
+        input_cols = img_shape[1]
+    num_transitions = len(down_layers_block)
+    multiple = 2 ** num_transitions
+    if input_rows is not None:
+        if input_rows % multiple != 0:
+            raise ValueError('The number of rows of the input data must be a multiple of {}'.format(multiple))
+    if input_cols is not None:
+        if input_cols % multiple != 0:
+            raise ValueError('The number of columns of the input data must be a multiple of {}'.format(multiple))
 
     # Initial convolution
     net['input'] = Input(shape=img_shape)
@@ -314,21 +317,16 @@ def transition_up(x, skip_connection, keep_filters, weight_decay=1e-4, tu_id="")
     :returns: model
     :rtype: keras model, after applying batch_norm, relu-conv, dropout, maxpool
     """
-    # Output shape must match skip connection
-    skip_shape = skip_connection._keras_shape
-    if K.image_dim_ordering() == 'th':
-        output_shape = (None, keep_filters, skip_shape[1], skip_shape[2])
-    else:
-        output_shape = (None, skip_shape[1], skip_shape[2], keep_filters)
-
     # Transposed convolution
-    deconv = Deconvolution2D(keep_filters, 3, 3, output_shape,
-                             init='he_uniform',
+    deconv = Deconvolution2D(keep_filters, 3, 3, x._keras_shape,
                              border_mode='same',
                              subsample=(2, 2),
                              W_regularizer=l2(weight_decay),
                              b_regularizer=l2(weight_decay),
+                             init=bilinear_init,
                              name='{}_deconv'.format(tu_id))(x)
+    # Add 1 extra pixel (0) on top and right borders to match dimensions
+    deconv = ZeroPadding2D({'bottom_pad': 1, 'right_pad': 1})(deconv)
 
     return merge([deconv, skip_connection], mode='concat', concat_axis=concat_axis, name='{}_merge'.format(tu_id))
 
@@ -375,7 +373,7 @@ if __name__ == '__main__':
     print(' > Plotting model in {}'.format(plot_path))
     plot(model, plot_path, show_layer_names=False, show_shapes=False)
 
-    input_shape = (192, 192, 3)
+    input_shape = (320, 320, 3)
     print('Input size: {}'.format(input_shape))
     print(' > Building Tiramisu FC67')
     model = build_tiramisu_fc67(input_shape, nclasses=11, weight_decay=1e-4, dropout=0.2)
@@ -386,7 +384,7 @@ if __name__ == '__main__':
     print(' > Plotting model in {}'.format(plot_path))
     plot(model, plot_path, show_layer_names=False, show_shapes=False)
 
-    input_shape = (320, 448, 3)
+    input_shape = (352, 480, 3)
     print('Input size: {}'.format(input_shape))
     print(' > Building Tiramisu FC103')
     model = build_tiramisu_fc103(input_shape, nclasses=11, weight_decay=1e-4, dropout=0.2)

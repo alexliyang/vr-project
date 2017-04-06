@@ -122,5 +122,4 @@ class Deconvolution2D(Convolution2D):
 
         # Arithmetic for transposed convolutions with padding and non-unit strides
         # (https://arxiv.org/abs/1603.07285)
-        a = (input_length + 2 * pad - filter_size) % stride
-        return stride*(input_length-1) + a + filter_size - 2*pad
+        return stride*(input_length-1) + filter_size - 2*pad

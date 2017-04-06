@@ -65,13 +65,23 @@ class Model_Factory():
 
         elif cf.dataset.class_mode == 'segmentation':
             if K.image_dim_ordering() == 'th':
-                in_shape = (cf.dataset.n_channels,
-                            cf.target_size_train[0],
-                            cf.target_size_train[1])
+                if variable_input_size:
+                    in_shape = (cf.dataset.n_channels,
+                                None,
+                                None)
+                else:
+                    in_shape = (cf.dataset.n_channels,
+                                cf.target_size_train[0],
+                                cf.target_size_train[1])
             else:
-                in_shape = (cf.target_size_train[0],
-                            cf.target_size_train[1],
-                            cf.dataset.n_channels)
+                if variable_input_size:
+                    in_shape = (None,
+                                None,
+                                cf.dataset.n_channels)
+                else:
+                    in_shape = (cf.target_size_train[0],
+                                cf.target_size_train[1],
+                                cf.dataset.n_channels)
             loss = cce_flatt(cf.dataset.void_class, cf.dataset.cb_weights)
             metrics = [IoU(cf.dataset.n_classes, cf.dataset.void_class)]
         else:
@@ -88,13 +98,7 @@ class Model_Factory():
             if optimizer is None:
                 raise ValueError('optimizer can not be None')
 
-            # Fix input size at build time for Tiramisu network,
-            # given the limitation of transposed convolutions when it comes to duplication of dimensions
-            if 'tiramisu' in cf.model_name:
-                variable_input_size = False
-            else:
-                variable_input_size = True
-            in_shape, loss, metrics = self.basic_model_properties(cf, variable_input_size)
+            in_shape, loss, metrics = self.basic_model_properties(cf, True)
             model = self.make_one_net_model(cf, in_shape, loss, metrics,
                                             optimizer)
 
@@ -116,6 +120,18 @@ class Model_Factory():
     # Creates, compiles, plots and prints a Keras model. Optionally also loads its
     # weights.
     def make_one_net_model(self, cf, in_shape, loss, metrics, optimizer):
+        # Assertions
+        if 'tiramisu' in cf.model_name:
+            input_rows, input_cols = cf.target_size_train[0], cf.target_size_train[1]
+            multiple = 2 ** 5  # 5 transition blocks
+            if input_rows is not None:
+                if input_rows % multiple != 0:
+                    raise ValueError('The number of rows of the input data must be a multiple of {}'.format(multiple))
+            if input_cols is not None:
+                if input_cols % multiple != 0:
+                    raise ValueError(
+                        'The number of columns of the input data must be a multiple of {}'.format(multiple))
+
         # Create the *Keras* model
         if cf.model_name == 'fcn8':
             model = build_fcn8(in_shape, cf.dataset.n_classes, cf.weight_decay,

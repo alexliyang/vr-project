@@ -8,6 +8,7 @@ from keras.callbacks import Callback, Progbar, ProgbarLogger
 from keras.engine.training import GeneratorEnqueuer
 from tools.plot_history import plot_history
 from tools.save_images import save_img3
+import math
 
 dim_ordering = K.image_dim_ordering()
 
@@ -318,7 +319,6 @@ class LearningRateSchedulerBatch(Callback):
         if not hasattr(self.model.optimizer, 'lr'):
             raise ValueError('Optimizer must have a "lr" attribute.')
         lr = self.schedule(iteration)
-        #print('   New lr: ' + str(lr))
         if not isinstance(lr, (float, np.float32, np.float64)):
             raise ValueError('The output of the "schedule" function '
                              'should be float.')
