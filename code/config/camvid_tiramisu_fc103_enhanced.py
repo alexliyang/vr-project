@@ -25,10 +25,10 @@ debug_images_test = 50  # N images for testing in debug mode (-1 means all)
 debug_n_epochs = 2  # N of training epochs in debug mode
 
 # Batch sizes
-batch_size_train = 3  # Batch size during training
-batch_size_valid = 3  # Batch size during validation
-batch_size_test = 3  # Batch size during testing
-crop_size_train = (320, 320)  # Crop size during training (Height, Width) or None
+batch_size_train = 2  # Batch size during training
+batch_size_valid = 2  # Batch size during validation
+batch_size_test = 2  # Batch size during testing
+crop_size_train = (256, 256)  # Crop size during training (Height, Width) or None
 crop_size_valid = None  # Crop size during validation
 crop_size_test = None  # Crop size during testing
 resize_train = (360, 480)  # Resize the image during training (Height, Width) or None
