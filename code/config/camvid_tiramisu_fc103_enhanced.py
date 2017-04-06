@@ -45,7 +45,7 @@ seed_test = 1924  # Random seed for the testing shuffle
 
 # Training parameters
 optimizer = 'adam'  # Optimizer
-learning_rate = 0.005  # Training learning rate
+learning_rate = 0.001  # Training learning rate
 weight_decay = 1e-4  # Weight decay or L2 parameter norm penalty
 n_epochs = 1000  # Number of epochs during training
 
