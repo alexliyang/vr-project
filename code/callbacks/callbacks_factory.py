@@ -80,7 +80,7 @@ class Callbacks_Factory():
             elif cf.LRScheduler_batch_epoch == 'epoch':
                 cb += [LearningRateScheduler(scheduler.scheduler_function)]
             else:
-                raise ValueError('Unknown scheduler mode: ' + LRScheduler_batch_epoch)
+                raise ValueError('Unknown scheduler mode: ' + cf.LRScheduler_batch_epoch)
 
         # TensorBoard callback
         if cf.TensorBoard_enabled:
