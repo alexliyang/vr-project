@@ -10,10 +10,10 @@ driving by understanding the vehicle's surrounding scene.
 
 | Name | E-mail | GitHub |
 | :---: | :---: | :---: |
-| Arantxa Casanova | ar.casanova.8@gmail.com | [ArantxaCasanova](https://github.com/ArantxaCasanova) |
-| Belén Luque | luquelopez.belen@gmail.com | [bluque](https://github.com/bluque) |
-| Anna Martí | annamartiaguilera@gmail.com | [amartia](https://github.com/amartia) |
-| Santi Puch | santiago.puch.giner@gmail.com | [santipuch590](https://github.com/santipuch590) |
+| Arantxa Casanova ([LinkedIn](https://www.linkedin.com/in/arantxa-casanova-pagà-619834138/)) | ar.casanova.8@gmail.com | [ArantxaCasanova](https://github.com/ArantxaCasanova) |
+| Belén Luque ([LinkedIn](https://www.linkedin.com/in/belen-luque-lopez/)) | luquelopez.belen@gmail.com | [bluque](https://github.com/bluque) |
+| Anna Martí ([LinkedIn](https://www.linkedin.com/in/annamartiaguilera/)) | annamartiaguilera@gmail.com | [amartia](https://github.com/amartia) |
+| Santi Puch ([LinkedIn](https://www.linkedin.com/in/santipuch/)) | santiago.puch.giner@gmail.com | [santipuch590](https://github.com/santipuch590) |
 
 
 ## Report (_in progress_)
