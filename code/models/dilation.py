@@ -117,7 +117,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
    #                          input_shape=context_out._keras_shape)(context_out)
 
     # Softmax
-    prob = NdSoftmax()(deconv_out)
+    prob = NdSoftmax()(context_out)
 
     # Complete model
     model = Model(input=inputs, output=prob)
