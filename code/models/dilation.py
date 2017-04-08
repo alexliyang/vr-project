@@ -104,7 +104,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
                             border_mode='same', dim_ordering=dim_ordering, init=init)(conv7_relu)
 
     # Appending context block
-
+    upsampling=8
     context_out= context_block(x,[1,1,2,4,8,16,1],nclasses,init=identity_init)
     deconv_out = Deconvolution2D(nclasses, upsampling, upsampling, init=bilinear_init, subsample=(upsampling, upsampling),
                              input_shape=context_out._keras_shape)(context_out)
