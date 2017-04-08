@@ -9,7 +9,7 @@ from keras.regularizers import l2
 #from keras.initializations import Identity
 from layers.deconv import Deconvolution2D
 from layers.ourlayers import (CropLayer2D, NdSoftmax)
-
+from initializations.initializations import bilinear_init
 dim_ordering = K.image_dim_ordering()
 
 
@@ -112,11 +112,8 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
     # Appending context block
 
     context_out= context_block(x,[1,1,2,4,8,16,32,64,1],19,init)
- #TODO: change for bilinear. It gives an error.
-    deconv_out = Deconvolution2D(19, 16, 16, context_out._keras_shape, init,
-                             'linear', border_mode='valid', subsample=(8, 8),bias=False,
-                             name='score2', W_regularizer=l2(l2_reg))(context_out)
-
+    deconv_out = Deconvolution2D(19, upsampling, upsampling, init=bilinear_init, subsample=(upsampling, upsampling),
+                             input_shape=context_out._keras_shape)(context_out)
 
     # Softmax
     prob = NdSoftmax()(deconv_out)
