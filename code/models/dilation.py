@@ -9,20 +9,16 @@ from keras.regularizers import l2
 #from keras.initializations import Identity
 from layers.deconv import Deconvolution2D
 from layers.ourlayers import (CropLayer2D, NdSoftmax)
-from initializations.initializations import bilinear_init
+from initializations.initializations import bilinear_init,identity_init
 dim_ordering = K.image_dim_ordering()
 
 
 # Paper: https://arxiv.org/pdf/1511.07122.pdf
 # Original caffe code: https://github.com/fyu/dilation
 
-
-def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=6, l2_reg=0.,
-               init='glorot_uniform', path_weights=None,
+def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=0.,
+               init='glorot_uniform', path_weights=None, load_pretrained=False,
                freeze_layers_from=None):
-    # Regularization warning
-    if l2_reg > 0.:
-        print ("Regularizing the weights: " + str(l2_reg))
 
     # Build network
 
@@ -63,16 +59,13 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=6, l2_reg=
     conv4_3 = Convolution2D(512, 3, 3, init, 'relu', border_mode='same',
                             name='conv4_3', W_regularizer=l2(l2_reg))(conv4_2)
 
+    vgg_base_model = Model(input=inputs, output=conv4_3)
+
     #Block5
-    #TODO: initialization need sto be identity. Does not work.
-    #x = Conv2D(512, 3, strides=(1, 1), padding='same',data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
-     #          kernel_initializer=Identity(gain=1.0))(conv4_3)
     conv5_1 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_1',
-                                  border_mode='same', dim_ordering=dim_ordering, init=init)(conv4_3)
+                                  border_mode='same', dim_ordering=dim_ordering, init=init)(vgg_base_model.output)
 
     conv5_1_relu = Activation('relu')(conv5_1)
-    #x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
-    #           kernel_initializer=Identity(gain=1.0))(x)
     conv5_2 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_2',  border_mode='same',
                                   dim_ordering=dim_ordering, init=init)(conv5_1_relu)
 
@@ -112,15 +105,15 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=6, l2_reg=
 
     # Appending context block
 
-    context_out= context_block(x,[1,1,2,4,8,16,1],nclasses,init)
+    context_out= context_block(x,[1,1,2,4,8,16,1],nclasses,init=identity_init)
     deconv_out = Deconvolution2D(nclasses, upsampling, upsampling, init=bilinear_init, subsample=(upsampling, upsampling),
                              input_shape=context_out._keras_shape)(context_out)
-
+    print(upsampling)
     # Softmax
     prob = NdSoftmax()(deconv_out)
 
     # Complete model
-    model = Model(input=inputs, output=prob)
+    model = Model(input=vgg_base_model.output, output=prob)
 
     # Load pretrained Model
    # if path_weights:

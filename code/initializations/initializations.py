@@ -42,3 +42,39 @@ def bilinear_init(shape, name=None, dim_ordering='th'):
     # print (kernel.shape)
     kvar = K.variable(value=kernel, dtype=K.floatx(), name='bilinear')
     return kvar
+
+
+# Create a 2D identity interpolation kernel in numpy for even size filters
+def identity(w, h):
+    import math
+    data = np.identity((w*h), dtype=float)
+    data = data.reshape((h, w))
+    print('Data: ')
+    print(data)
+    return data
+
+
+# Create 4D identity interpolation kernel in numpy for even size filters
+def identity4D(w, h, num_input_channels, num_filters):
+    kern = bilinear(w, h)
+    kern = kern.reshape((1, 1, w, h))
+    kern = np.repeat(kern, num_input_channels, axis=0)
+    kern = np.repeat(kern, num_filters, axis=1)
+    for i in range(num_input_channels):
+        for j in range(num_filters):
+            if i != j:
+                kern[i, j, :, :] = 0
+    return kern
+
+
+# Create a Keras identity weight initializer
+def identity_init(shape, name=None, dim_ordering='th'):
+    print ('Shape: '),
+    print (shape)
+    kernel = identity4D(shape[0], shape[1], shape[2], shape[3])
+    np.set_printoptions(threshold=np.nan)
+    kernel = kernel.transpose((2, 3, 0, 1))
+    print (kernel)
+    print (kernel.shape)
+    kvar = K.variable(value=kernel, dtype=K.floatx(), name='identity')
+    return kvar
