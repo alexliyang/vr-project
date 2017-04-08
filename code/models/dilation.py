@@ -17,7 +17,7 @@ dim_ordering = K.image_dim_ordering()
 # Original caffe code: https://github.com/fyu/dilation
 
 
-def build_dilation(img_shape=(3, None, None), nclasses=8, upsampling=8, l2_reg=0.,
+def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=0.,
                init='glorot_uniform', path_weights=None,
                freeze_layers_from=None):
     # Regularization warning
@@ -102,18 +102,19 @@ def build_dilation(img_shape=(3, None, None), nclasses=8, upsampling=8, l2_reg=0
     conv7_relu = Activation('relu')(conv7)
     conv7_relu= Dropout(0.5)(conv7_relu)
 
+
     #Final block
     #x = Conv2D(19, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1, activation='None', use_bias=False,
      #          kernel_initializer='identity')(x)
 
-    x = AtrousConvolution2D(19, 1, 1, atrous_rate=(1, 1), name='final_block',
+    x = AtrousConvolution2D(nclasses, 1, 1, atrous_rate=(1, 1), name='final_block',
                             border_mode='same', dim_ordering=dim_ordering, init=init)(conv7_relu)
 
     # Appending context block
 
-    context_out= context_block(x,[1,1,2,4,8,16,32,64,1],19,init)
-    deconv_out = Deconvolution2D(19, upsampling, upsampling, init=bilinear_init, subsample=(upsampling, upsampling),
-                             input_shape=context_out._keras_shape)(context_out)
+    context_out= context_block(x,[1,1,2,4,8,16,1],nclasses,init)
+ #   deconv_out = Deconvolution2D(nclasses, upsampling, upsampling, init=bilinear_init, subsample=(upsampling, upsampling),
+   #                          input_shape=context_out._keras_shape)(context_out)
 
     # Softmax
     prob = NdSoftmax()(deconv_out)
@@ -143,6 +144,7 @@ def context_block (x, dilation_array,num_classes,init):
     #x = Conv2D(num_classes, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1,
      #          kernel_initializer='identity')(x)
     i = i + 1
+
     x = AtrousConvolution2D(num_classes, 1, 1, atrous_rate=(1, 1),name='cb_final_conv',
                                border_mode='same', dim_ordering=dim_ordering, init=init)(x)
 
