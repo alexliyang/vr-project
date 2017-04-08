@@ -129,15 +129,16 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
 
     # Load pretrained weights VGG part of the model
     if K.image_dim_ordering() == 'th':
-        if include_top:
-            weights_path = get_file('vgg19_weights_th_dim_ordering_th_kernels.h5',
-                                    TH_WEIGHTS_PATH,
-                                    cache_subdir='models')
-        else:
-            weights_path = get_file('vgg19_weights_th_dim_ordering_th_kernels_notop.h5',
+        weights_path = get_file('vgg19_weights_th_dim_ordering_th_kernels_notop.h5',
                                     TH_WEIGHTS_PATH_NO_TOP,
                                     cache_subdir='models')
-        model.load_weights(weights_path,by_name=True)
+    else:
+
+         weights_path = get_file('vgg19_weights_tf_dim_ordering_tf_kernels_notop.h5',
+                                    TF_WEIGHTS_PATH_NO_TOP,
+                                    cache_subdir='models')
+
+    model.load_weights(weights_path,by_name=True)
 
    # if path_weights:
       #  load_matcovnet(model, path_weights, n_classes=nclasses)
