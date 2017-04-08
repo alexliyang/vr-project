@@ -82,16 +82,12 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
                                   dim_ordering=dim_ordering, init=identity_init)(conv5_1_relu)
 
     conv5_2_relu = Activation('relu')(conv5_2)
-   # x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
-    #           kernel_initializer=Identity(gain=1.0))(x)
     conv5_3= AtrousConvolution2D(512, 3, 3, atrous_rate=(2,2), name='atrous_conv_5_3',  border_mode='same',
                                  dim_ordering=dim_ordering, init=identity_init)(conv5_2_relu)
 
     conv5_3_relu = Activation('relu')(conv5_3)
 
     #Block6
-   # x = Conv2D(4096, 7, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=4, activation='None', use_bias=False,
-    #           kernel_initializer='identity')(x)
     conv6= AtrousConvolution2D(4096, 7, 7, atrous_rate=(4, 4), name='atrous_conv_6',
                                border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv5_3_relu)
 
@@ -99,8 +95,6 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
     conv6_relu = Dropout(0.5)(conv6_relu)
 
     # Block7
-   #x = Conv2D(4096, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1, activation='None', use_bias=False,
-     #          kernel_initializer='identity')(x)
     conv7 = AtrousConvolution2D(4096, 1, 1, atrous_rate=(1, 1), name='atrous_conv_7',
                                 border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv6_relu)
 
@@ -109,11 +103,8 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
 
 
     #Final block
-    #x = Conv2D(19, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1, activation='None', use_bias=False,
-     #          kernel_initializer='identity')(x)
-
     x = AtrousConvolution2D(nclasses, 1, 1, atrous_rate=(1, 1), name='final_block',
-                            border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv7_relu)
+                            border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv4_3)
 
     # Appending context block
     upsampling=8
