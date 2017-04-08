@@ -17,7 +17,7 @@ dim_ordering = K.image_dim_ordering()
 # Original caffe code: https://github.com/fyu/dilation
 
 
-def build_dilation(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
+def build_dilation(img_shape=(3, None, None), nclasses=8, upsampling=8, l2_reg=0.,
                init='glorot_uniform', path_weights=None,
                freeze_layers_from=None):
     # Regularization warning
