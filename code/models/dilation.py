@@ -10,11 +10,22 @@ from keras.regularizers import l2
 from layers.deconv import Deconvolution2D
 from layers.ourlayers import (CropLayer2D, NdSoftmax)
 from initializations.initializations import bilinear_init,identity_init
+from keras.utils.data_utils import get_file
 dim_ordering = K.image_dim_ordering()
 
 
 # Paper: https://arxiv.org/pdf/1511.07122.pdf
 # Original caffe code: https://github.com/fyu/dilation
+
+TH_WEIGHTS_PATH = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/' \
+                  'vgg16_weights_th_dim_ordering_th_kernels.h5'
+TF_WEIGHTS_PATH = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/' \
+                  'vgg16_weights_tf_dim_ordering_tf_kernels.h5'
+TH_WEIGHTS_PATH_NO_TOP = 'https://github.com/fchollet/deep-learning-models/releases/download/' \
+                         'v0.1/vgg16_weights_th_dim_ordering_th_kernels_notop.h5'
+TF_WEIGHTS_PATH_NO_TOP = 'https://github.com/fchollet/deep-learning-models/releases/download/' \
+                         'v0.1/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5'
+
 
 def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=0.,
                init='glorot_uniform', path_weights=None, load_pretrained=False,
@@ -30,51 +41,51 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
 
     #Block1
     conv1_1 = Convolution2D(64, 3, 3, init, 'relu', border_mode='same',
-                            name='conv1_1', W_regularizer=l2(l2_reg))(inputs)
+                            name='block1_conv1', W_regularizer=l2(l2_reg))(inputs)
     conv1_2 = Convolution2D(64, 3, 3, init, 'relu', border_mode='same',
-                      name='conv1_2', W_regularizer=l2(l2_reg))(conv1_1)
-    pool1 = MaxPooling2D((2, 2), strides=(2, 2))(conv1_2)
+                      name='block1_conv2', W_regularizer=l2(l2_reg))(conv1_1)
+    pool1 = MaxPooling2D((2, 2), strides=(2, 2),name='block1_pool')(conv1_2)
 
     # Block2
     conv2_1 = Convolution2D(128, 3, 3, init, 'relu', border_mode='same',
-                            name='conv2_1', W_regularizer=l2(l2_reg))(pool1)
+                            name='block2_conv1', W_regularizer=l2(l2_reg))(pool1)
     conv2_2 = Convolution2D(128, 3, 3, init, 'relu', border_mode='same',
-                            name='conv2_2', W_regularizer=l2(l2_reg))(conv2_1)
-    pool2= MaxPooling2D((2, 2), strides=(2, 2))(conv2_2)
+                            name='block2_conv2', W_regularizer=l2(l2_reg))(conv2_1)
+    pool2= MaxPooling2D((2, 2), strides=(2, 2),name='block2_pool')(conv2_2)
 
     # Block3
     conv3_1 = Convolution2D(256, 3, 3, init, 'relu', border_mode='same',
-                            name='conv3_1', W_regularizer=l2(l2_reg))(pool2)
+                            name='block3_conv1', W_regularizer=l2(l2_reg))(pool2)
     conv3_2 = Convolution2D(256, 3, 3, init, 'relu', border_mode='same',
-                            name='conv3_2', W_regularizer=l2(l2_reg))(conv3_1)
+                            name='block3_conv2', W_regularizer=l2(l2_reg))(conv3_1)
     conv3_3 = Convolution2D(256, 3, 3, init, 'relu', border_mode='same',
-                            name='conv3_3', W_regularizer=l2(l2_reg))(conv3_2)
-    pool3 = MaxPooling2D((2, 2), strides=(2, 2))(conv3_3)
+                            name='block3_conv3', W_regularizer=l2(l2_reg))(conv3_2)
+    pool3 = MaxPooling2D((2, 2), strides=(2, 2),name='block3_pool')(conv3_3)
 
     # Block4
     conv4_1 = Convolution2D(512, 3, 3, init, 'relu', border_mode='same',
-                            name='conv4_1', W_regularizer=l2(l2_reg))(pool3)
+                            name='block4_conv1', W_regularizer=l2(l2_reg))(pool3)
     conv4_2 = Convolution2D(512, 3, 3, init, 'relu', border_mode='same',
-                            name='conv4_2', W_regularizer=l2(l2_reg))(conv4_1)
+                            name='block4_conv2', W_regularizer=l2(l2_reg))(conv4_1)
     conv4_3 = Convolution2D(512, 3, 3, init, 'relu', border_mode='same',
-                            name='conv4_3', W_regularizer=l2(l2_reg))(conv4_2)
+                            name='block4_conv3', W_regularizer=l2(l2_reg))(conv4_2)
 
-    vgg_base_model = Model(input=inputs, output=conv4_3)
+    #vgg_base_model = Model(input=inputs, output=conv4_3)
 
-    vgg_base_in=vgg_base_model.output
+    #vgg_base_in=vgg_base_model.output
     #Block5
     conv5_1 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_1',
-                                  border_mode='same', dim_ordering=dim_ordering, init=init)(vgg_base_in)
+                                  border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv4_3)
 
     conv5_1_relu = Activation('relu')(conv5_1)
     conv5_2 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_2',  border_mode='same',
-                                  dim_ordering=dim_ordering, init=init)(conv5_1_relu)
+                                  dim_ordering=dim_ordering, init=identity_init)(conv5_1_relu)
 
     conv5_2_relu = Activation('relu')(conv5_2)
    # x = Conv2D(512, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=2, activation='None', use_bias=False,
     #           kernel_initializer=Identity(gain=1.0))(x)
     conv5_3= AtrousConvolution2D(512, 3, 3, atrous_rate=(2,2), name='atrous_conv_5_3',  border_mode='same',
-                                 dim_ordering=dim_ordering, init=init)(conv5_2_relu)
+                                 dim_ordering=dim_ordering, init=identity_init)(conv5_2_relu)
 
     conv5_3_relu = Activation('relu')(conv5_3)
 
@@ -82,7 +93,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
    # x = Conv2D(4096, 7, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=4, activation='None', use_bias=False,
     #           kernel_initializer='identity')(x)
     conv6= AtrousConvolution2D(4096, 7, 7, atrous_rate=(4, 4), name='atrous_conv_6',
-                               border_mode='same', dim_ordering=dim_ordering, init=init)(conv5_3_relu)
+                               border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv5_3_relu)
 
     conv6_relu = Activation('relu')(conv6)
     conv6_relu = Dropout(0.5)(conv6_relu)
@@ -91,7 +102,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
    #x = Conv2D(4096, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1, activation='None', use_bias=False,
      #          kernel_initializer='identity')(x)
     conv7 = AtrousConvolution2D(4096, 1, 1, atrous_rate=(1, 1), name='atrous_conv_7',
-                                border_mode='same', dim_ordering=dim_ordering, init=init)(conv6_relu)
+                                border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv6_relu)
 
     conv7_relu = Activation('relu')(conv7)
     conv7_relu= Dropout(0.5)(conv7_relu)
@@ -102,7 +113,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
      #          kernel_initializer='identity')(x)
 
     x = AtrousConvolution2D(nclasses, 1, 1, atrous_rate=(1, 1), name='final_block',
-                            border_mode='same', dim_ordering=dim_ordering, init=init)(conv7_relu)
+                            border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv7_relu)
 
     # Appending context block
     upsampling=8
@@ -114,9 +125,20 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
     prob = NdSoftmax()(deconv_out)
 
     # Complete model
-    model = Model(input=vgg_base_in, output=prob)
+    model = Model(input=inputs, output=prob)
 
-    # Load pretrained Model
+    # Load pretrained weights VGG part of the model
+    if K.image_dim_ordering() == 'th':
+        if include_top:
+            weights_path = get_file('vgg19_weights_th_dim_ordering_th_kernels.h5',
+                                    TH_WEIGHTS_PATH,
+                                    cache_subdir='models')
+        else:
+            weights_path = get_file('vgg19_weights_th_dim_ordering_th_kernels_notop.h5',
+                                    TH_WEIGHTS_PATH_NO_TOP,
+                                    cache_subdir='models')
+        model.load_weights(weights_path,by_name=True)
+
    # if path_weights:
       #  load_matcovnet(model, path_weights, n_classes=nclasses)
 
