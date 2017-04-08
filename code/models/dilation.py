@@ -61,9 +61,10 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
 
     vgg_base_model = Model(input=inputs, output=conv4_3)
 
+    vgg_base_in=vgg_base_model.output
     #Block5
     conv5_1 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_1',
-                                  border_mode='same', dim_ordering=dim_ordering, init=init)(vgg_base_model.output)
+                                  border_mode='same', dim_ordering=dim_ordering, init=init)(vgg_base_in)
 
     conv5_1_relu = Activation('relu')(conv5_1)
     conv5_2 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_2',  border_mode='same',
@@ -113,7 +114,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
     prob = NdSoftmax()(deconv_out)
 
     # Complete model
-    model = Model(input=vgg_base_model.output, output=prob)
+    model = Model(input=vgg_base_in, output=prob)
 
     # Load pretrained Model
    # if path_weights:
