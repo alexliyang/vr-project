@@ -69,12 +69,12 @@ def identity4D(w, h, num_input_channels, num_filters):
 
 # Create a Keras identity weight initializer
 def identity_init(shape, name=None, dim_ordering='th'):
-    print ('Shape: '),
-    print (shape)
+    #print ('Shape: '),
+    #print (shape)
     kernel = identity4D(shape[0], shape[1], shape[2], shape[3])
     np.set_printoptions(threshold=np.nan)
     kernel = kernel.transpose((2, 3, 0, 1))
-    print (kernel)
-    print (kernel.shape)
+    #print (kernel)
+   # print (kernel.shape)
     kvar = K.variable(value=kernel, dtype=K.floatx(), name='identity')
     return kvar
