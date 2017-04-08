@@ -1,13 +1,13 @@
 # Dataset
 problem_type = 'segmentation'  # ['classification' | 'detection' | 'segmentation']
-dataset_name = 'camvid'  # Dataset name
+dataset_name = 'cityscapes'  # Dataset name
 dataset_name2 = None  # Second dataset name. None if not Domain Adaptation
 perc_mb2 = None  # Percentage of data from the second dataset in each minibatch
 
 # Model
-model_name = 'fcn8'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
+model_name = 'tiramisu_fc103'  # Model to use
 freeze_layers_from = None  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
-show_model = False  # Show the architecture layers
+show_model = True  # Show the architecture layers
 load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
 load_pretrained = False  # Load a pretrained model for doing finetuning
 weights_file = 'weights.hdf5'  # Training weight file name
@@ -25,15 +25,15 @@ debug_images_test = 30  # N images for testing in debug mode (-1 means all)
 debug_n_epochs = 2  # N of training epochs in debug mode
 
 # Batch sizes
-batch_size_train = 5  # Batch size during training
-batch_size_valid = 10  # Batch size during validation
-batch_size_test = 10  # Batch size during testing
-crop_size_train = (224, 224)  # Crop size during training (Height, Width) or None
+batch_size_train = 2  # Batch size during training
+batch_size_valid = 2  # Batch size during validation
+batch_size_test = 2  # Batch size during testing
+crop_size_train = None  # Crop size during training (Height, Width) or None
 crop_size_valid = None  # Crop size during validation
 crop_size_test = None  # Crop size during testing
-resize_train = (270, 480)  # Resize the image during training (Height, Width) or None
-resize_valid = (270, 480)  # Resize the image during validation
-resize_test = (270, 480)  # Resize the image during testing
+resize_train = (256, 480)  # Resize the image during training (Height, Width) or None
+resize_valid = (256, 480)  # Resize the image during validation
+resize_test = (256, 480)  # Resize the image during testing
 
 # Data shuffle
 shuffle_train = True  # Whether to shuffle the training data
@@ -44,15 +44,15 @@ seed_valid = 1924  # Random seed for the validation shuffle
 seed_test = 1924  # Random seed for the testing shuffle
 
 # Training parameters
-optimizer = 'rmsprop'  # Optimizer
-learning_rate = 0.0001  # Training learning rate
-weight_decay = 0.  # Weight decay or L2 parameter norm penalty
+optimizer = 'adam'  # Optimizer
+learning_rate = 0.001  # Training learning rate
+weight_decay = 1e-4  # Weight decay or L2 parameter norm penalty
 n_epochs = 1000  # Number of epochs during training
 
 # Callback save results
-save_results_enabled = False  # Enable the Callback
-save_results_nsamples = 5  # Number of samples to save
-save_results_batch_size = 5  # Size of the batch
+save_results_enabled = True  # Enable the Callback
+save_results_nsamples = 3  # Number of samples to save
+save_results_batch_size = 3  # Size of the batch
 
 # Callback early stoping
 earlyStopping_enabled = True  # Enable the Callback
@@ -79,7 +79,7 @@ lrDecayScheduler_epochs = [5, 10, 20]  # List of epochs were decay is applied or
 lrDecayScheduler_rate = 2  # Decay rate (new_lr = lr / decay_rate). Usually between 2 and 10.
 
 # Callback learning rate scheduler
-LRScheduler_enabled = True  # Enable the Callback
+LRScheduler_enabled = False  # Enable the Callback
 LRScheduler_batch_epoch = 'batch'  # Schedule the LR each 'batch' or 'epoch'
 LRScheduler_type = 'poly'  # Type of scheduler ['linear' | 'step' | 'square' | 'sqrt' | 'poly']
 LRScheduler_M = 75000  # Number of iterations/epochs expected until convergence
