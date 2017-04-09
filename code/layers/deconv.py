@@ -10,12 +10,13 @@ else:
 
 
 class Deconvolution2D(Convolution2D):
-    '''Transposed convolution operator for filtering windows of two-dimensional inputs.
+    """
+    Transposed convolution operator for filtering windows of two-dimensional inputs.
     When using this layer as the first layer in a model,
     provide the keyword argument `input_shape`
     (tuple of integers, does not include the sample axis),
     e.g. `input_shape=(3, 128, 128)` for 128x128 RGB pictures.
-    '''
+    """
 
     def __init__(self, nb_filter, nb_row, nb_col, input_shape,
                  init='glorot_uniform', activation='linear', weights=None,
@@ -53,10 +54,10 @@ class Deconvolution2D(Convolution2D):
         else:
             raise Exception('Invalid dim_ordering: ' + dim_ordering)
 
-        rows = conv_input_length(rows, nb_row,
-                                 border_mode, subsample[0])
-        cols = conv_input_length(cols, nb_col,
-                                 border_mode, subsample[1])
+        rows = self._transpose_conv_output_length(rows, nb_row,
+                                                  border_mode, subsample[0])
+        cols = self._transpose_conv_output_length(cols, nb_col,
+                                                  border_mode, subsample[1])
 
         if dim_ordering == 'th':
             return input_shape[0], nb_filter, rows, cols
@@ -74,11 +75,6 @@ class Deconvolution2D(Convolution2D):
             cols = self.output_shape_[2]
         else:
             raise Exception('Invalid dim_ordering: ' + self.dim_ordering)
-
-        # rows = conv_input_length(rows, self.nb_row,
-        #                          self.border_mode, self.subsample[0])
-        # cols = conv_input_length(cols, self.nb_col,
-        #                          self.border_mode, self.subsample[1])
 
         if self.dim_ordering == 'th':
             return input_shape[0], self.nb_filter, rows, cols
@@ -100,3 +96,30 @@ class Deconvolution2D(Convolution2D):
                 raise Exception('Invalid dim_ordering: ' + self.dim_ordering)
         output = self.activation(output)
         return output
+
+    @staticmethod
+    def _transpose_conv_output_length(input_length, filter_size, border_mode, stride):
+        """Determines output length of a transposed convolution given the input length.
+    
+        # Arguments
+            input_length: integer.
+            filter_size: integer.
+            border_mode: one of "same", "valid", "full".
+            stride: integer.
+    
+        # Returns
+            The input length (integer).
+        """
+        if input_length is None:
+            return None
+        assert border_mode in {'same', 'valid', 'full'}
+        if border_mode == 'same':
+            pad = filter_size // 2
+        elif border_mode == 'full':
+            pad = filter_size - 1
+        else:
+            pad = 0
+
+        # Arithmetic for transposed convolutions with padding and non-unit strides
+        # (https://arxiv.org/abs/1603.07285)
+        return stride*(input_length-1) + filter_size - 2*pad
