@@ -116,7 +116,7 @@ def build_segnet(img_shape=(None, None, 3), nclasses=8, weight_decay=0.,
 def conv_block(input_tensor, n_filters, kernel_size, weight_decay, bn_axis, block, num):
 
     x = Convolution2D(n_filters, kernel_size, kernel_size, border_mode='same',
-                      W_regularizer=l2(weight_decay), b_regularizer=l2(weight_decay),
+                      W_regularizer=l2(weight_decay), b_regularizer=l2(weight_decay), init='he_normal',
                       name='block{}_conv{}'.format(block,num))(input_tensor)
     x = BatchNormalization(axis=bn_axis, name='block{}_bn{}'.format(block,num))(x)
     x = Activation('relu', name='block{}_relu{}'.format(block,num))(x)
