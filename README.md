@@ -125,6 +125,11 @@ For object detection we have considered two single-shot models: the most recent 
 
 Prior to choosing our final system we have carried out several experiments using different architectures, different parameters and different datasets. A summary of the experiments done can be found [here](https://drive.google.com/open?id=1Qs51OxIPNOgOyujp98msk7RK1Rh2dkjfAHGZqUgBbqk).
 
+
+### Semantic Segmentation
+
+_Updates on semantic segmentation coming soon..._
+
 ____
 
 ## References
