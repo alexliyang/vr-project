@@ -130,7 +130,10 @@ For semantic segmentation, we have implemented and tested SegNet, DeepLabv2, Mul
 
 #### Contributions to the code
 
-  - `models/segnet.py`, `deeplabV2.py`, `tiramisu.py` and `dilation.py` - adaptation of the following implementations respectively: TODO: put reference githubs
+  - `models/segnet.py`
+  - `models/deeplabV2.py` - adaptation of [this](https://github.com/DavideA/deeplabv2-keras) implementation of DeepLabv2 to the framework and included L2 regularization for the weights
+  - `models/tiramisu.py`
+  - `models/dilation.py` - adaptation of this implementation(TODO: put reference githubs)
   - `initializations/initializations.py` - added Identity initialization
    TODO: more contributions to add
 #### Milestones
