@@ -161,8 +161,7 @@ For semantic segmentation, we have implemented and tested SegNet, DeepLabv2, Mul
   - [x] Boost performance
   - [x] Evaluate performance on CamVid dataset
 6. **Dataset Analysis**
-  - TODO
-
+  - [ ] Analyze the distribution of classes of all data splits for all the available segmentation datasets: Camvid, cityscapes, KITTI, Pascal2012, Polyps and Synthia cityscapes.
 
 
 ### Experimental results
