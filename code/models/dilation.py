@@ -94,7 +94,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, l2_reg=0.,
     conv5_3_relu = Activation('relu')(conv5_3)
 
     #Block6
-    conv6_bn = BatchNormalization(axis=bn_axis, name='block6_bn')(conv5_3)
+    conv6_bn = BatchNormalization(axis=bn_axis, name='block6_bn')(conv5_3_relu)
 
     conv6= AtrousConvolution2D(1024, 7, 7, atrous_rate=(4, 4), name='atrous_conv_6',
                               border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv6_bn)
