@@ -145,11 +145,6 @@ class Model_Factory():
                                    freeze_layers_from=cf.freeze_layers_from,
                                    # path_weights='weights/pascal-fcn8s-dag.mat')
                                    path_weights=None)
-        elif cf.model_name == 'unet':
-            model = build_unet(in_shape, cf.dataset.n_classes, cf.weight_decay,
-                               freeze_layers_from=cf.freeze_layers_from,
-                               path_weights=cf.load_imageNet)
-
         elif cf.model_name == 'segnet_basic':
             model = build_segnet(in_shape, cf.dataset.n_classes, cf.weight_decay,
                                  freeze_layers_from=cf.freeze_layers_from,
