@@ -132,10 +132,10 @@ For semantic segmentation, we have implemented and tested SegNet, DeepLabv2, Mul
 
   - `models/segnet.py`
   - `models/deeplabV2.py` - adaptation of [this](https://github.com/DavideA/deeplabv2-keras) implementation of DeepLabv2 to the framework and included L2 regularization for the weights
-  - `models/tiramisu.py`
-  - `models/dilation.py` - adaptation of this implementation(TODO: put reference githubs)
+  - `models/tiramisu.py` - Implementation based on the [Theano / Lasagne code](https://github.com/SimJeg/FC-DenseNet) from the original [paper](https://arxiv.org/abs/1611.09326)
+  - `models/dilation.py` - adaptation of this implementation (TODO: put reference githubs)
   - `initializations/initializations.py` - added Identity initialization
-   TODO: more contributions to add
+  - TODO: more contributions to add
 #### Milestones
 
 1. **FNC8**:
@@ -164,7 +164,7 @@ For semantic segmentation, we have implemented and tested SegNet, DeepLabv2, Mul
   - [x] Boost performance
   - [x] Evaluate performance on CamVid dataset
 6. **Dataset Analysis**
-  - [ ] Analyze the distribution of classes of all data splits for all the available segmentation datasets: Camvid, cityscapes, KITTI, Pascal2012, Polyps and Synthia cityscapes.
+  - [x] Analyze the distribution of classes of all data splits for all the available segmentation datasets: Camvid, cityscapes, KITTI, Pascal2012, Polyps and Synthia cityscapes.
 
 
 ### Experimental results
