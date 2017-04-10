@@ -17,19 +17,15 @@ dim_ordering = K.image_dim_ordering()
 # Paper: https://arxiv.org/pdf/1511.07122.pdf
 # Original caffe code: https://github.com/fyu/dilation
 
-TH_WEIGHTS_PATH = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/' \
-                  'vgg16_weights_th_dim_ordering_th_kernels.h5'
-TF_WEIGHTS_PATH = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/' \
-                  'vgg16_weights_tf_dim_ordering_tf_kernels.h5'
 TH_WEIGHTS_PATH_NO_TOP = 'https://github.com/fchollet/deep-learning-models/releases/download/' \
                          'v0.1/vgg16_weights_th_dim_ordering_th_kernels_notop.h5'
 TF_WEIGHTS_PATH_NO_TOP = 'https://github.com/fchollet/deep-learning-models/releases/download/' \
                          'v0.1/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5'
 
 
-def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=0.,
+def build_dilation(img_shape=(3, None, None), nclasses=11, l2_reg=0.,
                init='glorot_uniform', path_weights=None, load_pretrained=False,
-               freeze_layers_from=None):
+               freeze_layers_from=None,vgg_weights=True):
 
     # Build network
 
@@ -70,9 +66,9 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
     conv4_3 = Convolution2D(512, 3, 3, init, 'relu', border_mode='same',
                             name='block4_conv3', W_regularizer=l2(l2_reg))(conv4_2)
 
-    #vgg_base_model = Model(input=inputs, output=conv4_3)
+    vgg_base_model = Model(input=inputs, output=conv4_3)
 
-    #vgg_base_in=vgg_base_model.output
+    vgg_base_in=vgg_base_model.output
     #Block5
     conv5_1 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_1',
                                   border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv4_3)
@@ -88,8 +84,8 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
     conv5_3_relu = Activation('relu')(conv5_3)
 
     #Block6
-    conv6= AtrousConvolution2D(4096, 7, 7, atrous_rate=(4, 4), name='atrous_conv_6',
-                               border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv5_3_relu)
+    conv6= AtrousConvolution2D(2048, 7, 7, atrous_rate=(4, 4), name='atrous_conv_6',
+                              border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv5_3_relu)
 
     conv6_relu = Activation('relu')(conv6)
     conv6_relu = Dropout(0.5)(conv6_relu)
@@ -104,39 +100,42 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
 
     #Final block
     x = AtrousConvolution2D(nclasses, 1, 1, atrous_rate=(1, 1), name='final_block',
-                            border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv4_3)
+                            border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv7_relu)
 
     # Appending context block
     upsampling=8
     context_out= context_block(x,[1,1,2,4,8,16,1],nclasses,init=identity_init)
     deconv_out = Deconvolution2D(nclasses, upsampling, upsampling, init=bilinear_init, subsample=(upsampling, upsampling),
                              input_shape=context_out._keras_shape)(context_out)
-    print(upsampling)
     # Softmax
     prob = NdSoftmax()(deconv_out)
 
     # Complete model
-    model = Model(input=inputs, output=prob)
+    model = Model(input=vgg_base_model.input, output=prob)
 
     # Load pretrained weights VGG part of the model
-    if K.image_dim_ordering() == 'th':
-        weights_path = get_file('vgg19_weights_th_dim_ordering_th_kernels_notop.h5',
-                                    TH_WEIGHTS_PATH_NO_TOP,
-                                    cache_subdir='models')
-    else:
+    if vgg_weights==True:
+        if K.image_dim_ordering() == 'th':
+            weights_path = get_file('vgg19_weights_th_dim_ordering_th_kernels_notop.h5',
+                                        TH_WEIGHTS_PATH_NO_TOP,
+                                        cache_subdir='models')
+        else:
 
-         weights_path = get_file('vgg19_weights_tf_dim_ordering_tf_kernels_notop.h5',
-                                    TF_WEIGHTS_PATH_NO_TOP,
-                                    cache_subdir='models')
+             weights_path = get_file('vgg19_weights_tf_dim_ordering_tf_kernels_notop.h5',
+                                        TF_WEIGHTS_PATH_NO_TOP,
+                                        cache_subdir='models')
 
-    model.load_weights(weights_path,by_name=True)
+        model.load_weights(weights_path,by_name=True)
+        print('Loaded pre-trained VGG weights')
 
-   # if path_weights:
+    if path_weights:
+        print('Loaded pre-trained weights for the full network')
+        model.load_weights(weights_path,by_name=True)
       #  load_matcovnet(model, path_weights, n_classes=nclasses)
 
     # Freeze some layers
-    #if freeze_layers_from is not None:
-    #    freeze_layers(model, freeze_layers_from)
+    if freeze_layers_from is not None:
+       freeze_layers(model, freeze_layers_from)
 
     return model
 
@@ -144,13 +143,10 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, upsampling=8, l2_reg=
 def context_block (x, dilation_array,num_classes,init):
     i=0
     for dil in dilation_array:
-      # x=Conv2D(num_classes, 3, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=dil,  activation='None', use_bias=False,kernel_initializer='identity')(x)
       x = AtrousConvolution2D(num_classes, 3, 3, atrous_rate=(dil, dil), name='cb_3_{}'.format(i),
                               border_mode='same', dim_ordering=dim_ordering, init=init) (x)
 
       x = Activation('relu')(x)
-    #x = Conv2D(num_classes, 1, strides=(1, 1), padding='same', data_format=dim_ordering, dilation_rate=1,
-     #          kernel_initializer='identity')(x)
       i = i + 1
 
     x = AtrousConvolution2D(num_classes, 1, 1, atrous_rate=(1, 1),name='cb_final_conv',
@@ -165,7 +161,7 @@ def freeze_layers(model, freeze_layers_from):
     # Freeze the VGG part only
     if freeze_layers_from == 'base_model':
         print ('   Freezing base model layers')
-        freeze_layers_from = 23
+        freeze_layers_from = 13
 
     # Show layers (Debug pruposes)
     for i, layer in enumerate(model.layers):
