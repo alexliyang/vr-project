@@ -124,9 +124,7 @@ For object detection we have considered two single-shot models: the most recent 
 
 ### Semantic Segmentation
 
-_Updates on semantic segmentation coming soon..._
-
-For semantic segmentation, we have implemented and tested SegNet, DeepLabv2, Multi-Scale Context Aggregation by Dilated Convolutions and Tiramisu. We also compare the results with FCN8.
+For the semantic segmentation task, we have implemented and tested SegNet, DeepLabv2, Multi-Scale Context Aggregation by Dilated Convolutions and Tiramisu. We also compare the results with FCN8.
 
 #### Contributions to the code
 
