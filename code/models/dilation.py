@@ -3,7 +3,7 @@ from keras import backend as K
 from keras.layers import Input, merge,Activation
 from keras.layers.convolutional import (Convolution2D, MaxPooling2D,
                                           ZeroPadding2D,Conv2D, AtrousConvolution2D)
-from keras.layers.core import Dropout,BatchNormalization
+from keras.layers.core import Dropout
 from keras.models import Model
 from keras.regularizers import l2
 #from keras.initializations import Identity
@@ -11,6 +11,7 @@ from layers.deconv import Deconvolution2D
 from layers.ourlayers import (CropLayer2D, NdSoftmax)
 from initializations.initializations import bilinear_init,identity_init
 from keras.utils.data_utils import get_file
+from keras.layers import BatchNormalization
 dim_ordering = K.image_dim_ordering()
 
 # Paper: https://arxiv.org/pdf/1511.07122.pdf
