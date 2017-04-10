@@ -153,7 +153,7 @@ For semantic segmentation, we have implemented and tested SegNet, DeepLabv2, Mul
  4. **Yu-Koltun dilation network**:
   - [x] Implement network in the framework
   - [x] Train network on CamVid dataset
-  - [] Boost performance
+  - [ ] Boost performance
   - [x] Evaluate performance on CamVid dataset
  5. **Tiramisu**:
   - [x] Implement network in the framework
