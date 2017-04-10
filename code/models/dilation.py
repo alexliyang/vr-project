@@ -3,7 +3,7 @@ from keras import backend as K
 from keras.layers import Input, merge,Activation
 from keras.layers.convolutional import (Convolution2D, MaxPooling2D,
                                           ZeroPadding2D,Conv2D, AtrousConvolution2D)
-from keras.layers.core import Dropout
+from keras.layers.core import Dropout,BatchNormalization
 from keras.models import Model
 from keras.regularizers import l2
 #from keras.initializations import Identity
@@ -12,7 +12,6 @@ from layers.ourlayers import (CropLayer2D, NdSoftmax)
 from initializations.initializations import bilinear_init,identity_init
 from keras.utils.data_utils import get_file
 dim_ordering = K.image_dim_ordering()
-
 
 # Paper: https://arxiv.org/pdf/1511.07122.pdf
 # Original caffe code: https://github.com/fyu/dilation
@@ -28,6 +27,10 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, l2_reg=0.,
                freeze_layers_from=None,vgg_weights=True):
 
     # Build network
+    if K.image_dim_ordering() == 'tf':
+        bn_axis = 3
+    else:
+        bn_axis = 1
 
     # CONTRACTING PATH
 
@@ -70,37 +73,49 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, l2_reg=0.,
 
     vgg_base_in=vgg_base_model.output
     #Block5
+    conv5_bn = BatchNormalization(axis=bn_axis, name='block5_bn')(vgg_base_in)
+
     conv5_1 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_1',
-                                  border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv4_3)
+                                  border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv5_bn)
 
     conv5_1_relu = Activation('relu')(conv5_1)
+    conv5_bn_2 = BatchNormalization(axis=bn_axis, name='block5_bn2')(conv5_1_relu)
+
     conv5_2 = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), name='atrous_conv_5_2',  border_mode='same',
-                                  dim_ordering=dim_ordering, init=identity_init)(conv5_1_relu)
+                                  dim_ordering=dim_ordering, init=identity_init)(conv5_bn_2)
 
     conv5_2_relu = Activation('relu')(conv5_2)
+    conv5_bn3 = BatchNormalization(axis=bn_axis, name='block5_bn3')(conv5_2_relu)
+
     conv5_3= AtrousConvolution2D(512, 3, 3, atrous_rate=(2,2), name='atrous_conv_5_3',  border_mode='same',
-                                 dim_ordering=dim_ordering, init=identity_init)(conv5_2_relu)
+                                 dim_ordering=dim_ordering, init=identity_init)(conv5_bn3)
 
     conv5_3_relu = Activation('relu')(conv5_3)
 
     #Block6
-    conv6= AtrousConvolution2D(2048, 7, 7, atrous_rate=(4, 4), name='atrous_conv_6',
-                              border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv5_3_relu)
+    conv6_bn = BatchNormalization(axis=bn_axis, name='block6_bn')(conv5_3)
+
+    conv6= AtrousConvolution2D(1024, 7, 7, atrous_rate=(4, 4), name='atrous_conv_6',
+                              border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv6_bn)
 
     conv6_relu = Activation('relu')(conv6)
     conv6_relu = Dropout(0.5)(conv6_relu)
 
     # Block7
+    conv7_bn = BatchNormalization(axis=bn_axis, name='block7_bn')(vgg_base_in)
+
     conv7 = AtrousConvolution2D(4096, 1, 1, atrous_rate=(1, 1), name='atrous_conv_7',
-                                border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv6_relu)
+                                border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv7_bn)
 
     conv7_relu = Activation('relu')(conv7)
     conv7_relu= Dropout(0.5)(conv7_relu)
 
 
     #Final block
+    convf_bn = BatchNormalization(axis=bn_axis, name='block5_bn')(conv7_relu)
+
     x = AtrousConvolution2D(nclasses, 1, 1, atrous_rate=(1, 1), name='final_block',
-                            border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv7_relu)
+                            border_mode='same', dim_ordering=dim_ordering, init=identity_init)(convf_bn)
 
     # Appending context block
     upsampling=8
