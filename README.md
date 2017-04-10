@@ -130,35 +130,41 @@ For semantic segmentation, we have implemented and tested SegNet, DeepLabv2, Mul
 
 #### Contributions to the code
 
-  - `models/segnet.py`
+  - `models/segnet.py` - implementation from scratch of both the vgg and basic version, following the original [paper](https://arxiv.org/abs/1511.00561) and the [Caffe Segnet code](https://github.com/alexgkendall/SegNet-Tutorial/blob/master/Models/segnet_train.prototxt) and [Caffe Segnet basic code](https://github.com/alexgkendall/SegNet-Tutorial/blob/master/Models/segnet_basic_train.prototxt)
   - `models/deeplabV2.py` - adaptation of [this](https://github.com/DavideA/deeplabv2-keras) implementation of DeepLabv2 to the framework and included L2 regularization for the weights
   - `models/tiramisu.py` - implementation based on the [Theano / Lasagne code](https://github.com/SimJeg/FC-DenseNet) from the original [paper](https://arxiv.org/abs/1611.09326)
   - `models/dilation.py` - adaptation of this implementation (TODO: put reference githubs)
   - `initializations/initializations.py` - added Identity initialization
   - TODO: more contributions to add
+  
 #### Milestones
 
 1. **FNC8**:
+  - [x] Read paper
   - [x] Train network on CamVid dataset
   - [x] Train network on CityScapes dataset
   - [x] Evaluate performance on CamVid dataset
   - [x] Evaluate performance on CityScapes dataset
 2. **Segnet**:
-  - [x] Implement network in the framework
+  - [x] Read paper
+  - [x] Implement network in the framework (vgg and basic version)
   - [x] Train network on CamVid dataset
   - [x] Boost performance
   - [x] Evaluate performance on CamVid dataset
  3. **DeepLabv2**:
+  - [x] Read paper
   - [x] Implement network in the framework
   - [x] Train network on CamVid dataset
   - [x] Boost performance
   - [x] Evaluate performance on CamVid dataset
  4. **Yu-Koltun dilation network**:
+  - [x] Read paper
   - [x] Implement network in the framework
   - [x] Train network on CamVid dataset
-  - [ ] Boost performance
+  - [x] Boost performance
   - [x] Evaluate performance on CamVid dataset
  5. **Tiramisu**:
+  - [x] Read paper
   - [x] Implement network in the framework
   - [x] Train network on CamVid dataset
   - [x] Boost performance
