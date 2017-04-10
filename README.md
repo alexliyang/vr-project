@@ -121,14 +121,54 @@ For object detection we have considered two single-shot models: the most recent 
   - [x] Fine-tune Tiny YOLO from baseline weights on TT100K detection
   - [x] Fine-tune Tiny YOLO and use preprocessing and data augmentation techniques to overcome the differences in dataset splits in Udacity dataset, thus improving the performance of the model on this dataset
 
-### Experimental results
-
-Prior to choosing our final system we have carried out several experiments using different architectures, different parameters and different datasets. A summary of the experiments done can be found [here](https://drive.google.com/open?id=1Qs51OxIPNOgOyujp98msk7RK1Rh2dkjfAHGZqUgBbqk).
-
 
 ### Semantic Segmentation
 
 _Updates on semantic segmentation coming soon..._
+
+For semantic segmentation, we have implemented and tested SegNet, DeepLabv2, Multi-Scale Context Aggregation by Dilated Convolutions and Tiramisu. We also compare the results with FCN8.
+
+#### Contributions to the code
+
+  - `models/segnet.py`, `deeplabV2.py`, `tiramisu.py` and `dilation.py` - adaptation of the following implementations respectively: TODO: put reference githubs
+  - `initializations/initializations.py` - added Identity initialization
+   TODO: more contributions to add
+#### Milestones
+
+1. **FNC8**:
+  - [x] Train network on CamVid dataset
+  - [x] Train network on CityScapes dataset
+  - [x] Evaluate performance on CamVid dataset
+  - [x] Evaluate performance on CityScapes dataset
+2. **Segnet**:
+  - [x] Implement network in the framework
+  - [x] Train network on CamVid dataset
+  - [x] Boost performance
+  - [x] Evaluate performance on CamVid dataset
+ 3. **DeepLabv2**:
+  - [x] Implement network in the framework
+  - [x] Train network on CamVid dataset
+  - [x] Boost performance
+  - [x] Evaluate performance on CamVid dataset
+ 4. **Yu-Koltun dilation network**:
+  - [x] Implement network in the framework
+  - [x] Train network on CamVid dataset
+  - [] Boost performance
+  - [x] Evaluate performance on CamVid dataset
+ 5. **Tiramisu**:
+  - [x] Implement network in the framework
+  - [x] Train network on CamVid dataset
+  - [x] Boost performance
+  - [x] Evaluate performance on CamVid dataset
+6. **Dataset Analysis**
+  - TODO
+
+
+
+### Experimental results
+
+Prior to choosing our final system we have carried out several experiments using different architectures, different parameters and different datasets. A summary of the experiments done can be found [here](https://drive.google.com/open?id=1Qs51OxIPNOgOyujp98msk7RK1Rh2dkjfAHGZqUgBbqk).
+
 
 ____
 
