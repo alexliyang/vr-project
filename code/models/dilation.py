@@ -103,7 +103,7 @@ def build_dilation(img_shape=(3, None, None), nclasses=11, l2_reg=0.,
     conv6_relu = Dropout(0.5)(conv6_relu)
 
     # Block7
-    conv7_bn = BatchNormalization(axis=bn_axis, name='block7_bn')(vgg_base_in)
+    conv7_bn = BatchNormalization(axis=bn_axis, name='block7_bn')(conv6_relu)
 
     conv7 = AtrousConvolution2D(4096, 1, 1, atrous_rate=(1, 1), name='atrous_conv_7',
                                 border_mode='same', dim_ordering=dim_ordering, init=identity_init)(conv7_bn)
