@@ -155,7 +155,7 @@ For the semantic segmentation task, we have implemented and tested SegNet, DeepL
   - [x] Train network on CamVid dataset
   - [x] Boost performance
   - [x] Evaluate performance on CamVid dataset
- 4. **Yu-Koltun dilation network**:
+ 4. **DilatedNet**:
   - [x] Read paper
   - [x] Implement network in the framework
   - [x] Train network on CamVid dataset
