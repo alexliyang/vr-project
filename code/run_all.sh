@@ -170,18 +170,14 @@ python train.py -c config/camvid_segnet.py -e segnet_baseline_scratch
 ###### TIRAMISU ######
 ######################
 
-python train.py -c config/camvid_tiramisu_fc56.py -e tiramisu_fc56_baseline
-
-python train.py -c config/camvid_tiramisu_fc67.py -e tiramisu_fc67_baseline
-
-python train.py -c config/camvid_tiramisu_fc103.py -e tiramisu_fc103_baseline
-
-python train.py -c config/cityscapes_tiramisu_fc56.py -e tiramisu_fc56_baseline
-
-python train.py -c config/cityscapes_tiramisu_fc67.py -e tiramisu_fc67_baseline
-
-python train.py -c config/cityscapes_tiramisu_fc103.py -e tiramisu_fc103_baseline
-
+# Full FCN103 training (crops + fine-tune full images) on CamvVid
 python train.py -c config/camvid_tiramisu_fc103_enhanced.py -e tiramisu_fc103_enhanced
-
 python train.py -c config/camvid_tiramisu_fc103_enhanced_finetune.py -e tiramisu_fc103_enhanced_finetune
+
+# Full FCN67 training (crops + fine-tune full images) on CamvVid
+python train.py -c config/camvid_tiramisu_fc67_enhanced.py -e tiramisu_fc67_enhanced
+python train.py -c config/camvid_tiramisu_fc67_enhanced_finetune.py -e tiramisu_fc67_enhanced_finetune
+
+# Full FCN56 training (crops + fine-tune full images) on CamvVid
+python train.py -c config/camvid_tiramisu_fc56_enhanced.py -e tiramisu_fc56_enhanced
+python train.py -c config/camvid_tiramisu_fc56_enhanced_finetune.py -e tiramisu_fc56_enhanced_finetune

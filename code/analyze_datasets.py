@@ -1,18 +1,49 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function, division
 
 import argparse
 from glob import glob
+from skimage import data
+
+import sys
+import imp
 
 import pandas as pd
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+
 plt.switch_backend('Agg')
 plt.ioff()
 
 # Maximum width for the bar plot
 MAX_WIDTH = 0.8
 COLORS = ('red', 'blue', 'yellow', 'green', 'purple')
+
+
+# Print iterations progress
+def print_progress(iteration, total, prefix='', suffix='', decimals=1, bar_length=100):
+
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        bar_length  - Optional  : character length of bar (Int)
+    """
+    str_format = "{0:." + str(decimals) + "f}"
+    percents = str_format.format(100 * (iteration / float(total)))
+    filled_length = int(round(bar_length * iteration / float(total)))
+    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+
+    sys.stdout.write('\r%s |%s| %s%s %s' % (prefix, bar, percents, '%', suffix)),
+    sys.stdout.flush()
+
+    if iteration == total:
+        sys.stdout.write('\n')
 
 
 def plot_bar_chart(ds_name, histogram_dict, save_path, normalized=True):
@@ -58,6 +89,7 @@ def plot_bar_chart(ds_name, histogram_dict, save_path, normalized=True):
 
     plt.legend(tuple(legend_axes), tuple(legend_names))
     plt.savefig(save_path)
+    plt.close()
 
 
 if __name__ == '__main__':
@@ -140,13 +172,13 @@ if __name__ == '__main__':
     # Iterate over all datasets
     for dataset in glob(os.path.join(data_path, '*')):
         dataset_name = os.path.basename(dataset)
-        print('{:-^40}'.format(''))
+        print('\n{:-^40}'.format(''))
         print('{:-^40}'.format('Analyzing {}'.format(dataset_name.upper())))
         print('{:-^40}'.format(''))
-        print('Path: {}'.format(dataset))
+        print('Path: {}\n'.format(dataset))
 
         # Placeholder to store the results of the analysis for this dataset
-        # Not all of them are used, as some are specific to problem types (e.g. aspect ratio to detection)
+        # Not all of them are used, as some are specific to problem types (e.g. aspect ratio for detection)
         analysis_res = {}
         analysis_hist = {}
         aspect_ratios = {}
@@ -154,12 +186,26 @@ if __name__ == '__main__':
 
         if os.path.isdir(dataset):
 
+            # Try to load the configuration file for this dataset
+            dataset_config = None
+            try:
+                dataset_config = imp.load_source('config', os.path.join(dataset, 'config.py'))
+            except IOError:
+                print('Missing configuration file, skipping this dataset...', file=sys.stderr)
+                continue
+
             # Iterate over all sets (train, val and test)
-            for set_type_path in glob(os.path.join(dataset, '*')):
+            possible_sets = [s for s in glob(os.path.join(dataset, '*')) if
+                             'train' in os.path.basename(s) or
+                             'val' in os.path.basename(s) or
+                             'test' in os.path.basename(s)]
+            for set_type_path in possible_sets:
 
                 if os.path.isdir(set_type_path):
                     # Data split name (train, validation, test)
                     set_type = os.path.basename(set_type_path)
+
+                    print('\n{}'.format(set_type.upper()))
 
                     # Variable to store the distribution of classes
                     analysis_res[set_type] = {}
@@ -215,7 +261,24 @@ if __name__ == '__main__':
 
                     # Segmentation
                     elif dataset_type == 'segmentation':
-                        raise NotImplementedError
+                        all_masks = glob(os.path.join(set_type_path, 'masks', '*'))
+                        num_masks = len(all_masks)
+                        for ind, mask in enumerate(all_masks):
+                            # Load mask
+                            mask_img = data.imread(mask)
+                            # Unique values and mask
+                            unique, count = np.unique(mask_img, return_counts=True)
+                            for unique_val, count_val in zip(unique, count):
+                                try:
+                                    class_id = dataset_config.classes[unique_val]
+                                except KeyError:
+                                    class_id = unique_val
+                                try:
+                                    analysis_res[set_type][class_id] += count_val
+                                except KeyError:
+                                    analysis_res[set_type][class_id] = count_val
+
+                            print_progress(ind + 1, num_masks, bar_length=40)
 
                     # Another
                     else:
@@ -232,6 +295,7 @@ if __name__ == '__main__':
             dataframe.plot.bar()
             plt.tight_layout()
             plt.savefig(os.path.join(output_path, '{}_class_distribution.png'.format(dataset_name)))
+            plt.close()
 
             # Normalized distribution
             plt.figure(figsize=(20, 10))
@@ -239,6 +303,7 @@ if __name__ == '__main__':
             norm_dataframe.plot.bar()
             plt.tight_layout()
             plt.savefig(os.path.join(output_path, '{}_class_distribution_norm.png'.format(dataset_name)))
+            plt.close()
 
             # Detection specific plots
             if dataset_type == 'classification':
@@ -264,6 +329,7 @@ if __name__ == '__main__':
                 plt.tight_layout()
                 plt.legend(loc='best')
                 plt.savefig(os.path.join(output_path, '{}_aspect_ratios_hist.png'.format(dataset_name)))
+                plt.close()
 
                 # Plot histogram of areas per data split
                 plt.figure(figsize=(10, 10))
@@ -272,5 +338,6 @@ if __name__ == '__main__':
                 plt.tight_layout()
                 plt.legend(loc='best')
                 plt.savefig(os.path.join(output_path, '{}_bb_areas_hist.png'.format(dataset_name)))
+                plt.close()
 
-        print('Analysis finished\n')
+        print('\nAnalysis finished\n')

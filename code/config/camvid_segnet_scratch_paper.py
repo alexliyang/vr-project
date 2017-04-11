@@ -18,10 +18,10 @@ test_model = True  # Test the model
 pred_model = False  # Predict using the model
 
 # Debug
-debug = False  # Use only few images for debuging
-debug_images_train = 50  # N images for training in debug mode (-1 means all)
-debug_images_valid = 50  # N images for validation in debug mode (-1 means all)
-debug_images_test = 50  # N images for testing in debug mode (-1 means all)
+debug = True  # Use only few images for debuging
+debug_images_train = 10  # N images for training in debug mode (-1 means all)
+debug_images_valid = 10  # N images for validation in debug mode (-1 means all)
+debug_images_test = 10  # N images for testing in debug mode (-1 means all)
 debug_n_epochs = 2  # N of training epochs in debug mode
 
 # Batch sizes
@@ -50,8 +50,8 @@ weight_decay = 0.  # Weight decay or L2 parameter norm penalty
 n_epochs = 1000  # Number of epochs during training
 
 # Callback save results
-save_results_enabled = False  # Enable the Callback
-save_results_nsamples = 5  # Number of samples to save
+save_results_enabled = True  # Enable the Callback
+save_results_nsamples = 1  # Number of samples to save
 save_results_batch_size = 5  # Size of the batch
 
 # Callback early stoping

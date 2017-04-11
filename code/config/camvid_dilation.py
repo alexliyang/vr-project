@@ -6,7 +6,7 @@ perc_mb2 = None  # Percentage of data from the second dataset in each minibatch
 
 # Model
 model_name = 'dilation'  # Model to use ['fcn8' | 'lenet' | 'alexNet' | 'vgg16' |  'vgg19' | 'resnet50' | 'InceptionV3']
-freeze_layers_from = None  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
+freeze_layers_from = 'base_model'  # Freeze layers from 0 to this layer during training [None | 'base_model' | Layer_id]
 show_model = True  # Show the architecture layers
 load_imageNet = False  # Load Imagenet weights and normalize following imagenet procedure
 load_pretrained = False  # Load a pretrained model for doing finetuning
@@ -25,9 +25,9 @@ debug_images_test = 50  # N images for testing in debug mode (-1 means all)
 debug_n_epochs = 2  # N of training epochs in debug mode
 
 # Batch sizes
-batch_size_train = 5  # Batch size during training
-batch_size_valid = 5  # Batch size during validation
-batch_size_test = 5  # Batch size during testing
+batch_size_train = 15  # Batch size during training
+batch_size_valid = 15  # Batch size during validation
+batch_size_test = 15  # Batch size during testing
 crop_size_train = None  # Crop size during training (Height, Width) or None
 crop_size_valid = None  # Crop size during validation
 crop_size_test = None  # Crop size during testing
@@ -44,15 +44,15 @@ seed_valid = 1924  # Random seed for the validation shuffle
 seed_test = 1924  # Random seed for the testing shuffle
 
 # Training parameters
-optimizer = 'adam'  # Optimizer
+optimizer = 'sgd'  # Optimizer
 learning_rate = 0.0001  # Training learning rate
 weight_decay = 0.  # Weight decay or L2 parameter norm penalty
 n_epochs = 1000  # Number of epochs during training
 
 # Callback save results
-save_results_enabled = False  # Enable the Callback
-save_results_nsamples = 5  # Number of samples to save
-save_results_batch_size = 5  # Size of the batch
+save_results_enabled = True  # Enable the Callback
+save_results_nsamples = 2  # Number of samples to save
+save_results_batch_size = 2  # Size of the batch
 
 # Callback early stoping
 earlyStopping_enabled = True  # Enable the Callback
