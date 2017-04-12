@@ -87,6 +87,12 @@ LRScheduler_decay = 0.1  # Decay for 'step' method
 LRScheduler_S = 10000  # Step for the 'step' method
 LRScheduler_power = 0.9  # Power for te poly method
 
+# Callback TensorBoard
+TensorBoard_enabled = True  # Enable the Callback
+TensorBoard_histogram_freq = 1  # Frequency (in epochs) at which to compute activation histograms for the layers of the model. If set to 0, histograms won't be computed.
+TensorBoard_write_graph = True  # Whether to visualize the graph in Tensorboard. The log file can become quite large when write_graph is set to True.
+TensorBoard_write_images = False  # Whether to write model weights to visualize as image in Tensorboard.
+TensorBoard_logs_folder = None  #
 
 # Data augmentation for training and normalization
 norm_imageNet_preprocess = False  # Normalize following imagenet procedure
