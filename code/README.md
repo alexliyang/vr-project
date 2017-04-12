@@ -220,7 +220,7 @@ where:
      - Baseline [Camvid]
     
     ```
-    python train.py -c config/camvid_segnet.py -e segnet_baseline_scratch
+    python train.py -c config/camvid_segnet_scratch.py -e segnet_baseline_scratch
     ```
     
 - Tiramisu
