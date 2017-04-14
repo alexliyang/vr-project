@@ -30,15 +30,15 @@ from tools.crt_utils import CRFLayer
 TH_WEIGHTS_PATH = 'http://imagelab.ing.unimore.it/files/deeplabV2_weights/deeplabV2_weights_th.h5'
 
 
-def build_deeplabv2(input_shape, upsampling=8, apply_softmax=True, load_pretrained=False, freeze_layers_from='base_model',
-                    input_tensor=None, classes=21, weight_decay=0.0005):
+def build_deeplabv2(img_shape, upsampling=8, apply_softmax=True, load_pretrained=False, freeze_layers_from='base_model',
+                    input_tensor=None, nclasses=21, weight_decay=0.0005):
     print K.image_dim_ordering()
     if load_pretrained:
         weights = 'voc2012'
     else:
         weights = None
-    base_model = DeeplabV2(input_shape=input_shape, upsampling=upsampling, apply_softmax=apply_softmax, weights=weights,
-                           input_tensor=input_tensor, classes=classes, weight_decay=weight_decay)
+    base_model = DeeplabV2(input_shape=img_shape, upsampling=upsampling, apply_softmax=apply_softmax, weights=weights,
+                           input_tensor=input_tensor, classes=nclasses, weight_decay=weight_decay)
     return base_model
 
 def DeeplabV2(input_shape, upsampling=8, apply_softmax=True,
