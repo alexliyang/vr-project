@@ -10,10 +10,10 @@ driving by understanding the vehicle's surrounding scene.
 
 | Name | E-mail | GitHub |
 | :---: | :---: | :---: |
-| Arantxa Casanova | ar.casanova.8@gmail.com | [ArantxaCasanova](https://github.com/ArantxaCasanova) |
-| Belén Luque | luquelopez.belen@gmail.com | [bluque](https://github.com/bluque) |
-| Anna Martí | annamartiaguilera@gmail.com | [amartia](https://github.com/amartia) |
-| Santi Puch | santiago.puch.giner@gmail.com | [santipuch590](https://github.com/santipuch590) |
+| [Arantxa Casanova](https://www.linkedin.com/in/arantxa-casanova-pagà-619834138/) | ar.casanova.8@gmail.com | [ArantxaCasanova](https://github.com/ArantxaCasanova) |
+| [Belén Luque](https://www.linkedin.com/in/belen-luque-lopez/) | luquelopez.belen@gmail.com | [bluque](https://github.com/bluque) |
+| [Anna Martí](https://www.linkedin.com/in/annamartiaguilera/) | annamartiaguilera@gmail.com | [amartia](https://github.com/amartia) |
+| [Santi Puch](https://www.linkedin.com/in/santipuch/) | santiago.puch.giner@gmail.com | [santipuch590](https://github.com/santipuch590) |
 
 
 ## Report (_in progress_)
@@ -121,36 +121,109 @@ For object detection we have considered two single-shot models: the most recent 
   - [x] Fine-tune Tiny YOLO from baseline weights on TT100K detection
   - [x] Fine-tune Tiny YOLO and use preprocessing and data augmentation techniques to overcome the differences in dataset splits in Udacity dataset, thus improving the performance of the model on this dataset
 
+
+### Semantic Segmentation
+
+For the semantic segmentation task, we have implemented and tested SegNet, DeepLabv2, Multi-Scale Context Aggregation by Dilated Convolutions and Tiramisu. We also compare the results with FCN8.
+
+#### Contributions to the code
+
+  - `models/segnet.py` - implementation from scratch of both the vgg and basic version, following the original [paper](https://arxiv.org/abs/1511.00561) and the [Caffe Segnet code](https://github.com/alexgkendall/SegNet-Tutorial/blob/master/Models/segnet_train.prototxt) and [Caffe Segnet basic code](https://github.com/alexgkendall/SegNet-Tutorial/blob/master/Models/segnet_basic_train.prototxt)
+  
+  - `models/deeplabV2.py` - adaptation of [this](https://github.com/DavideA/deeplabv2-keras) implementation of DeepLabv2 to the framework and included L2 regularization for the weights
+  
+  - `models/tiramisu.py` - implementation based on the [Theano / Lasagne code](https://github.com/SimJeg/FC-DenseNet) from the original [paper](https://arxiv.org/abs/1611.09326)
+  
+  - `models/dilation.py` - adaptation of [this implementation](https://github.com/fyu/dilation)
+  
+  - `initializations/initializations.py` - added Identity initialization
+  
+  - `analyze_datasets.py` - extended the implementation to analyze segmentation datasets
+  
+  
+#### Milestones
+
+1. **FNC8**:
+  - [x] Read paper
+  - [x] Train network on CamVid dataset
+  - [x] Train network on CityScapes dataset
+  - [x] Evaluate performance on CamVid dataset
+  - [x] Evaluate performance on CityScapes dataset
+2. **Segnet**:
+  - [x] Read paper
+  - [x] Implement network in the framework (vgg and basic version)
+  - [x] Train network on CamVid dataset
+  - [x] Boost performance
+  - [x] Evaluate performance on CamVid dataset
+ 3. **DeepLabv2**:
+  - [x] Read paper
+  - [x] Implement network in the framework
+  - [x] Train network on CamVid dataset
+  - [x] Boost performance
+  - [x] Evaluate performance on CamVid dataset
+ 4. **DilatedNet**:
+  - [x] Read paper
+  - [x] Implement network in the framework
+  - [x] Train network on CamVid dataset
+  - [x] Boost performance
+  - [x] Evaluate performance on CamVid dataset
+ 5. **Tiramisu**:
+  - [x] Read paper
+  - [x] Implement network in the framework
+  - [x] Train network on CamVid dataset
+  - [x] Boost performance
+  - [x] Evaluate performance on CamVid dataset
+6. **Dataset Analysis**
+  - [x] Analyze the distribution of classes of all data splits for all the available segmentation datasets: Camvid, cityscapes, KITTI, Pascal2012, Polyps and Synthia cityscapes.
+
+
 ### Experimental results
 
 Prior to choosing our final system we have carried out several experiments using different architectures, different parameters and different datasets. A summary of the experiments done can be found [here](https://drive.google.com/open?id=1Qs51OxIPNOgOyujp98msk7RK1Rh2dkjfAHGZqUgBbqk).
+
 
 ____
 
 ## References
 
-[1] M. Bojarski, D. Del Testa, D. Dworakowski, B. Firner, B. Flepp, P. Goyal, L. D. Jackel, M. Monfort, U. Muller, J. Zhang, X. Zhang, J. Zhao, and K. Zieba. End to End Learning for Self-Driving Cars. arXiv:1604.07316 [cs], Apr. 2016. arXiv: 1604.07316.
+[1] V. Badrinarayanan, A. Kendall, and R. Cipolla. Segnet: A deep convolutional encoder-decoder architecture for image segmentation. arXiv preprint arXiv:1511.00561, 2015.
 
-[2] C. Chen, A. Seff, A. Kornhauser, and J. Xiao. Deepdriving: Learning affordance for direct perception in autonomous driving. In The IEEE International Conference on Computer Vision (ICCV), December 2015.
+[2] M. Bojarski, D. Del Testa, D. Dworakowski, B. Firner, B. Flepp, P. Goyal, L. D. Jackel, M. Monfort, U. Muller,J. Zhang, X. Zhang, J. Zhao, and K. Zieba. End to End Learning for Self-Driving Cars. arXiv:1604.07316 [cs], Apr. 2016. arXiv: 1604.07316.
 
-[3] A. Geiger, P. Lenz, and R. Urtasun. Are we ready for autonomous driving? the kitti vision benchmark suite. In Conference on Computer Vision and Pattern Recognition (CVPR), 2012.
+[3] C. Chen, A. Seff, A. Kornhauser, and J. Xiao. Deepdriving: Learning affordance for direct perception in autonomous driving. In The IEEE International Conference on Computer Vision (ICCV), December 2015.
 
-[4] K. He, X. Zhang, S. Ren, and J. Sun. Deep residual learning for image recognition. CoRR, abs/1512.03385, 2015. **[SUMMARY](https://drive.google.com/open?id=0ByrI9_WaU23FQ042WDB1TTJvc1U)**
+[4] L.-C. Chen, G. Papandreou, I. Kokkinos, K. Murphy, and A. L. Yuille. DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution, and Fully Connected CRFs. arXiv:1606.00915 [cs], June 2016. arXiv: 1606.00915.
 
-[5] G. Huang, Z. Liu, K. Q. Weinberger, and L. van der Maaten. Densely Connected Convolutional Networks. Aug. 2016. arXiv: 1608.06993.
+[5] A. Geiger, P. Lenz, and R. Urtasun. Are we ready for autonomous driving? the kitti vision benchmark suite. In Conference on Computer Vision and Pattern Recognition (CVPR), 2012.
 
-[6] A. Krizhevsky, I. Sutskever, and G. E. Hinton. ImageNet Classification with Deep Convolutional Neural Networks. In F. Pereira, C. J. C. Burges, L. Bottou, and K. Q. Weinberger, editors, Advances in Neural Information Processing Systems 25, pages 1097–1105. Curran Associates, Inc., 2012.
+[6] K. He, X. Zhang, S. Ren, and J. Sun. Deep residual learning for image recognition. CoRR, abs/1512.03385, 2015. **[SUMMARY](https://drive.google.com/open?id=0ByrI9_WaU23FQ042WDB1TTJvc1U)**
 
-[7] M. Mathias, R. Timofte, R. Benenson, and L. Van Gool. Traffic sign recognition – how far are we from the solution? International Joint Conference on Neural Networks (IJCNN), 2013.
+[7] G. Huang, Z. Liu, K. Q. Weinberger, and L. van der Maaten. Densely Connected Convolutional Networks. Aug. 2016. arXiv: 1608.06993.
 
-[8] J. Redmon, S. K. Divvala, R. B. Girshick, and A. Farhadi. You only look once: Unified, real-time object detection. CoRR, abs/1506.02640, 2015. **[SUMMARY](https://drive.google.com/open?id=0ByrI9_WaU23FSlpkeEdGeDN3SlE)**
+[8] S. Jégou, M. Drozdzal, D. Vazquez, A. Romero, and Y. Bengio. The one hundred layers tiramisu: Fully convolutional densenets for semantic segmentation. arXiv preprint. arXiv:1611.09326, 2016.
 
-[9] J. Redmon and A. Farhadi. YOLO9000: better, faster, stronger. CoRR, abs/1612.08242, 2016.
+[9] A. Krizhevsky, I. Sutskever, and G. E. Hinton. ImageNet Classification with Deep Convolutional Neural Networks. In F. Pereira, C. J. C. Burges, L. Bottou, and K. Q. Weinberger, editors, Advances in Neural Information Processing Systems 25, pages 1097–1105. Curran Associates, Inc., 2012.
 
-[10] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh, S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein, A. C. Berg, and L. Fei-Fei. ImageNet Large Scale Visual Recognition Challenge. Sept. 2014. arXiv: 1409.0575.
+[10] W. Liu, D. Anguelov, D. Erhan, C. Szegedy, S. Reed, C.Y. Fu, and A. C. Berg. SSD: Single Shot MultiBox Detector. arXiv:1512.02325 [cs], 9905:21–37, 2016. arXiv:1512.02325.
 
-[11] K. Simonyan and A. Zisserman. Very deep convolutional networks for large-scale image recognition. CoRR, abs/1409.1556, 2014. **[SUMMARY](https://drive.google.com/open?id=0B8Ql6cxgb4lXc0FWWHAyVWVoYU0)**
+[11] J. Long, E. Shelhamer, and T. Darrell. Fully convolutional networks for semantic segmentation. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pages 3431–3440, 2015. 
 
-[12] C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich. Going deeper with convolutions. In Computer Vision and Pattern Recognition (CVPR), 2015.
+[12] M. Mathias, R. Timofte, R. Benenson, and L. Van Gool. Traffic sign recognition – how far are we from the solution? International Joint Conference on Neural Networks (IJCNN), 2013.
 
-[13] Z. Zhu, D. Liang, S. Zhang, X. Huang, B. Li, and S. Hu. Traffic-sign detection and classification in the wild. In The IEEE Conference on Computer Vision and Pattern Recognition (CVPR), June 2016.
+[13] J. Redmon, S. K. Divvala, R. B. Girshick, and A. Farhadi. You only look once: Unified, real-time object detection.
+CoRR, abs/1506.02640, 2015. **[SUMMARY](https://drive.google.com/open?id=0ByrI9_WaU23FSlpkeEdGeDN3SlE)**
+
+[14] J. Redmon and A. Farhadi. YOLO9000: better, faster, stronger. CoRR, abs/1612.08242, 2016. 
+
+[15] S. Ren, K. He, R. Girshick, and J. Sun. Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks. arXiv:1506.01497 [cs], June 2015. arXiv: 1506.01497.
+
+[16] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh, S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein, A. C. Berg, and L. Fei-Fei. ImageNet Large Scale Visual Recognition Challenge. Sept. 2014. arXiv: 1409.0575.
+
+[17] K. Simonyan and A. Zisserman. Very deep convolutional networks for large-scale image recognition. CoRR, abs/1409.1556, 2014. **[SUMMARY](https://drive.google.com/open?id=0B8Ql6cxgb4lXc0FWWHAyVWVoYU0)**
+
+[18] C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich. Going deeper with convolutions. In Computer Vision and Pattern Recognition (CVPR), 2015.
+
+[19] F. Yu and V. Koltun. Multi-Scale Context Aggregation by Dilated Convolutions. arXiv:1511.07122 [cs], Nov. 2015. arXiv: 1511.07122.
+
+[20] Z. Zhu, D. Liang, S. Zhang, X. Huang, B. Li, and S. Hu. Traffic-sign detection and classification in the wild. In The
+IEEE Conference on Computer Vision and Pattern Recognition (CVPR), June 2016.

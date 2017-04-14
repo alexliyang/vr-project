@@ -183,7 +183,69 @@ where:
 - display_bool: true or false, whether to store an image with the predictions for each chunk of processed data [Optional, default value = False]
       
 - idx: list with the indices of the classes to be ignored, that is, not taken into account as predictions [Optional, default value = None]
-      
+
+
+#### Semantic Segmentation
+
+- FCN8
+    
+    - Baseline [Camvid]
+    
+    ```
+    python train.py -c config/camvid_fcn.py -e fcn_baseline
+    ```
+    
+    - Baseline [Cityscapes]
+    
+    ```
+    python train.py -c config/cityscapes_fcn.py -e fcn_baseline
+    ```
+    
+- DeepLabv2
+    
+    - Baseline with ADAM optimizer [Camvid]
+    
+    ```
+    python train.py -c config/camvid_deeplabv2_adam.py -e deeplabv2_adam
+    ```
+    
+    - Baseline with ADAM optimizer and pre-processing [Cityscapes]
+    
+    ```
+    python train.py -c config/camvid_deeplabv2_adam_preprocessing.py -e deeplabv2_adam_preprocessing
+    ```
+    
+- SegNet
+
+     - Baseline [Camvid]
+    
+    ```
+    python train.py -c config/camvid_segnet_scratch.py -e segnet_baseline_scratch
+    ```
+    
+- Tiramisu
+
+    - FCN103 configuration, full training (crops + fine-tune full images) [Camvid]
+    
+    ```
+    python train.py -c config/camvid_tiramisu_fc103_enhanced.py -e tiramisu_fc103_enhanced
+    python train.py -c config/camvid_tiramisu_fc103_enhanced_finetune.py -e tiramisu_fc103_enhanced_finetune
+    ```
+    
+    - FCN67 configuration, full training (crops + fine-tune full images) [Camvid]
+    
+    ```
+    python train.py -c config/camvid_tiramisu_fc67_enhanced.py -e tiramisu_fc67_enhanced
+    python train.py -c config/camvid_tiramisu_fc67_enhanced_finetune.py -e tiramisu_fc67_enhanced_finetune
+    ```
+    
+    - FCN56 configuration, full training (crops + fine-tune full images) [Camvid]
+    
+    ```
+    python train.py -c config/camvid_tiramisu_fc56_enhanced.py -e tiramisu_fc56_enhanced
+    python train.py -c config/camvid_tiramisu_fc56_enhanced_finetune.py -e tiramisu_fc56_enhanced_finetune
+    ```
+    
     
 #### Utilities
 
