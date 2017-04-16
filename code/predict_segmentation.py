@@ -91,6 +91,9 @@ if __name__ == '__main__':
     test_images = glob.glob(os.path.join(test_dir, '*.png'))
     test_images += glob.glob(os.path.join(test_dir, '*.jpg'))
     total_images = len(test_images)
+    if total_images == 0:
+        print("ERR: path_to_images does not contain any jpg file")
+        exit(1)
     print('TOTAL NUMBER OF IMAGES TO PREDICT: {}'.format(total_images))
 
     # Input shape (get it from first image)
@@ -118,13 +121,15 @@ if __name__ == '__main__':
     model.load_weights(weights_path)
 
     iteration = 1
-
     for i in range(0, total_images, chunk_size):
         print()
         print('{:^40}'.format('CHUNK {}'.format(iteration)))
 
         chunked_img_list = test_images[i:i + chunk_size]
-        images = np.array([image.img_to_array(image.load_img(f)) / 255. for f in chunked_img_list])
+        images = np.array(
+            [image.img_to_array(image.load_img(f, target_size=(target_height, target_width))) / 255.
+             for f in chunked_img_list]
+        )
         num_images_chunk = images.shape[0]
 
         pred = model.predict(images, batch_size=2, verbose=True)

@@ -1,7 +1,7 @@
 from __future__ import print_function, division
 
 import os
-import time
+import glob
 import pickle
 import argparse
 
@@ -35,7 +35,8 @@ if __name__ == '__main__':
     image_width = input_shape[2]
     image_height = input_shape[1]
     priors = [[0.9, 1.2], [1.05, 1.35], [2.15, 2.55], [3.25, 3.75], [5.35, 5.1]]
-    prediction_images_dir = 'prediction_images'
+    home_dir = os.path.expanduser('~')
+    chunk_size = 32
 
     """ PARSE ARGS """
     arguments_parser = argparse.ArgumentParser()
@@ -59,15 +60,19 @@ if __name__ == '__main__':
     dataset_name = arguments.dataset
     weights_path = arguments.weights
     test_dir = arguments.test_folder
-    dataset_split_name = test_dir.split('/')[-2]
     detection_threshold = arguments.detection_threshold
     nms_threshold = arguments.nms_threshold
     ignore_class = arguments.ignore_class or []
 
     # Create directory to store predictions
+    predictions_folder = os.path.join(home_dir, 'prediction-{}-{}'.format(
+        model_name,
+        dataset_name
+    ))
     try:
-        os.makedirs(prediction_images_dir)
-    except Exception:
+        os.makedirs(predictions_folder)
+    except OSError:
+        # Ignore
         pass
 
     # Classes for this dataset
@@ -98,111 +103,84 @@ if __name__ == '__main__':
         model = build_ssd300(input_shape_ssd.tolist(), num_classes, 0,
                              load_pretrained=False,
                              freeze_layers_from='base_model')
-    elif model_name == 'yolo':
+    else:
         model = build_yolo(img_shape=input_shape, n_classes=num_classes, n_priors=5,
                            load_pretrained=False, freeze_layers_from='base_model',
                            tiny=False)
-    else:
-        print("Error: Model not supported!")
-        exit(1)
 
     # Load weights
     model.load_weights(weights_path)
 
     # Get images from test directory
-    imfiles = [os.path.join(test_dir, f) for f in os.listdir(test_dir)
-               if os.path.isfile(os.path.join(test_dir, f))
-               and f.endswith('jpg')]
-
-    if len(imfiles) == 0:
+    # Images to be predicted
+    test_images = glob.glob(os.path.join(test_dir, '*.png'))
+    test_images += glob.glob(os.path.join(test_dir, '*.jpg'))
+    total_images = len(test_images)
+    if total_images == 0:
         print("ERR: path_to_images does not contain any jpg file")
         exit(1)
+    print('TOTAL NUMBER OF IMAGES TO PREDICT: {}'.format(total_images))
 
-    inputs = []
-    img_paths = []
-    chunk_size = 128  # we are going to process all image files in chunks
 
-    ok = 0.
-    total_true = 0.
-    total_pred = 0.
 
-    mean_fps = 0.
-    iterations = 0.
+    iteration = 1
+    for i in range(0, total_images, chunk_size):
+        print()
+        print('{:^40}'.format('CHUNK {}'.format(iteration)))
 
-    for i, img_path in enumerate(imfiles):
-        img = image.load_img(img_path, target_size=(input_shape[1], input_shape[2]))
-        img = image.img_to_array(img)
-        img /= 255.
-        inputs.append(img.copy())
-        img_paths.append(img_path)
+        chunked_img_list = test_images[i:i + chunk_size]
+        images = np.array(
+            [image.img_to_array(image.load_img(f, target_size=(input_shape[1], input_shape[2]))) / 255.
+             for f in chunked_img_list]
+        )
+        num_images_chunk = images.shape[0]
+        net_out = model.predict(images, batch_size=8, verbose=1)
 
-        if len(img_paths) % chunk_size == 0 or i + 1 == len(imfiles):
-            iterations += 1
-            inputs = np.array(inputs)
-            start_time = time.time()
-            net_out = model.predict(inputs, batch_size=16, verbose=1)
-            sec = time.time() - start_time
-            fps = len(inputs) / sec
-            print('{} images predicted in {:.5f} seconds. {:.5f} fps'.format(len(inputs), sec, fps))
+        # Store the predictions
+        for ind in range(num_images_chunk):
+            if model_name == 'yolo' or model_name == 'tiny-yolo':
+                boxes_pred = yolo_postprocess_net_out(net_out[ind], priors, classes, detection_threshold,
+                                                      nms_threshold)
+            else:
+                priors = pickle.load(open('prior_boxes_ssd300.pkl', 'rb'))
+                real_num_classes = num_classes - 1  # Background is not included
+                bbox_util = BBoxUtility(real_num_classes, priors=priors, nms_thresh=nms_threshold)
+                boxes_pred = bbox_util.detection_out(net_out[ind],
+                                                     background_label_id=0,
+                                                     confidence_threshold=detection_threshold)
 
-            # find correct detections (per image)
-            for i, img_path in enumerate(img_paths):
-                if model_name == 'yolo' or model_name == 'tiny-yolo':
-                    boxes_pred = yolo_postprocess_net_out(net_out[i], priors, classes, detection_threshold,
-                                                          nms_threshold)
-                elif model_name == 'ssd':
-                    priors = pickle.load(open('prior_boxes_ssd300.pkl', 'rb'))
-                    real_num_classes = num_classes - 1  # Background is not included
-                    bbox_util = BBoxUtility(real_num_classes, priors=priors, nms_thresh=nms_threshold)
-                    boxes_pred = bbox_util.detection_out(net_out[i],
-                                                         background_label_id=0,
-                                                         confidence_threshold=detection_threshold)
-                else:
-                    print("Error: Model not supported!")
-                    exit(1)
+            current_img = images[ind]
+            if 'yolo' in model_name:
+                current_img = np.transpose(current_img, (1, 2, 0))
+            plt.imshow(current_img)
+            currentAxis = plt.gca()
 
-                # Plot first image
-                if i == 0:
-                    current_img = inputs[0]
-                    if 'yolo' in model_name:
-                        current_img = np.transpose(current_img, (1, 2, 0))
-                    plt.imshow(current_img)
-                    currentAxis = plt.gca()
+            # Compute number of predictions that match with GT with a minimum of 50% IoU
+            for b in boxes_pred:
+                pred_idx = np.argmax(b.probs)
 
-                # Compute number of predictions that match with GT with a minimum of 50% IoU
-                for b in boxes_pred:
-                    pred_idx = np.argmax(b.probs)
+                # Do not count as prediction if it is below the detection threshold or in the ignore list
+                if (b.probs[pred_idx] < detection_threshold) or (pred_idx in ignore_class):
+                    continue
 
-                    # Do not count as prediction if it is below the detection threshold or in the ignore list
-                    if (b.probs[pred_idx] < detection_threshold) or (pred_idx in ignore_class):
-                        continue
+                # Plot current prediction
+                xmin = int(round((b.x - b.w / 2) * image_width))
+                ymin = int(round((b.y - b.h / 2) * image_height))
+                xmax = int(round((b.x + b.w / 2) * image_width))
+                ymax = int(round((b.y + b.h / 2) * image_height))
+                score = b.c
+                label_idx = int(pred_idx)
+                label = classes[label_idx]
+                display_txt = '{:0.2f}, label={}'.format(score, label)
+                coords = (xmin, ymin), xmax - xmin + 1, ymax - ymin + 1
+                color = colors[label_idx]
+                currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=1))
+                currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor': color, 'alpha': 0.6})
 
-                    total_pred += 1.
+            # Save figure
+            out_name = os.path.join(predictions_folder, os.path.basename(chunked_img_list[ind]))
+            plt.savefig(out_name)
+            plt.close()
+            print('Predicted and saved {} ({} / {})'.format(out_name, ind + 1, num_images_chunk))
 
-                    if i == 0:
-                        # Plot current prediction
-                        xmin = int(round((b.x - b.w / 2) * image_width))
-                        ymin = int(round((b.y - b.h / 2) * image_height))
-                        xmax = int(round((b.x + b.w / 2) * image_width))
-                        ymax = int(round((b.y + b.h / 2) * image_height))
-                        score = b.c
-                        label_idx = int(np.argmax(b.probs))
-                        label = classes[label_idx]
-                        display_txt = '{:0.2f}, label={}'.format(score, label)
-                        coords = (xmin, ymin), xmax - xmin + 1, ymax - ymin + 1
-                        color = colors[label_idx]
-                        currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=1))
-                        currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor': color, 'alpha': 0.6})
-
-                if i == 0:
-                    plt.savefig('{}/{}_{}_{}_{}.png'.format(
-                        prediction_images_dir,
-                        model_name,
-                        dataset_name,
-                        dataset_split_name,
-                        int(iterations)
-                    ))
-                    plt.close()
-
-            inputs = []
-            img_paths = []
+        iteration += 1
