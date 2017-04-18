@@ -16,7 +16,7 @@ driving by understanding the vehicle's surrounding scene.
 | [Santi Puch](https://www.linkedin.com/in/santipuch/) | santiago.puch.giner@gmail.com | [santipuch590](https://github.com/santipuch590) |
 
 
-## Report (_in progress_)
+## Report 
 
 A detailed report about the work done can be found in [this](https://www.overleaf.com/read/nfmcpnydkwhb) Overleaf project. 
 
